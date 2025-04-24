@@ -40,6 +40,24 @@ if [ -f "$icon_path" ]; then
   cp "$icon_path" "$SETUP/user-icon.$ext"
 fi
 
+# === save firefox .desktop
+desktop_src="/usr/share/applications/firefox.desktop"
+desktop_dst="$SETUP/firefox/firefox.desktop"
+if [ -f "$desktop_src" ]; then
+  echo "🖇 backing up firefox.desktop..."
+  mkdir -p "$SETUP/firefox"
+  cp "$desktop_src" "$desktop_dst"
+fi
+
+
+# === save firefox user.js
+profile=$(find ~/.mozilla/firefox -type d -name "*.default*" | head -1)
+if [ -n "$profile" ] && [ -f "$profile/user.js" ]; then
+  echo "🦊 backing up user.js..."
+  cp "$profile/user.js" "$SETUP/firefox/user.js"
+fi
+
+
 # === package list
 echo "📦 saving package list..."
 yay -Qqe > "$SETUP/pkglist.txt"

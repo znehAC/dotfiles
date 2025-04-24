@@ -27,6 +27,21 @@ if [ -d "$SETUP/fonts" ]; then
   fc-cache -f
 fi
 
+# === restore firefox .desktop
+desktop_dst="$SETUP/firefox/firefox.desktop"
+if [ -f "$desktop_dst" ]; then
+  echo "🖇 restoring firefox.desktop..."
+  mkdir -p "$HOME/.local/share/applications"
+  cp "$desktop_dst" "$HOME/.local/share/applications/firefox.desktop"
+fi
+
+# === restore firefox user.js
+profile=$(find ~/.mozilla/firefox -type d -name "*.default*" | head -1)
+if [ -n "$profile" ] && [ -f "$SETUP/firefox/user.js" ]; then
+  echo "🦊 restoring user.js to $profile..."
+  cp "$SETUP/firefox/user.js" "$profile/user.js"
+fi
+
 ### === sddm theme ===
 theme_name="ittu-motion"
 theme_target="/usr/share/sddm/themes/$theme_name"
