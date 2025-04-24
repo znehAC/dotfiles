@@ -67,6 +67,24 @@ EOF
 
 cp ~/.config/gtk-3.0/settings.ini ~/.config/gtk-4.0/settings.ini
 
+### === apply GTK theme, icon, and font ===
+echo "⚙️ applying GTK appearance settings via gsettings..."
+
+gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME"
+gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME"
+gsettings set org.gnome.desktop.interface font-name "$SYSTEM_FONT"
+
+### === install and set Catppuccin Latte cursors ===
+echo "🖱 installing Catppuccin cursor theme..."
+yay -S --needed catppuccin-cursors-latte --noconfirm
+
+CURSOR_THEME="catppuccin-latte-light-cursors"
+CURSOR_SIZE=24
+
+# set for GTK apps
+gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME"
+gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE"
+
 
 # === restore firefox .desktop
 desktop_dst="$SETUP/firefox/firefox.desktop"
