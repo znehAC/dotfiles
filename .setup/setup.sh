@@ -20,12 +20,53 @@ if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
   cp "$SETUP/wallpapers/wallpaper.jpg" "$HOME/Pictures/wallpaper.jpg"
 fi
 
+### === install Catppuccin GTK theme (Latte + Pink) ===
+echo "🎨 installing Catppuccin GTK theme (latte + pink)..."
+yay -S --needed catppuccin-gtk-theme-latte --noconfirm
+
+### === install Colloid icon theme (Catppuccin + Pink) ===
+echo "🎨 installing Colloid icon theme (catppuccin + pink)..."
+ICON_DIR="$HOME/.local/share/icons"
+THEME_DIR="$HOME/.setup/_colloid-icon-theme"
+
+if [ ! -d "$THEME_DIR" ]; then
+  git clone --depth=1 git@github.com:vinceliuice/Colloid-icon-theme.git "$THEME_DIR"
+fi
+
+bash "$THEME_DIR/install.sh" \
+  --dest "$ICON_DIR" \
+  --name "Colloid-Pink-Catppuccin" \
+  --scheme catppuccin \
+  --theme pink \
+  --notint
+
+echo "🧼 cleaning up Colloid git repo..."
+rm -rf "$THEME_DIR"
+
 ### === fonts ===
 if [ -d "$SETUP/fonts" ]; then
   mkdir -p "$HOME/.local/share/fonts"
   cp -r "$SETUP/fonts/"* "$HOME/.local/share/fonts/"
   fc-cache -f
 fi
+
+### === apply GTK theme + icon theme + font ===
+echo "⚙️ applying GTK theme and font..."
+GTK_THEME="catppuccin-latte-pink-standard+default"
+ICON_THEME="Colloid-Pink-Catppuccin"
+SYSTEM_FONT="SF Pro Display 11"
+
+mkdir -p ~/.config/gtk-3.0 ~/.config/gtk-4.0
+
+cat > ~/.config/gtk-3.0/settings.ini <<EOF
+[Settings]
+gtk-theme-name=$GTK_THEME
+gtk-icon-theme-name=$ICON_THEME
+gtk-font-name=$SYSTEM_FONT
+EOF
+
+cp ~/.config/gtk-3.0/settings.ini ~/.config/gtk-4.0/settings.ini
+
 
 # === restore firefox .desktop
 desktop_dst="$SETUP/firefox/firefox.desktop"
