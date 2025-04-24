@@ -79,6 +79,7 @@ FILES=(
   .config/gtk-3.0/settings.ini
   .config/gtk-4.0/settings.ini
   .setup/
+  .local/bin/*.sh
 )
 
 for f in "${FILES[@]}"; do
