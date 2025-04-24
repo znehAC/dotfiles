@@ -61,11 +61,15 @@ if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
 fi
 
 ### === user icon ===
-if [ -f "$SETUP/user-icon.png" ]; then
+icon_file=$(find "$SETUP" -name "user-icon.*" | head -1)
+if [ -n "$icon_file" ]; then
+  echo "👤 restoring user icon..."
   sudo mkdir -p /var/lib/AccountsService/icons/
-  sudo cp "$SETUP/user-icon.png" /var/lib/AccountsService/icons/$USER
+  sudo cp "$icon_file" "/var/lib/AccountsService/icons/$USER"
+
   sudo mkdir -p /var/lib/AccountsService/users/
   echo -e "[User]\nIcon=/var/lib/AccountsService/icons/$USER" | sudo tee /var/lib/AccountsService/users/$USER > /dev/null
 fi
+
 
 echo "✅ setup complete."
