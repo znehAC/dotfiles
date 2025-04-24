@@ -92,9 +92,10 @@ done
 
 ts=$(date '+%Y-%m-%d %H:%M')
 if ! $DOT diff --cached --quiet; then
-  $DOT commit -m "🔒 backup: $ts"
+  $DOT commit -m "🔒 backup: $ts" >/dev/null
+  echo "✅ committed changes at $ts"
 else
-  echo "⚠️ nothing new to commit"
+  echo "⚠️  nothing new to commit"
 fi
 
 echo "✅ backup complete. run '$DOT push' to sync."
