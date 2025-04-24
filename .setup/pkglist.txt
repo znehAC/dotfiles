@@ -74,6 +74,7 @@ libadwaita-without-adwaita-git
 libdvdcss
 libgsf
 libopenraw
+libreoffice-fresh
 libva-nvidia-driver
 libva-utils
 libwnck3
