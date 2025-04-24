@@ -29,7 +29,15 @@ fi
 icon_path="/var/lib/AccountsService/icons/$USER"
 if [ -f "$icon_path" ]; then
   echo "👤 backing up user icon..."
-  cp "$icon_path" "$SETUP/user-icon.png"
+  mime=$(file --mime-type -b "$icon_path")
+    case "$mime" in
+      image/png) ext="png" ;;
+      image/gif) ext="gif" ;;
+      image/webp) ext="webp" ;;
+      image/jpeg) ext="jpg" ;;
+      *) ext="img" ;;
+    esac
+  cp "$icon_path" "$SETUP/user-icon.$ext"
 fi
 
 # === package list
