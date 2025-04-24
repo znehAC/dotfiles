@@ -38,3 +38,6 @@ dot checkout
 - edit tracked files normally (they live in `$HOME`)
 - use `dot status`, `dot add`, `dot commit` etc.
 - no `.git` folder cluttering your home
+
+> ⚠️ these dotfiles are aggressively personal and occasionally stupid.
+use at your own risk. don’t judge my keybinds.
