@@ -25,6 +25,15 @@ if [ -d "$theme_src" ]; then
   sudo chown -R $USER:$USER "$theme_dest"
 fi
 
+# === fonts
+font_src="$HOME/.local/share/fonts"
+font_dst="$SETUP/fonts"
+if [ -d "$font_src" ]; then
+  echo "🔤 backing up fonts..."
+  mkdir -p "$font_dst"
+  cp -r "$font_src/"* "$font_dst/"
+fi
+
 # === user icon
 icon_path="/var/lib/AccountsService/icons/$USER"
 if [ -f "$icon_path" ]; then
@@ -74,10 +83,18 @@ FILES=(
 )
 
 for f in "${FILES[@]}"; do
-  [ -e "$HOME/$f" ] && $DOT add "$f"
+  if [ -e "$HOME/$f" ]; then
+    echo "➕ staging $f..."
+    $DOT add "$f"
+  fi
 done
 
+
 ts=$(date '+%Y-%m-%d %H:%M')
-$DOT commit -m "🔒 backup: $ts"
+if ! $DOT diff --cached --quiet; then
+  $DOT commit -m "🔒 backup: $ts"
+else
+  echo "⚠️ nothing new to commit"
+fi
 
 echo "✅ backup complete. run '$DOT push' to sync."
