@@ -51,6 +51,8 @@ gst-plugin-pipewire
 gst-plugins-bad
 gst-plugins-ugly
 gtk-engine-murrine
+gtk3-demos
+gtk4-demos
 gvfs
 gvfs-mtp
 gvfs-smb
@@ -191,6 +193,7 @@ xorg-xinit
 xorg-xinput
 xorg-xkill
 xorg-xrandr
+xsettingsd
 yay
 zsh
 zsh-autosuggestions
