@@ -76,7 +76,6 @@ FILES=(
   .zshrc .zshenv .zprofile .bash_profile .gitconfig
   .config/hypr .config/waybar .config/kitty .config/wofi
   .config/mako .config/fastfetch .config/zsh
-  .config/input-remapper-2
   .config/gtk-3.0/settings.ini
   .config/gtk-4.0/settings.ini
   .setup/
