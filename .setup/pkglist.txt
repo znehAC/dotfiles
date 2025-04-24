@@ -13,7 +13,7 @@ btrfs-progs
 cantarell-fonts
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
-cliphist
+clipse
 cmake
 cryptsetup
 device-mapper
