@@ -66,6 +66,7 @@ i2c-tools
 intel-ucode
 iptables-nft
 jfsutils
+jre-openjdk
 kitty
 less
 lib32-gnutls

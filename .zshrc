@@ -1,57 +1,71 @@
-# prompt
-autoload -Uz colors && colors
-autoload -Uz compinit && compinit
-zstyle ':completion:*' menu select
+# === Zsh basic setup ===
+autoload -Uz compinit colors add-zsh-hook
+compinit
+colors
 setopt prompt_subst
+zstyle ':completion:*' menu select
+setopt append_history
 
+# === Prompt functions ===
 git_branch() {
   command git rev-parse --is-inside-work-tree &>/dev/null || return
-  local branch
+  local branch color
   branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-  [[ -n $branch ]] && echo "%F{magenta}%B($branch)%b%f"
+  if [[ -n $branch ]]; then
+    if ! git diff --quiet --ignore-submodules HEAD 2>/dev/null; then
+      color=red  # uncommitted changes
+    elif ! git diff --cached --quiet --ignore-submodules 2>/dev/null; then
+      color=yellow  # staged but uncommitted
+    else
+      color=green  # clean
+    fi
+    echo "%{%F{$color}%}%B($branch)%b%{%f%}"
+  fi
 }
 
-PROMPT='%F{blue}%1~%f ❯ '
+venv_info() {
+  [[ -n "$VIRTUAL_ENV" ]] && echo "%{%F{green}%}🐍%{%f%} "
+}
+
+# === Prompt ===
+PROMPT='$(venv_info)%{%F{blue}%}%1~%{%f%} ❯ '
 RPROMPT='$(git_branch)'
 
-# history
+# === History ===
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
-setopt append_history
 
-# keybinds
-bindkey -e
-
-# suggestions + syntax
+# === Plugins ===
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# catppuccin theme
-source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
 
-# aliases
+# === Aliases ===
 alias ll='ls -lh'
 alias gs='git status'
 alias dc='docker compose'
 alias docker-compose='docker compose'
 alias nano='micro'
 alias sudo='sudo '
+alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
+# === Keybinds ===
+bindkey -e
 source ~/.zsh/keybinds.zsh
 
-wind() {
-  windsurf "${@:-.}" &>/dev/null &
-}
+# === Fastfetch once ===
+if command -v fastfetch >/dev/null 2>&1; then
+  fastfetch
+fi
 
+# === Winch handler for window resize ===
 TRAPWINCH() {
   zle && zle reset-prompt
 }
 
-
+# === Environment ===
 export PATH="$HOME/bin:$PATH"
 export MICRO_TRUECOLOR=1
 export MICRO_CLIPBOARD=external
 export EDITOR=micro
-fastfetch
-alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
