@@ -1,0 +1,78 @@
+configuration{
+    modi: "run,drun";
+    lines: 6;
+    show-icons: true;
+    icon-theme: "Oranchelo";
+    terminal: "kitty";
+    drun-display-format: "{icon} {name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    display-drun: "󱥰 ";
+    display-run: " ";
+    display-window: " ";
+    display-Network: " ";
+    sidebar-mode: true;
+}
+
+* {
+	font: "SF Pro Display, JetBrainsMono Nerd Font 14";
+	font-weight: bold;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    text-color: #332c2c;
+    background-color: transparent;
+}
+
+window {
+    background-image: linear-gradient(90deg, #ffe8eb, #e0f0ff);
+    border: 2px solid;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+mainbox {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+listview {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+}
+
+
+element {
+    background-color: rgba(255, 255, 255, 0);
+    border-radius: 8px;
+    padding: 4px 8px;
+}
+
+
+element selected {
+    background-color: rgba(255, 198, 199, 0.7);
+    text-color: #fff6f6;
+    border-radius: 8px;
+}
+
+inputbar {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    padding: 6px 10px;
+    margin: 6px 0;
+    text-color: #332c2c;
+}
+
+prompt {
+    background-color: transparent;
+    text-color: #332c2c;
+}
+
+message {
+    background-color: transparent;
+    text-color: #ff8fa3;
+}
