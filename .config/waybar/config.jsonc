@@ -107,7 +107,7 @@
 
   "custom/power": {
     "format": "⏻",
-    "on-click": "rofi -show power-menu",
+    "on-click": "rofi -modi \"powermenu:rofi-power-menu\" -show powermenu",
     "tooltip": false
   }
 }

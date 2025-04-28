@@ -35,6 +35,10 @@
             "key": "Window Manager"
         },
         {
+        	"type": "theme",
+        	"key": "Theme"
+        },
+        {
             "type": "de",
             "key": "Desktop Environment"
         },

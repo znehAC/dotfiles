@@ -54,13 +54,6 @@ alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 bindkey -e
 source ~/.zsh/keybinds.zsh
 
-# === Fastfetch on fresh terminal only ===
-if [[ -z "$ZSH_SUBSHELL" && -n "$DISPLAY" ]]; then
-  if command -v fastfetch >/dev/null 2>&1; then
-    fastfetch
-  fi
-fi
-
 # === Winch handler for window resize ===
 TRAPWINCH() {
   zle && zle reset-prompt
@@ -71,3 +64,7 @@ export PATH="$HOME/bin:$PATH"
 export MICRO_TRUECOLOR=1
 export MICRO_CLIPBOARD=external
 export EDITOR=micro
+
+if [[ $- == *i* ]]; then
+  fastfetch
+fi

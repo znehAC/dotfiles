@@ -1,1 +1,7 @@
+configuration {
+	drun-match-fields: "name,generic";
+	drun-sort: true;
+	sorting-method: "fzf";
+}
+
 @theme "pastel-candy"
