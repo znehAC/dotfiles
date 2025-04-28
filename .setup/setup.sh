@@ -1,134 +1,136 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# pastel restore script
+# restores wallpapers, fonts, settings in a clean way
+
 SETUP="$HOME/.setup"
-echo "🔧 restoring dotfiles setup..."
 
-### === zsh themes ===
-[ ! -d "$HOME/.zsh/pure" ] && git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
-[ ! -d "$HOME/.config/zsh/catppuccin-syntax" ] && git clone https://github.com/catppuccin/zsh-syntax-highlighting "$HOME/.config/zsh/catppuccin-syntax"
+timestamp() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
 
-### === package install ===
-if command -v yay &>/dev/null && [ -f "$SETUP/pkglist.txt" ]; then
-  echo "📦 installing packages from pkglist.txt..."
-  yay -S --needed --noconfirm $(< "$SETUP/pkglist.txt")
+log() {
+  echo "[$(timestamp)] $*"
+}
+
+log "🔧 starting pastel restore..."
+
+## === restore wallpapers ===
+wallpaper_src="$SETUP/wallpapers/wallpaper.jpg"
+wallpaper_dst="$HOME/Pictures/wallpaper.jpg"
+
+if [ -f "$wallpaper_src" ]; then
+  log "🖼 restoring wallpaper..."
+  mkdir -p "$(dirname "$wallpaper_dst")"
+  cp "$wallpaper_src" "$wallpaper_dst"
 fi
 
-### === wallpaper restore ===
-if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
-  mkdir -p "$HOME/Pictures"
-  cp "$SETUP/wallpapers/wallpaper.jpg" "$HOME/Pictures/wallpaper.jpg"
-fi
+## === restore fonts ===
+font_src="$SETUP/fonts"
+font_dst="$HOME/.local/share/fonts"
 
-### === install Catppuccin GTK theme (Latte + Pink) ===
-echo "🎨 installing Catppuccin GTK theme (latte + pink)..."
-yay -S --needed catppuccin-gtk-theme-latte --noconfirm
-
-### === install Colloid icon theme (Catppuccin + Pink) ===
-echo "🎨 installing Colloid icon theme (catppuccin + pink)..."
-ICON_DIR="$HOME/.local/share/icons"
-THEME_DIR="$HOME/.setup/_colloid-icon-theme"
-
-if [ ! -d "$THEME_DIR" ]; then
-  git clone --depth=1 git@github.com:vinceliuice/Colloid-icon-theme.git "$THEME_DIR"
-fi
-
-bash "$THEME_DIR/install.sh" \
-  --dest "$ICON_DIR" \
-  --name "Colloid-Pink-Catppuccin" \
-  --scheme catppuccin \
-  --theme pink \
-  --notint
-
-echo "🧼 cleaning up Colloid git repo..."
-rm -rf "$THEME_DIR"
-
-### === fonts ===
-if [ -d "$SETUP/fonts" ]; then
-  mkdir -p "$HOME/.local/share/fonts"
-  cp -r "$SETUP/fonts/"* "$HOME/.local/share/fonts/"
+if [ -d "$font_src" ]; then
+  log "🔤 restoring fonts..."
+  mkdir -p "$font_dst"
+  rsync -a --delete "$font_src/" "$font_dst/"
   fc-cache -f
 fi
 
-### === apply GTK theme + icon theme + font ===
-echo "⚙️ applying GTK theme and font..."
+## === restore firefox.desktop ===
+firefox_src="$SETUP/firefox/firefox.desktop"
+firefox_dst="$HOME/.local/share/applications/firefox.desktop"
+
+if [ -f "$firefox_src" ]; then
+  log "🖇 restoring firefox.desktop..."
+  mkdir -p "$(dirname "$firefox_dst")"
+  cp "$firefox_src" "$firefox_dst"
+fi
+
+## === restore firefox user.js ===
+profile_dir=$(find "$HOME/.mozilla/firefox" -type d -name "*.default*" | head -n1)
+
+if [ -n "$profile_dir" ] && [ -f "$SETUP/firefox/user.js" ]; then
+  log "🦊 restoring firefox user.js..."
+  cp "$SETUP/firefox/user.js" "$profile_dir/user.js"
+fi
+
+## === restore SDDM theme ===
+theme_name="ittu-motion"
+theme_src="$SETUP/sddm-theme"
+theme_dst="/usr/share/sddm/themes/$theme_name"
+
+if [ -d "$theme_src" ]; then
+  log "🎨 restoring SDDM theme ($theme_name)..."
+  sudo mkdir -p "$theme_dst"
+  sudo rsync -a --delete "$theme_src/" "$theme_dst/"
+  sudo chown -R root:root "$theme_dst"
+
+  sudo mkdir -p /etc/sddm.conf.d
+  echo -e "[Theme]\nCurrent=$theme_name" | sudo tee /etc/sddm.conf.d/20-theme.conf > /dev/null
+fi
+
+## === restore SDDM wallpaper ===
+if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
+  sudo cp "$SETUP/wallpapers/wallpaper.jpg" "$theme_dst/backgrounds/wallpaper.jpg" || true
+fi
+
+## === restore user icon ===
+icon_file="$SETUP/user-icon"
+if [ -f "$icon_file" ]; then
+  log "👤 restoring user icon..."
+  sudo mkdir -p /var/lib/AccountsService/icons/
+  sudo mkdir -p /var/lib/AccountsService/users/
+
+  sudo cp "$icon_file" "/var/lib/AccountsService/icons/$USER"
+  echo -e "[User]\nIcon=/var/lib/AccountsService/icons/$USER" | sudo tee "/var/lib/AccountsService/users/$USER" > /dev/null
+fi
+
+## === install packages from pkglist.txt ===
+pkglist="$SETUP/pkglist.txt"
+
+if [ -f "$pkglist" ]; then
+  if command -v yay &>/dev/null; then
+    log "📦 installing packages with yay..."
+    yay -S --needed --noconfirm $(< "$pkglist") || true
+  elif command -v paru &>/dev/null; then
+    log "📦 installing packages with paru..."
+    paru -S --needed --noconfirm $(< "$pkglist") || true
+  else
+    log "⚠️  no yay/paru found, skipping package restore."
+  fi
+fi
+
+## === apply GTK settings ===
 GTK_THEME="catppuccin-latte-pink-standard+default"
 ICON_THEME="Colloid-Pink-Catppuccin"
 SYSTEM_FONT="SF Pro Display 11"
 
-mkdir -p ~/.config/gtk-3.0 ~/.config/gtk-4.0
+log "🎨 applying GTK settings..."
+mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
 
-cat > ~/.config/gtk-3.0/settings.ini <<EOF
+cat > "$HOME/.config/gtk-3.0/settings.ini" <<EOF
 [Settings]
 gtk-theme-name=$GTK_THEME
 gtk-icon-theme-name=$ICON_THEME
 gtk-font-name=$SYSTEM_FONT
 EOF
 
-cp ~/.config/gtk-3.0/settings.ini ~/.config/gtk-4.0/settings.ini
+cp "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
 
-### === apply GTK theme, icon, and font ===
-echo "⚙️ applying GTK appearance settings via gsettings..."
+if pgrep -x dconf-service >/dev/null 2>&1; then
+  log "⚙️ applying appearance via gsettings..."
+  gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
+  gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
+  gsettings set org.gnome.desktop.interface font-name "$SYSTEM_FONT" || true
+fi
 
-gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME"
-gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME"
-gsettings set org.gnome.desktop.interface font-name "$SYSTEM_FONT"
-
-### === install and set Catppuccin Latte cursors ===
-echo "🖱 installing Catppuccin cursor theme..."
-yay -S --needed catppuccin-cursors-latte --noconfirm
-
+## === apply cursor settings ===
 CURSOR_THEME="catppuccin-latte-light-cursors"
 CURSOR_SIZE=24
 
-# set for GTK apps
-gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME"
-gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE"
+log "🖱 applying cursor theme..."
+gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
+gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
 
-
-# === restore firefox .desktop
-desktop_dst="$SETUP/firefox/firefox.desktop"
-if [ -f "$desktop_dst" ]; then
-  echo "🖇 restoring firefox.desktop..."
-  mkdir -p "$HOME/.local/share/applications"
-  cp "$desktop_dst" "$HOME/.local/share/applications/firefox.desktop"
-fi
-
-# === restore firefox user.js
-profile=$(find ~/.mozilla/firefox -type d -name "*.default*" | head -1)
-if [ -n "$profile" ] && [ -f "$SETUP/firefox/user.js" ]; then
-  echo "🦊 restoring user.js to $profile..."
-  cp "$SETUP/firefox/user.js" "$profile/user.js"
-fi
-
-### === sddm theme ===
-theme_name="ittu-motion"
-theme_target="/usr/share/sddm/themes/$theme_name"
-if [ -d "$SETUP/sddm-theme" ]; then
-  echo "🎨 installing SDDM theme: $theme_name..."
-  sudo mkdir -p "$theme_target"
-  sudo cp -r "$SETUP/sddm-theme/"* "$theme_target/"
-  sudo chown -R root:root "$theme_target"
-fi
-
-sudo mkdir -p /etc/sddm.conf.d
-echo -e "[Theme]\nCurrent=$theme_name" | sudo tee /etc/sddm.conf.d/20-theme.conf > /dev/null
-
-### === sddm wallpaper ===
-if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
-  sudo cp "$SETUP/wallpapers/wallpaper.jpg" "$theme_target/backgrounds/wallpaper.jpg"
-fi
-
-### === user icon ===
-icon_file=$(find "$SETUP" -name "user-icon.*" | head -1)
-if [ -n "$icon_file" ]; then
-  echo "👤 restoring user icon..."
-  sudo mkdir -p /var/lib/AccountsService/icons/
-  sudo cp "$icon_file" "/var/lib/AccountsService/icons/$USER"
-
-  sudo mkdir -p /var/lib/AccountsService/users/
-  echo -e "[User]\nIcon=/var/lib/AccountsService/icons/$USER" | sudo tee /var/lib/AccountsService/users/$USER > /dev/null
-fi
-
-
-echo "✅ setup complete."
+log "✅ restore complete!"
