@@ -33,8 +33,8 @@ RPROMPT='$(git_branch)'
 
 # === History ===
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=50000
+SAVEHIST=50000
 
 # === Plugins ===
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -54,9 +54,11 @@ alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 bindkey -e
 source ~/.zsh/keybinds.zsh
 
-# === Fastfetch once ===
-if command -v fastfetch >/dev/null 2>&1; then
-  fastfetch
+# === Fastfetch on fresh terminal only ===
+if [[ -z "$ZSH_SUBSHELL" && -n "$DISPLAY" ]]; then
+  if command -v fastfetch >/dev/null 2>&1; then
+    fastfetch
+  fi
 fi
 
 # === Winch handler for window resize ===

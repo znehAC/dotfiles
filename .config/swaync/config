@@ -1,0 +1,30 @@
+[urgency_low]
+background = #ffe8eb
+foreground = #332c2c
+border = #cccccc
+
+[urgency_normal]
+background = #ffe8eb
+foreground = #332c2c
+border = #cccccc
+
+[urgency_critical]
+background = #ff8fa3
+foreground = #fff6f6
+border = #ff4e5d
+
+[general]
+font = "SF Pro Display 14"
+border_radius = 10
+icon_theme = "Colloid-Pink-Catppuccin"
+timeout = 5 
+max_history = 5
+display_inactive = true
+
+"control-center": {
+    "media-player": {
+        "enable": true,
+        "order": 0, // optional if you want it high
+        "compact": false // if you want detailed album art+controls
+    }
+}
