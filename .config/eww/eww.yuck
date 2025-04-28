@@ -1,0 +1,17 @@
+(defwindow calendar
+  :monitor 0
+  :geometry (geometry :x 1600 :y 30 :width 300 :height 300)
+  :stacking "fg"
+  :layer "top"
+  :windowtype "dock"
+  :focusable false
+  :on-unfocus "eww close calendar"
+  (calendar_popup)
+)
+
+(defwidget calendar_popup []
+  (box
+    :class "calendar-wrapper"
+    (calendar :class "calendar-core")
+  )
+)

@@ -1,0 +1,6 @@
+(defwidget calendar []
+  (box :orientation "vertical" :spacing 4
+    (label :text (date "+%B %Y") :class "calendar-title")
+    (calendar :on-click "notify-send 'clicked calendar'" :class "calendar-main")
+  )
+)

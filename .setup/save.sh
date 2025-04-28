@@ -92,6 +92,7 @@ FILES_TO_TRACK=(
   .zshrc .zshenv .zprofile .bash_profile .gitconfig
   .config/hypr .config/waybar .config/kitty .config/rofi
   .config/swaync .config/fastfetch .config/zsh
+  .config/eww
   .config/gtk-3.0/settings.ini
   .config/gtk-4.0/settings.ini
   .setup/
