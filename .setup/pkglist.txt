@@ -149,6 +149,7 @@ rebuild-detector
 reflector
 reflector-simple
 rofi-lbonn-wayland-git
+rofi-power-menu
 rsync
 rtkit
 sassc
