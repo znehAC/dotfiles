@@ -1,0 +1,47 @@
+* {
+  all: unset;
+  font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 14px;
+}
+
+/* wrapper box around gtk-calendar */
+.calendar-wrapper {
+  background: linear-gradient(135deg, #ffe8eb, #e0f0ff);
+  border: 2px solid #a5c4ff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* actual gtk-calendar inside */
+.calendar-core {
+  background: transparent;
+  color: #332c2c;
+}
+
+/* selected day (today) */
+.calendar-core:selected {
+  background: #ffc6d0;
+  color: #332c2c;
+}
+
+/* weekdays headers (Sun, Mon, etc) */
+.calendar-core > header {
+  color: #332c2c;
+  font-weight: 700;
+}
+
+/* day cells */
+.calendar-core > .button {
+  background: #ffe8eb;
+  color: #332c2c;
+  border-radius: 6px;
+  margin: 2px;
+  padding: 4px;
+}
+
+/* hovered cells */
+.calendar-core > .button:hover {
+  background: #ffc6d0;
+  color: #332c2c;
+}

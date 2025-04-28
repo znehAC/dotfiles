@@ -35,6 +35,7 @@ endeavouros-keyring
 endeavouros-mirrorlist
 eos-dracut
 ethtool
+eww
 exfatprogs
 f2fs-tools
 fastfetch
