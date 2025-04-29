@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Texts
+Exec=/opt/texts/texts.AppImage
+Icon=/opt/texts/texts.png
+Type=Application
+Comment=The ultimate messaging app
+Categories=Network;Chat;
+MimeType=x-scheme-handler/texts;

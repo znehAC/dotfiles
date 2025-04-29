@@ -1,0 +1,17 @@
+#!/bin/bash
+
+appname="$1"
+shift
+
+envfile="$HOME/.local/share/envwrapper/${appname}.env"
+
+if [[ -f "$envfile" ]]; then
+    echo "[envwrapper] loading env for $appname"
+    set -a
+    source "$envfile"
+    set +a
+else
+    echo "[envwrapper] no env file for $appname, running clean"
+fi
+
+exec /usr/bin/"$appname" "$@"

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+NoDisplay=true
+Exec='/opt/Windsurf/windsurf' %f
+Name=windsurf
+Comment=Custom definition for windsurf
