@@ -121,6 +121,8 @@ if [ -d "$desktop_src" ]; then
   cp "$desktop_src"/*.desktop "$desktop_dst/" || true
 fi
 
+log "♻️ reloading user environment..."
+systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
 
 ## === apply GTK settings ===
 GTK_THEME="catppuccin-latte-pink-standard+default"
