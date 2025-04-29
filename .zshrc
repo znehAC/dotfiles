@@ -40,6 +40,9 @@ SAVEHIST=50000
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
+if [[ -f ~/.zprofile ]]; then
+  source ~/.zprofile
+fi
 
 # === Aliases ===
 alias ll='ls -lh'
