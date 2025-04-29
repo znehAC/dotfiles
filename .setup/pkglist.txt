@@ -35,6 +35,7 @@ endeavouros-keyring
 endeavouros-mirrorlist
 eos-dracut
 ethtool
+evtest
 eww
 exfatprogs
 f2fs-tools
@@ -58,6 +59,8 @@ gvfs-mtp
 gvfs-smb
 hdparm
 heroic-games-launcher-bin
+hid-tools
+htop
 hwdetect
 hyprland
 hyprlock-git
@@ -65,10 +68,12 @@ hyprshot
 hyprsunset
 hyprswitch
 i2c-tools
+imv
 inetutils
 intel-ucode
 iptables-nft
 jfsutils
+joyutils
 jre-openjdk
 kitty
 less
@@ -101,6 +106,7 @@ mesa-utils
 meson
 micro
 modemmanager
+mpv
 mtools
 nano
 nautilus
@@ -128,6 +134,7 @@ os-prober
 pacman-contrib
 parsec-bin
 pavucontrol
+perf
 perl
 pipewire-alsa
 pipewire-jack
@@ -142,6 +149,7 @@ postgresql-libs
 postman-bin
 power-menu-bin
 power-profiles-daemon
+protontricks
 python
 python-pyqt6
 qbittorrent-nox
@@ -181,6 +189,7 @@ unzip
 upower
 usbutils
 uv
+vkd3d-proton-bin
 vulkan-tools
 waybar
 wget
