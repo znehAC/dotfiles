@@ -1,0 +1,29 @@
+#!/bin/bash
+
+envdir="$HOME/.local/share/envwrapper"
+desktopdir="$HOME/.local/share/applications"
+
+echo "🌟 Wrapped Applications:"
+echo
+
+if [[ ! -d "$envdir" ]]; then
+    echo "❌ No envwrapper environment directory found."
+    exit 1
+fi
+
+for envfile in "$envdir"/*.env; do
+    [[ -e "$envfile" ]] || { echo "❌ No wrapped apps found."; exit 1; }
+    appname=$(basename "$envfile" .env)
+    desktop="$desktopdir/${appname}.desktop"
+
+    echo "🔹 $appname"
+    if [[ -f "$desktop" ]]; then
+        exec_line=$(grep -i '^Exec=' "$desktop" | cut -d'=' -f2-)
+        echo "    Exec: $exec_line"
+    else
+        echo "    (No .desktop file found)"
+    fi
+    echo "    Envs:"
+    sed 's/^/      /' "$envfile"
+    echo
+done

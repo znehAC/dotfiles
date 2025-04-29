@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=ClickUp
+Exec=/opt/clickup/clickup.AppImage
+Icon=/opt/clickup/logo.svg
+Type=Application
+Categories=Utility

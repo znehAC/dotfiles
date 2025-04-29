@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# pastel save script
+# saves wallpapers, dotfiles, settings in a clean safe way
+
+SETUP="$HOME/.setup"
+DOT="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+
+timestamp() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
+
+log() {
+  echo "[$(timestamp)] $*"
+}
+
+log "🧷 starting dotfiles save..."
+
+# ensure setup dir exists
+mkdir -p "$SETUP"
+
+## === backup wallpaper ===
+wallpaper_src="$HOME/Pictures/wallpaper.jpg"
+wallpaper_dst="$SETUP/wallpapers/wallpaper.jpg"
+
+if [ -f "$wallpaper_src" ]; then
+  log "🖼 backing up wallpaper..."
+  mkdir -p "$(dirname "$wallpaper_dst")"
+  rsync -a "$wallpaper_src" "$wallpaper_dst"
+fi
+
+## === backup SDDM theme ===
+theme_name="ittu-motion"
+theme_src="/usr/share/sddm/themes/$theme_name"
+theme_dst="$SETUP/sddm-theme"
+
+if [ -d "$theme_src" ]; then
+  log "🎨 backing up SDDM theme..."
+  sudo rsync -a --delete "$theme_src/" "$theme_dst/"
+  sudo chown -R $USER:$USER "$theme_dst"
+fi
+
+## === backup fonts ===
+font_src="$HOME/.local/share/fonts"
+font_dst="$SETUP/fonts"
+
+if [ -d "$font_src" ]; then
+  log "🔤 backing up fonts..."
+  rsync -a --delete "$font_src/" "$font_dst/"
+fi
+
+## === backup user icon ===
+icon_src="/var/lib/AccountsService/icons/$USER"
+icon_dst="$SETUP/user-icon"
+
+if [ -f "$icon_src" ]; then
+  log "👤 backing up user icon..."
+  cp "$icon_src" "$icon_dst"
+fi
+
+## === backup firefox desktop entry ===
+firefox_src="/usr/share/applications/firefox.desktop"
+firefox_dst="$SETUP/firefox/firefox.desktop"
+
+if [ -f "$firefox_src" ]; then
+  log "🖇 backing up firefox.desktop..."
+  mkdir -p "$(dirname "$firefox_dst")"
+  cp "$firefox_src" "$firefox_dst"
+fi
+
+## === backup firefox user.js ===
+profile_dir=$(find "$HOME/.mozilla/firefox" -type d -name "*.default*" | head -n1)
+
+if [ -n "$profile_dir" ] && [ -f "$profile_dir/user.js" ]; then
+  log "🦊 backing up firefox user.js..."
+  cp "$profile_dir/user.js" "$SETUP/firefox/user.js"
+fi
+
+## === save package list ===
+log "📦 saving package list..."
+if command -v yay &>/dev/null; then
+  yay -Qqe > "$SETUP/pkglist.txt"
+elif command -v paru &>/dev/null; then
+  paru -Qqe > "$SETUP/pkglist.txt"
+else
+  log "⚠️  no yay or paru found, skipping package list backup."
+fi
+
+## === stage dotfiles ===
+FILES_TO_TRACK=(
+  .zshrc .zshenv .zprofile .bash_profile .gitconfig
+  .config/hypr .config/waybar .config/kitty .config/rofi
+  .config/swaync .config/fastfetch .config/zsh
+  .config/eww
+  .config/gtk-3.0/settings.ini
+  .config/gtk-4.0/settings.ini
+  .setup/
+  .local/bin/
+  .local/share/envwrapper
+  .local/share/applications/*.desktop
+)
+
+log "📝 staging tracked dotfiles..."
+for file in "${FILES_TO_TRACK[@]}"; do
+  if [ -e "$HOME/$file" ]; then
+    log "➕ staging $file"
+    $DOT add "$file"
+  fi
+done
+
+## === commit if anything changed ===
+if ! $DOT diff --cached --quiet; then
+  log "✅ committing changes..."
+  $DOT commit -m "🔒 backup: $(timestamp)" >/dev/null
+else
+  log "⚠️  nothing new to commit."
+fi
+
+log "✅ save complete! Run '$DOT push' to sync."

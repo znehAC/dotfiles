@@ -1,0 +1,13 @@
+#!/bin/bash
+
+last=""
+
+while true; do
+    temp="$(xclip -selection clipboard -target UTF8_STRING -o 2>/dev/null || true)"
+    if [[ "$temp" != "$last" && -n "$temp" ]]; then
+        echo -n "$temp" | wl-copy
+        echo -n "$temp" | wl-copy --primary
+        last="$temp"
+    fi
+    sleep 0.3
+done
