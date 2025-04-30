@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=/usr/bin/env MOZ_ENABLE_WAYLAND=1 MOZ_WEBRENDER=1 /usr/lib/firefox/firefox %u
+Exec=/usr/lib/firefox/firefox %u
 Terminal=false
 X-MultipleArgs=false
 Icon=firefox
