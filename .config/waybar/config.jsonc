@@ -102,7 +102,7 @@
     "format": "{} update(s)",
     "exec": "checkupdates | wc -l",
     "interval": 60,
-    "on-click": "kitty -e yay -Syu && notify-send 'system updated'",
+    "on-click": "kitty -e yay -Syu --noconfirm && notify-send '✅ system updated'",
     "tooltip": false
   },
 
