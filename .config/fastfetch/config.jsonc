@@ -1,84 +1,62 @@
 {
-    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
-	"logo": {
-		"type": "file-raw",
-		"source": "~/.config/fastfetch/mew.txt",
-		"padding": {
-            "top": 2,
-            "left": 4,
-            "right": 4,
-        }
-	},
-    "modules": [
-        {
-            "type": "title",
-            "key": "User",
-            "format": "{user-name}"
-        },
-        {
-            "type": "title",
-            "key": "Hostname",
-            "format": "{host-name}"
-        },
-        {
-            "type": "host",
-            "key": "Model"
-        },
-        {
-            "type": "os",
-            "format": "{pretty-name} {version-id} {arch}"
-        },
-        "kernel",
-        "uptime",
-        {
-            "type": "loadavg",
-            "key": "Load Average"
-        },
-        "processes",
-        {
-            "type": "wm",
-            "key": "Window Manager"
-        },
-        {
-        	"type": "theme",
-        	"key": "Theme"
-        },
-        {
-            "type": "de",
-            "key": "Desktop Environment"
-        },
-        "shell",
-        {
-            "type": "terminal",
-            "format": "{pretty-name} {version} {#37}█{#97}█ {#36}█{#96}█ {#35}█{#95}█ {#34}█{#94}█ {#33}█{#93}█ {#32}█{#92}█ {#31}█{#91}█ {#30}█{#90}█"
-        },
-        {
-            "type": "packages",
-            "format": "{all}"
-        },
-        {
-            "type": "cpu",
-            "key": "Temperature",
-            "temp": true,
-            "format": "{temperature}"
-        },
-        {
-            "type": "cpu",
-            "key": "CPU",
-            "format": "{cores-logical} x {name}"
-        },
-        {
-            "type": "gpu",
-            "format": "{name}"
-        },
-        {
-            "type": "memory",
-            "key": "RAM"
-        },
-        {
-            "type": "disk",
-            "key": "Disk",
-            "folders": "/"
-        },
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "file-raw",
+    "source": "~/.config/fastfetch/mew.txt",
+    "padding": {
+      "top": 2,
+      "left": 2,
+      "right": 2
+    }
+  },
+  "display": {
+    "constants": [
+      "█ "
     ]
+  },
+  "modules": [
+    // 🌸 user/system
+    { "type": "title", "key": "{$1}󰀄 User", "keyColor": "38;5;39", "format": "{user-name}" },
+    { "type": "title", "key": "{$1}󰩈 Host", "keyColor": "38;5;39", "format": "{host-name}" },
+    { "type": "host", "key": "{$1}󰍛 Machine", "keyColor": "38;5;39" },
+
+    // 🐬 os + runtime
+    { "type": "os", "key": "{$1} OS", "keyColor": "38;5;9", "format": "{pretty-name} {version-id} ({arch})" },
+    { "type": "kernel", "key": "{$1}󰌽 Kernel", "keyColor": "38;5;9" },
+    { "type": "uptime", "key": "{$1}󰅐 Uptime", "keyColor": "38;5;9" },
+    { "type": "processes", "key": "{$1}󰓦 Procs", "keyColor": "38;5;9" },
+	//blue 38;5;39 > 38;5;45 > 38;5;33
+    // 💻 session
+    { "type": "shell", "key": "{$1} Shell", "keyColor": "38;5;39" },
+    { "type": "terminal", "key": "{$1} Terminal", "keyColor": "38;5;39" },
+    { "type": "terminalfont", "key": "{$1}󰛖 Term Font", "keyColor": "38;5;39" },
+    { "type": "de", "key": "{$1}󰍲 DE", "keyColor": "38;5;39" },
+    { "type": "wm", "key": "{$1}󰒓 WM", "keyColor": "38;5;39" },
+    { "type": "theme", "key": "{$1}󰏘 Theme", "keyColor": "38;5;39" },
+    { "type": "icons", "key": "{$1}󰉋 Icons", "keyColor": "38;5;39" },
+    //pink 38;5;9 > 38;5;210 > 38;5;211
+    { "type": "cursor", "key": "{$1}󰉋 Cursor", "keyColor": "38;5;9" },
+    { "type": "font", "key": "{$1}󰙆 Font", "keyColor": "38;5;9" },
+
+    // 🔥 hardware
+    { "type": "cpu", "key": "{$1}󰍛 CPU", "keyColor": "38;5;39", "showPeCoreCount": true },
+    { "type": "gpu", "key": "{$1}󰓅 GPU", "keyColor": "38;5;39" },
+    { "type": "vulkan", "key": "{$1}󰢩 Vulkan", "keyColor": "38;5;39" },
+    { "type": "monitor", "key": "{$1}󰍹 Monitor", "keyColor": "38;5;39" },
+
+    // 🧠 memory + disk
+    { "type": "memory", "key": "{$1}󰍛 RAM", "keyColor": "38;5;9" },
+    { "type": "disk", "key": "{$1}󰋊 SSD", "keyColor": "38;5;9", "folders": "/" },
+    { "type": "disk", "key": "{$1}󰋊 Storage", "keyColor": "38;5;9", "folders": "/mnt/sda1" },
+
+    // 📡 peripherals
+    { "type": "wifi", "key": "{$1}󰖩 WiFi", "keyColor": "38;5;39" },
+    { "type": "sound", "key": "{$1}󰓃 Sound", "keyColor": "38;5;39" },
+    { "type": "camera", "key": "{$1}󰈈 Camera", "keyColor": "38;5;39" },
+    { "type": "media", "key": "{$1}󰎈 Media", "keyColor": "38;5;39" },
+
+    // 📦 extras
+    { "type": "packages", "key": "{$1}󰏓 Packages", "keyColor": "38;5;9" }
+  ]
 }
+

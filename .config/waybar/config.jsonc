@@ -43,9 +43,9 @@
   },
 
   "network": {
-    "format-wifi": "    {bandwidthDownBits}",
-    "format-ethernet": "    {bandwidthDownBits}",
-    "format-disconnected": " ",
+    "format-wifi": "  {bandwidthDownBits}",
+    "format-ethernet": "  {bandwidthDownBits}",
+    "format-disconnected": "",
     "interval": 5,
     "tooltip": false
   },
@@ -71,14 +71,14 @@
       "tooltip": false,
       "format": "{icon}",
       "format-icons": {
-        "notification": " <span foreground='red'><sup></sup></span>",
-        "none": " ",
-        "dnd-notification": " <span foreground='red'><sup></sup></span>",
-        "dnd-none": " ",
-        "inhibited-notification": " <span foreground='red'><sup></sup></span>",
-        "inhibited-none": " ",
-        "dnd-inhibited-notification": " <span foreground='red'><sup></sup></span>",
-        "dnd-inhibited-none": " "
+        "notification": "<span foreground='red'><sup></sup></span>",
+        "none": "",
+        "dnd-notification": "<span foreground='red'><sup></sup></span>",
+        "dnd-none": "",
+        "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+        "inhibited-none": "",
+        "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+        "dnd-inhibited-none": ""
       },
       "return-type": "json",
       "exec-if": "which swaync-client",
@@ -90,7 +90,7 @@
 
   "custom/media": {
     "interval": 5,
-    "exec": "bash -c 'players=\"$(playerctl -l 2>/dev/null)\"; if [[ \"$players\" == *spotify* ]]; then artist=\"$(playerctl -p spotify metadata artist 2>/dev/null)\"; title=\"$(playerctl -p spotify metadata title 2>/dev/null)\"; printf \"   %.10s %s %.20s\" \"$artist\" \"|\" \"$title\"; elif [[ -n \"$players\" ]]; then player=\"$(echo \"$players\" | head -n1)\"; name=\"$(playerctl -p \"$player\" metadata title 2>/dev/null)\"; printf \"    %.30s\" \"$name\"; else printf \"\"; fi'",
+    "exec": "bash -c 'players=\"$(playerctl -l 2>/dev/null)\"; if [[ \"$players\" == *spotify* ]]; then artist=\"$(playerctl -p spotify metadata artist 2>/dev/null)\"; title=\"$(playerctl -p spotify metadata title 2>/dev/null)\"; printf \"  %.10s %s %.20s\" \"$artist\" \"|\" \"$title\"; elif [[ -n \"$players\" ]]; then player=\"$(echo \"$players\" | head -n1)\"; name=\"$(playerctl -p \"$player\" metadata title 2>/dev/null)\"; printf \"  %.30s\" \"$name\"; else printf \"\"; fi'",
     "format": "{}",
     "return-type": "default",
     "tooltip": false,

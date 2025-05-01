@@ -54,10 +54,10 @@ color7 #e3d5ca
 color15 #f5ebe0
 
 # fonts
-# font_family GeistMono Nerd Font Mono
-# bold_font GeistMono Nerd Font Mono Bold
-# italic_font GeistMono Nerd Font Mono Italic
-# bold_italic_font GeistMono Nerd Font Mono Bold Italic
+font_family GeistMono Nerd Font Mono
+bold_font GeistMono Nerd Font Mono Bold
+italic_font GeistMono Nerd Font Mono Italic
+bold_italic_font GeistMono Nerd Font Mono Bold Italic
 font_size 13
 cursor_shape block
 
@@ -78,11 +78,3 @@ tab_bar_style powerline
 tab_separator ""
 tab_powerline_style slanted
 tab_title_template { title }{' :{}:'.format(num_windows) if num_windows > 1 else ''}
-
-
-# BEGIN_KITTY_FONTS
-font_family      family='GeistMono Nerd Font Mono' style=Medium
-bold_font        family='GeistMono Nerd Font Mono' style=UltraBlack
-italic_font      family='GeistMono Nerd Font Mono' style=Light
-bold_italic_font family='GeistMono Nerd Font Mono' style=Medium
-# END_KITTY_FONTS
