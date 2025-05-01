@@ -16,7 +16,7 @@ configuration{
 }
 
 * {
-	font: "SF Pro Display, JetBrainsMono Nerd Font 14";
+	font: "GeistMono Nerd Font Mono 13, JetBrainsMono Nerd Font 14";
 	font-weight: bold;
     background: transparent;
     border: 0;
