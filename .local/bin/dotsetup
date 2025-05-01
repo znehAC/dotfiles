@@ -127,7 +127,7 @@ systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
 ## === apply GTK settings ===
 GTK_THEME="catppuccin-latte-pink-standard+default"
 ICON_THEME="Colloid-Pink-Catppuccin"
-SYSTEM_FONT="SF Pro Display 11"
+SYSTEM_FONT="GeistMono Nerd Font Mono 11"
 
 log "🎨 applying GTK settings..."
 mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"

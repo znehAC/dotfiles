@@ -201,6 +201,7 @@ wine-mono
 winetricks
 wireguard-tools
 wireplumber
+wl-clip-persist
 wpa_supplicant
 xclip
 xdg-desktop-portal

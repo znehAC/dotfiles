@@ -1,13 +1,25 @@
 #!/bin/bash
 
-if [[ $# -lt 2 ]]; then
-    echo "usage: create-envwrapper <appname> <ENV1=VAL1 ENV2=VAL2 ...>"
-    exit 1
+if [[ $# -lt 1 ]]; then
+  echo "usage: create-envwrapper <appname> <ENV1=VAL1 ENV2=VAL2 ...> [--flags]"
+  exit 1
 fi
 
 appname="$1"
 shift
-envs="$@"
+
+envs=()
+flags=()
+parsing_flags=0
+
+for arg in "$@"; do
+  if [[ "$arg" == --* || $parsing_flags -eq 1 ]]; then
+    flags+=("$arg")
+    parsing_flags=1
+  else
+    envs+=("$arg")
+  fi
+done
 
 envdir="$HOME/.local/share/envwrapper"
 desktopdir="$HOME/.local/share/applications"
@@ -17,26 +29,30 @@ mkdir -p "$envdir" "$desktopdir"
 
 # 1. create env file
 echo "[+] Writing env file for $appname..."
-echo "$envs" | tr ' ' '\n' > "$envdir/${appname}.env"
+printf "%s\n" "${envs[@]}" > "$envdir/${appname}.env"
 
 # 2. find and copy .desktop
 srcdesktop=$(find /usr/share/applications ~/.local/share/applications -name "${appname}.desktop" | head -n1)
 
 if [[ -z "$srcdesktop" ]]; then
-    echo "❌ No .desktop file found for $appname."
-    exit 1
+  echo "❌ No .desktop file found for $appname."
+  exit 1
 fi
 
 cp "$srcdesktop" "$desktopdir/"
 
-# 3. patch Exec line with absolute path to envwrapper
-sed -i "s|^Exec=.*|Exec=$HOME/.local/bin/envwrapper $appname|" "$desktopdir/${appname}.desktop"
+# 3. patch Exec line
+flag_str="${flags[*]}"
+sed -i "s|^Exec=.*|Exec=$HOME/.local/bin/envwrapper $appname $flag_str|" "$desktopdir/${appname}.desktop"
 
 # 4. remove duplicate or broken Path= lines
 sed -i '/^Path=.*$/d' "$desktopdir/${appname}.desktop"
 
-# 5. optional: clean trailing whitespace (ocd mode lol)
+# 5. clean trailing whitespace
 sed -i 's/[ \t]*$//' "$desktopdir/${appname}.desktop"
+
+# 6. update database
+update-desktop-database ~/.local/share/applications
 
 echo "[✓] Patched .desktop file: $desktopdir/${appname}.desktop"
 echo "[✓] Env file written: $envdir/${appname}.env"
