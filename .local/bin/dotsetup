@@ -101,6 +101,20 @@ if [ -f "$pkglist" ]; then
   fi
 fi
 
+## ===  realtime audio setup ===
+sudo groupadd realtime 2>/dev/null || true
+sudo usermod -aG realtime "$USER"
+
+sudo mkdir -p /etc/security/limits.d
+sudo tee /etc/security/limits.d/99-realtime.conf > /dev/null <<EOF
+@realtime   -  rtprio     95
+@realtime   -  memlock    unlimited
+EOF
+
+# tell user to reboot after first run
+echo "✅ realtime audio configured. reboot for changes to apply."
+
+
 ## === restore envwrapper configs ===
 env_src="$SETUP/envwrapper"
 env_dst="$HOME/.local/share/envwrapper"
