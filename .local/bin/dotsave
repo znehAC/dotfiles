@@ -70,7 +70,7 @@ if [ -f "$firefox_src" ]; then
 fi
 
 ## === backup firefox user.js ===
-profile_dir=$(find "$HOME/.mozilla/firefox" -type d -name "*.default*" | head -n1)
+profile_dir=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default*" | head -n1 || true)
 
 if [ -n "$profile_dir" ] && [ -f "$profile_dir/user.js" ]; then
   log "🦊 backing up firefox user.js..."
@@ -87,11 +87,17 @@ else
   log "⚠️  no yay or paru found, skipping package list backup."
 fi
 
+## === backup /etc/environment ===
+log "🌍 backing up /etc/environment..."
+sudo cp /etc/environment "$SETUP/environment"
+sudo chown $USER:$USER "$SETUP/environment"
+
 ## === stage dotfiles ===
 FILES_TO_TRACK=(
   .zshrc .zshenv .zprofile .bash_profile .gitconfig
   .config/hypr .config/waybar .config/kitty .config/rofi
   .config/swaync .config/fastfetch .config/zsh
+  .config/environment.d/
   .config/eww
   .config/gtk-3.0/settings.ini
   .config/gtk-4.0/settings.ini
@@ -117,4 +123,9 @@ else
   log "⚠️  nothing new to commit."
 fi
 
-log "✅ save complete! Run '$DOT push' to sync."
+if [[ "${1:-}" == "--push" ]]; then
+  log "📡 pushing to remote..."
+  $DOT push
+else
+	log "✅ save complete! Run '$DOT push' to sync."
+fi
