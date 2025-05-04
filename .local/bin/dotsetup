@@ -111,6 +111,8 @@ sudo tee /etc/security/limits.d/99-realtime.conf > /dev/null <<EOF
 @realtime   -  memlock    unlimited
 EOF
 
+
+
 # tell user to reboot after first run
 echo "✅ realtime audio configured. reboot for changes to apply."
 
@@ -124,6 +126,21 @@ if [ -d "$env_src" ]; then
   mkdir -p "$env_dst"
   rsync -a --delete "$env_src/" "$env_dst/"
 fi
+
+## === restore /etc/environment ===
+env_backup="$SETUP/environment"
+
+if [ -f "$env_backup" ]; then
+  log "🌍 restoring /etc/environment..."
+  read -rp "⚠️ overwrite /etc/environment with backup? [y/N] " answer
+  if [[ "$answer" =~ ^[Yy]$ ]]; then
+    sudo cp "$env_backup" /etc/environment
+    log "✅ /etc/environment restored."
+  else
+    log "⏭ skipped /etc/environment restore."
+  fi
+fi
+
 
 ## === restore local .desktop overrides ===
 desktop_src="$SETUP/desktops"
