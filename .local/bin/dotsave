@@ -107,13 +107,25 @@ FILES_TO_TRACK=(
   .local/share/applications/*.desktop
 )
 
-log "📝 staging tracked dotfiles..."
+log "📝 staging modified dotfiles..."
 for file in "${FILES_TO_TRACK[@]}"; do
-  if [ -e "$HOME/$file" ]; then
-    log "➕ staging $file"
+  fullpath="$HOME/$file"
+  if [ -e "$fullpath" ]; then
     $DOT add "$file"
   fi
 done
+
+# list only what actually changed
+changed_files=$($DOT diff --name-only --cached)
+if [[ -n "$changed_files" ]]; then
+  while IFS= read -r file; do
+    log "➕ $file"
+  done <<< "$changed_files"
+else
+  log "⚠️  nothing new to stage."
+fi
+
+
 
 ## === commit if anything changed ===
 if ! $DOT diff --cached --quiet; then
