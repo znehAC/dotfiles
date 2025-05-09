@@ -1,12 +1,12 @@
 [Desktop Entry]
 Name=Vesktop
-Exec=/home/cesar/.local/bin/envwrapper vesktop --disable-gpu-compositing
+Exec=/home/cesar/.local/bin/envwrapper vesktop --use-gl=egl --enable-features=UseOzonePlatform,WaylandWindowDecorations
 Terminal=false
 Type=Application
 Icon=vesktop
-StartupWMClass=Vesktop
+StartupWMClass=vesktop
 GenericName=Internet Messenger
 Categories=Network;
 Keywords=discord;vencord;electron;chat;
-MimeType=x-scheme-handler/discord;
-Comment=Vesktop is a custom Discord desktop app
+Comment=Vesktop is a custom Discord App aiming to give you better performance and improve linux support. Vencord comes pre-installed
+MimeType=x-scheme-handler/discord;x-scheme-handler/discord

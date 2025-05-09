@@ -71,3 +71,4 @@ export EDITOR=micro
 if [[ $- == *i* ]]; then
   fastfetch
 fi
+export PATH="$HOME/.npm-global/bin:$PATH"
