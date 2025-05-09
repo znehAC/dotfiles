@@ -2,7 +2,7 @@
 Name=Windsurf
 Comment=Tomorrow's Editor, Today.
 GenericName=Text Editor
-Exec=/home/cesar/.local/bin/envwrapper windsurf --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform=wayland
+Exec=/home/cesar/.local/bin/envwrapper windsurf --enable-features=UseOzonePlatform,WaylandLinuxDrmSyncobj
 Icon=windsurf
 Type=Application
 StartupNotify=false
@@ -23,5 +23,5 @@ Name[ko]=새 빈 창
 Name[ru]=Новое пустое окно
 Name[zh_CN]=新建空窗口
 Name[zh_TW]=開新空視窗
-Exec=/home/cesar/.local/bin/envwrapper windsurf --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform=wayland
+Exec=/home/cesar/.local/bin/envwrapper windsurf --enable-features=UseOzonePlatform,WaylandLinuxDrmSyncobj
 Icon=windsurf

@@ -21,6 +21,7 @@ diffutils
 dmraid
 dnsmasq
 docker
+docker-compose
 dosfstools
 downgrade
 dracut
@@ -47,6 +48,7 @@ gst-libav
 gst-plugin-pipewire
 gst-plugins-bad
 gst-plugins-ugly
+gtk4-demos
 gvfs
 gvfs-mtp
 gvfs-smb
@@ -67,6 +69,7 @@ jfsutils
 joyutils
 jre-openjdk
 kitty
+krita
 less
 lib32-gnutls
 lib32-libpulse
@@ -110,12 +113,15 @@ noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 noto-fonts-extra
+npm
 nss-mdns
 ntfs-3g
 ntp
 nvidia-dkms
 nvidia-hook
 nvidia-inst
+nvidia-settings
+nvtop
 openresolv
 openrgb-git
 openssh
@@ -158,9 +164,10 @@ sof-firmware
 solaar
 spotify
 steam
+stress-ng
 sudo
 swaybg
-swaync
+swaync-git
 sysfsutils
 systemd-sysvcompat
 texinfo
@@ -175,7 +182,7 @@ unzip
 upower
 usbutils
 uv
-vesktop-bin
+vesktop
 vkd3d-proton-bin
 vulkan-tools
 waybar
@@ -206,6 +213,7 @@ xorg-xkill
 xorg-xrandr
 xsettingsd
 yay
+zip
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
