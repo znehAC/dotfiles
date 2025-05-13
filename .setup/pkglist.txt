@@ -10,6 +10,7 @@ bind
 bluez
 bluez-utils
 btrfs-progs
+cage
 cantarell-fonts
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
@@ -135,8 +136,6 @@ pipewire-alsa
 pipewire-jack
 pipewire-pulse
 pkgfile
-plasma-framework5
-plasma5support
 plocate
 polkit-gnome
 poppler-glib
@@ -155,8 +154,6 @@ rofi-power-menu
 rsync
 rtkit
 sassc
-sddm
-sddm-sugar-candy-git
 seahorse
 sg3_utils
 socat
