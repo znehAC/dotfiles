@@ -6,6 +6,8 @@ setopt prompt_subst
 zstyle ':completion:*' menu select
 setopt append_history
 
+WORDCHARS=${WORDCHARS//\//}
+
 # === Prompt functions ===
 git_branch() {
   command git rev-parse --is-inside-work-tree &>/dev/null || return
@@ -32,14 +34,21 @@ PROMPT='$(venv_info)%{%F{blue}%}%1~%{%f%} ❯ '
 RPROMPT='$(git_branch)'
 
 # === History ===
+HISTSIZE=500000
+SAVEHIST=500000
 HISTFILE=~/.zsh_history
-HISTSIZE=50000
-SAVEHIST=50000
+setopt append_history
+setopt hist_ignore_all_dups
+setopt share_history
+setopt inc_append_history
+setopt extended_history
 
 # === Plugins ===
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
+source ~/.local/share/zsh/plugins/zsh-shift-select/zsh-shift-select.plugin.zsh
+
 if [[ -f ~/.zprofile ]]; then
   source ~/.zprofile
 fi
@@ -53,10 +62,19 @@ alias nano='micro'
 alias sudo='sudo '
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
+wind() {
+  "$HOME/.local/bin/wrappers/windsurf" "${@:-.}"
+}
+alias code='wind'
 # === Keybinds ===
 bindkey -e
 source ~/.zsh/keybinds.zsh
 
+if [[ $- == *i* ]]; then
+  fastfetch
+fi
+
+fc -R ~/.zsh_history
 # === Winch handler for window resize ===
 TRAPWINCH() {
   zle && zle reset-prompt
@@ -68,7 +86,5 @@ export MICRO_TRUECOLOR=1
 export MICRO_CLIPBOARD=external
 export EDITOR=micro
 
-if [[ $- == *i* ]]; then
-  fastfetch
-fi
+
 export PATH="$HOME/.npm-global/bin:$PATH"

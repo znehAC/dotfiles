@@ -43,6 +43,8 @@ firewalld
 gnome-keyring
 gnome-themes-extra
 gparted
+greetd
+greetd-gtkgreet
 grub
 gst-libav
 gst-plugin-pipewire
@@ -68,7 +70,7 @@ iptables-nft
 jfsutils
 joyutils
 jre-openjdk
-kitty
+kitty-git
 krita
 less
 lib32-gnutls
@@ -83,8 +85,6 @@ libreoffice-fresh
 libva-nvidia-driver
 libva-utils
 libwnck3
-lightdm
-lightdm-webkit2-greeter
 linux
 linux-firmware
 linux-headers
@@ -199,7 +199,6 @@ wl-clip-persist
 wpa_supplicant
 xclip
 xdg-desktop-portal
-xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-user-dirs
 xdg-utils

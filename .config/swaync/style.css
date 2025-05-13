@@ -14,12 +14,6 @@
   font-family: JetBrainsMono NFM SemiBold;
 }
 
-.control-center .notification-row:focus,
-.control-center .notification-row:hover {
-  opacity: 1;
-  background: @noti-bg-darker;
-}
-
 .notification-row {
   outline: none;
   margin: 0px;
@@ -31,6 +25,7 @@
   border: 2px solid #34548a;
   border-radius: 0px;
   margin: 3px -2px 3px 0px;
+  padding: 4px;
 }
 
 .notification-content {
@@ -166,6 +161,17 @@
   opacity: 0.5;
 }
 
+
+.notification-group,
+.notification-group:selected,
+.notification-group:focus,
+.notification-group:active {
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+
 .floating-notifications {
   background: transparent;
 }
@@ -236,34 +242,43 @@
 }
 
 .widget-mpris {
-  background: @noti-bg;
+  background: @noti-bg; /* your light pastel */
   color: @text-color;
   padding: 10px;
   margin: 8px 10px;
   border-radius: 10px;
   border: 2px solid @noti-border-color;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-top: 10px;
-  margin-bottom: 20px;
+  box-shadow: none;
+}
+
+.widget-mpris .image-button {
+	color: white;
 }
 
 .widget-mpris-player {
-  padding: 8px;
-  margin: 4px 0;
-  background: @noti-bg-darker;
-  border-radius: 8px;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+  background: @noti-bg-hover;
+  color: @text-color;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.widget-mpris-title,
+.widget-mpris-subtitle {
+  color: white;
+  text-shadow: none;
 }
 
 .widget-mpris-title {
   font-weight: 700;
   font-size: 1.2rem;
-  margin-bottom: 2px;
 }
 
 .widget-mpris-subtitle {
   font-size: 1rem;
-  opacity: 0.8;
+  opacity: 1;
+}
+
+.mpris-overlay {
+	background: transparent;
 }
 
 .widget-mpris-album-art {

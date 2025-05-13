@@ -24,8 +24,9 @@ done
 envdir="$HOME/.local/share/envwrapper"
 desktopdir="$HOME/.local/share/applications"
 wrapper="$HOME/.local/bin/envwrapper"
+wrapperdir="$HOME/.local/bin/wrappers"
 
-mkdir -p "$envdir" "$desktopdir"
+mkdir -p "$envdir" "$desktopdir" "$wrapperdir"
 
 # 1. create env file
 echo "[+] Writing env file for $appname..."
@@ -43,7 +44,7 @@ cp "$srcdesktop" "$desktopdir/"
 
 # 3. patch Exec line
 flag_str="${flags[*]}"
-sed -i "s|^Exec=.*|Exec=$HOME/.local/bin/envwrapper $appname $flag_str|" "$desktopdir/${appname}.desktop"
+sed -i "s|^Exec=.*|Exec=$wrapper $appname $flag_str|" "$desktopdir/${appname}.desktop"
 
 # 4. remove duplicate or broken Path= lines
 sed -i '/^Path=.*$/d' "$desktopdir/${appname}.desktop"
@@ -51,9 +52,18 @@ sed -i '/^Path=.*$/d' "$desktopdir/${appname}.desktop"
 # 5. clean trailing whitespace
 sed -i 's/[ \t]*$//' "$desktopdir/${appname}.desktop"
 
-# 6. update database
-update-desktop-database ~/.local/share/applications
+# 6. update desktop DB
+update-desktop-database "$desktopdir"
+
+# 7. generate CLI wrapper
+wrapper_path="$wrapperdir/$appname"
+cat > "$wrapper_path" <<EOF
+#!/bin/bash
+exec $wrapper "$appname" $flag_str "\$@"
+EOF
+chmod +x "$wrapper_path"
 
 echo "[✓] Patched .desktop file: $desktopdir/${appname}.desktop"
 echo "[✓] Env file written: $envdir/${appname}.env"
-echo "[✓] Now launch '$appname' through rofi/menu as normal!"
+echo "[✓] CLI wrapper created: $wrapper_path"
+echo "[✓] Now run '$appname' from rofi/menu, or call 'wrappers/$appname <args>' from terminal"
