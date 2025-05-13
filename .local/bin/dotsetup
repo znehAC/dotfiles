@@ -55,26 +55,6 @@ if [ -n "$profile_dir" ] && [ -f "$SETUP/firefox/user.js" ]; then
   cp "$SETUP/firefox/user.js" "$profile_dir/user.js"
 fi
 
-## === restore SDDM theme ===
-theme_name="ittu-motion"
-theme_src="$SETUP/sddm-theme"
-theme_dst="/usr/share/sddm/themes/$theme_name"
-
-if [ -d "$theme_src" ]; then
-  log "🎨 restoring SDDM theme ($theme_name)..."
-  sudo mkdir -p "$theme_dst"
-  sudo rsync -a --delete "$theme_src/" "$theme_dst/"
-  sudo chown -R root:root "$theme_dst"
-
-  sudo mkdir -p /etc/sddm.conf.d
-  echo -e "[Theme]\nCurrent=$theme_name" | sudo tee /etc/sddm.conf.d/20-theme.conf > /dev/null
-fi
-
-## === restore SDDM wallpaper ===
-if [ -f "$SETUP/wallpapers/wallpaper.jpg" ]; then
-  sudo cp "$SETUP/wallpapers/wallpaper.jpg" "$theme_dst/backgrounds/wallpaper.jpg" || true
-fi
-
 ## === restore user icon ===
 icon_file="$SETUP/user-icon"
 if [ -f "$icon_file" ]; then
@@ -112,7 +92,6 @@ sudo tee /etc/security/limits.d/99-realtime.conf > /dev/null <<EOF
 EOF
 
 
-
 # tell user to reboot after first run
 echo "✅ realtime audio configured. reboot for changes to apply."
 
@@ -140,6 +119,10 @@ if [ -f "$env_backup" ]; then
     log "⏭ skipped /etc/environment restore."
   fi
 fi
+
+## === restore /etc/greetd ===
+sudo mkdir -p /etc/greetd
+sudo cp -r "$SETUP/etc/greetd" /etc/greetd
 
 
 ## === restore local .desktop overrides ===

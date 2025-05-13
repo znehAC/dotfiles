@@ -30,17 +30,6 @@ if [ -f "$wallpaper_src" ]; then
   rsync -a "$wallpaper_src" "$wallpaper_dst"
 fi
 
-## === backup SDDM theme ===
-theme_name="ittu-motion"
-theme_src="/usr/share/sddm/themes/$theme_name"
-theme_dst="$SETUP/sddm-theme"
-
-if [ -d "$theme_src" ]; then
-  log "🎨 backing up SDDM theme..."
-  sudo rsync -a --delete "$theme_src/" "$theme_dst/"
-  sudo chown -R $USER:$USER "$theme_dst"
-fi
-
 ## === backup fonts ===
 font_src="$HOME/.local/share/fonts"
 font_dst="$SETUP/fonts"
@@ -91,6 +80,10 @@ fi
 log "🌍 backing up /etc/environment..."
 sudo cp /etc/environment "$SETUP/environment"
 sudo chown $USER:$USER "$SETUP/environment"
+
+## === backup /etc/greetd/config.toml
+mkdir -p "$SETUP/etc/greetd"
+sudo cp -r /etc/greetd "$SETUP/etc/greetd"
 
 ## === stage dotfiles ===
 FILES_TO_TRACK=(
