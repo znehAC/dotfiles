@@ -147,6 +147,7 @@ python
 python-pyqt6
 qbittorrent-nox
 qt5-graphicaleffects
+rclone
 rebuild-detector
 reflector
 rofi-lbonn-wayland-git
@@ -210,6 +211,7 @@ xorg-xrandr
 xsettingsd
 yay
 zip
+zotero
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
