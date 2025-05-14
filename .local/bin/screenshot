@@ -1,0 +1,27 @@
+#!/bin/bash
+
+LOCKFILE="/tmp/screenshot.lock"
+
+# prevent concurrent runs
+exec 9>"$LOCKFILE"
+flock -n 9 || exit 0  # exits silently if already running
+
+DIR="${HYPRSHOT_DIR:-$HOME/Pictures/Screenshots}"
+mkdir -p "$DIR"
+FILE="$DIR/screenshot_$(date +%s).png"
+
+wayfreeze --hide-cursor &
+FREEZE_PID=$!
+sleep 0.1
+
+REGION=$(slurp)
+if [ -z "$REGION" ]; then
+  kill $FREEZE_PID
+  exit 1
+fi
+
+if grim -g "$REGION" "$FILE" && wl-copy < "$FILE"; then
+  notify-send -i "$FILE" "📸 screenshot saved + copied" "$FILE"
+fi
+
+kill $FREEZE_PID
