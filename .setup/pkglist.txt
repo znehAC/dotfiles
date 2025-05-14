@@ -46,6 +46,7 @@ gnome-themes-extra
 gparted
 greetd
 greetd-gtkgreet
+grim
 grub
 gst-libav
 gst-plugin-pipewire
@@ -62,7 +63,6 @@ hwdetect
 hyprcursor
 hyprland
 hyprlock
-hyprshot
 hyprutils
 i2c-tools
 imv
@@ -103,7 +103,7 @@ modemmanager
 mpv
 mtools
 nano
-nautilus
+ncdu
 networkmanager
 networkmanager-openconnect
 networkmanager-openvpn
@@ -157,6 +157,7 @@ rtkit
 sassc
 seahorse
 sg3_utils
+slurp
 socat
 sof-firmware
 solaar
@@ -169,6 +170,7 @@ swaync-git
 sysfsutils
 systemd-sysvcompat
 texinfo
+thunar
 ttf-bitstream-vera
 ttf-dejavu
 ttf-font-awesome
@@ -184,6 +186,7 @@ vesktop
 vkd3d-proton-bin
 vulkan-tools
 waybar
+wayfreeze-git
 wget
 which
 windsurf
@@ -194,6 +197,7 @@ winetricks
 wireguard-tools
 wireplumber
 wl-clip-persist
+wl-clipboard
 wpa_supplicant
 xclip
 xdg-desktop-portal
