@@ -5,15 +5,15 @@
 #   done
 # fi
 
+# 
+# # preferred apps
+# export EDITOR="micro"
+# export VISUAL="$EDITOR"
+# export BROWSER="firefox"
+# export TERMINAL="foot"
+# export TERM="xterm-256color"
+# export FILE_MANAGER="nautilus"
+# export VIDEO_PLAYER="mpv"
+# export IMAGE_VIEWER="imv"
 
-# preferred apps
-export EDITOR="micro"
-export VISUAL="$EDITOR"
-export BROWSER="firefox"
-export TERMINAL="kitty"
-export FILE_MANAGER="nautilus"
-export VIDEO_PLAYER="mpv"
-export IMAGE_VIEWER="imv"
-
-export HYPRSHOT_DIR="$HOME/Pictures/Screenshots"
-export PATH="$HOME/.local/bin:$PATH"
+# export PATH="$HOME/.local/bin:$PATH"

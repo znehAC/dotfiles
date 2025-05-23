@@ -4,34 +4,3 @@ __GLX_VENDOR_LIBRARY_NAME=nvidia
 LIBVA_DRIVER_NAME=nvidia
 NVD_BACKEND=direct
 VDPAU_DRIVER=nvidia
-
-
-# wayland backend settings
-XDG_SESSION_TYPE=wayland
-XDG_CURRENT_DESKTOP=Hyprland
-XDG_SESSION_DESKTOP=Hyprland
-QT_QPA_PLATFORM=wayland
-SDL_VIDEODRIVER=wayland
-CLUTTER_BACKEND=wayland
-GDK_BACKEND=wayland
-
-EGL_PLATFORM=wayland
-
-# user preferences
-MOZ_USE_XINPUT2=1
-MOZ_ACCELERATED=1
-MOZ_ENABLE_WAYLAND=1
-MOZ_DISABLE_RDD_SANDBOX=1 # this enabled hard accel
-ELECTRON_OZONE_PLATFORM_HINT=wayland
-# OZONE_PLATFORM=wayland
-XCURSOR_THEME=catppuccin-latte-light-cursors
-XCURSOR_SIZE=24
-
-# applications
-EDITOR=micro
-VISUAL=micro
-TERMINAL=kitty
-BROWSER=firefox
-FILE_MANAGER=nautilus
-VIDEO_PLAYER=mpv
-IMAGE_VIEWER=imv

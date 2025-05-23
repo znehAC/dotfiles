@@ -1,2 +1,2 @@
 #!/bin/bash
-exec /home/cesar/.local/bin/envwrapper "windsurf" --enable-features=UseOzonePlatform,WaylandLinuxDrmSyncobj "$@"
+exec /home/cesar/.local/bin/envwrapper "windsurf" --use-gl=egl --enable-features=UseOzonePlatform,WaylandWindowDecorations "$@"

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/cesar/.local/bin/envwrapper foot
+Icon=foot
+Terminal=true
+Categories=System;TerminalEmulator;
+Keywords=shell;prompt;command;commandline;kitty
+
+Name=Foot
+GenericName=Terminal
+Comment=A wayland native terminal emulator
