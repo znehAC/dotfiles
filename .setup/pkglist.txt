@@ -2,6 +2,7 @@ accountsservice
 alsa-plugins
 aspell
 aspell-pt
+atuin
 aws-cli-bin
 base
 base-devel
@@ -14,9 +15,11 @@ cage
 cantarell-fonts
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
+clang
 clipse
 cmake
 cryptsetup
+cuda
 device-mapper
 diffutils
 dmraid
@@ -27,6 +30,7 @@ dosfstools
 downgrade
 dracut
 e2fsprogs
+easyeffects
 efibootmgr
 endeavouros-branding
 endeavouros-keyring
@@ -41,6 +45,7 @@ fastfetch
 ffmpegthumbnailer
 firefox
 firewalld
+foot
 gnome-keyring
 gnome-themes-extra
 gparted
@@ -68,10 +73,12 @@ i2c-tools
 imv
 intel-ucode
 iptables-nft
+ipython
 jfsutils
 joyutils
+jq
 jre-openjdk
-kitty-git
+kdenlive
 krita
 less
 lib32-gnutls
@@ -99,6 +106,7 @@ mdadm
 mesa-utils
 meson
 micro
+mkinitcpio
 modemmanager
 mpv
 mtools
@@ -123,9 +131,11 @@ nvidia-hook
 nvidia-inst
 nvidia-settings
 nvtop
+obs-studio
 openresolv
 openrgb-git
 openssh
+opentabletdriver
 os-prober
 pacman-contrib
 parsec-bin
@@ -139,11 +149,13 @@ pkgfile
 plocate
 polkit-gnome
 poppler-glib
+postgresql
 postgresql-libs
 postman-bin
 power-profiles-daemon
 protontricks
 python
+python-pip
 python-pyqt6
 qbittorrent-nox
 qt5-graphicaleffects
@@ -162,7 +174,9 @@ socat
 sof-firmware
 solaar
 spotify
+starship
 steam
+strace
 stress-ng
 sudo
 swaybg
@@ -183,10 +197,12 @@ upower
 usbutils
 uv
 vesktop
+visual-studio-code-bin
 vkd3d-proton-bin
 vulkan-tools
 waybar
 wayfreeze-git
+wev
 wget
 which
 windsurf
@@ -212,6 +228,7 @@ xorg-xinit
 xorg-xinput
 xorg-xkill
 xorg-xrandr
+xournalpp
 xsettingsd
 yay
 zip

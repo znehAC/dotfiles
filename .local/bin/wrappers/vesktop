@@ -1,0 +1,2 @@
+#!/bin/bash
+exec /home/cesar/.local/bin/envwrapper "vesktop" --enable-features=UseOzonePlatform,WaylandWindowDecorations "$@"

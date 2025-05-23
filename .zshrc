@@ -8,30 +8,6 @@ setopt append_history
 
 WORDCHARS=${WORDCHARS//\//}
 
-# === Prompt functions ===
-git_branch() {
-  command git rev-parse --is-inside-work-tree &>/dev/null || return
-  local branch color
-  branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null)
-  if [[ -n $branch ]]; then
-    if ! git diff --quiet --ignore-submodules HEAD 2>/dev/null; then
-      color=red  # uncommitted changes
-    elif ! git diff --cached --quiet --ignore-submodules 2>/dev/null; then
-      color=yellow  # staged but uncommitted
-    else
-      color=green  # clean
-    fi
-    echo "%{%F{$color}%}%B($branch)%b%{%f%}"
-  fi
-}
-
-venv_info() {
-  [[ -n "$VIRTUAL_ENV" ]] && echo "%{%F{green}%}🐍%{%f%} "
-}
-
-# === Prompt ===
-PROMPT='$(venv_info)%{%F{blue}%}%1~%{%f%} ❯ '
-RPROMPT='$(git_branch)'
 
 # === History ===
 HISTSIZE=500000
@@ -47,11 +23,21 @@ setopt extended_history
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
-source ~/.local/share/zsh/plugins/zsh-shift-select/zsh-shift-select.plugin.zsh
+source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
 
 if [[ -f ~/.zprofile ]]; then
   source ~/.zprofile
 fi
+
+
+# === Prompt ===
+eval "$(starship init zsh)"
+# PROMPT='%F{cyan}%n@%m %F{yellow}%1~%f %# '
+# RPROMPT=''
+
+TRAPWINCH() {
+  zle && zle reset-prompt
+}
 
 # === Aliases ===
 alias ll='ls -lh'
@@ -61,11 +47,12 @@ alias docker-compose='docker compose'
 alias nano='micro'
 alias sudo='sudo '
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias history='atuin history list'
+alias nvcc='nvcc -arch=sm_80'
 
 wind() {
   "$HOME/.local/bin/wrappers/windsurf" "${@:-.}"
 }
-alias code='wind'
 # === Keybinds ===
 bindkey -e
 source ~/.zsh/keybinds.zsh
@@ -74,11 +61,8 @@ if [[ $- == *i* ]]; then
   fastfetch
 fi
 
-fc -R ~/.zsh_history
-# === Winch handler for window resize ===
-TRAPWINCH() {
-  zle && zle reset-prompt
-}
+# fc -R ~/.zsh_history
+eval "$(atuin init zsh --disable-up-arrow)"
 
 # === Environment ===
 export PATH="$HOME/bin:$PATH"
@@ -88,3 +72,4 @@ export EDITOR=micro
 
 
 export PATH="$HOME/.npm-global/bin:$PATH"
+export PATH=/opt/cuda/bin:$PATH

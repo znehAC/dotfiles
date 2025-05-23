@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Vesktop
-Exec=/home/cesar/.local/bin/envwrapper vesktop --use-gl=egl --enable-features=UseOzonePlatform,WaylandWindowDecorations
+Exec=/home/cesar/.local/bin/envwrapper vesktop --enable-features=UseOzonePlatform,WaylandWindowDecorations
 Terminal=false
 Type=Application
 Icon=vesktop
