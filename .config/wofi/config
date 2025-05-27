@@ -1,7 +1,0 @@
-prompt=
-show=drun
-allow_images=true
-width=500
-height=300
-insensitive=true
-term=kitty
