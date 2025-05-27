@@ -88,7 +88,7 @@ sudo cp -r /etc/greetd "$SETUP/etc/greetd"
 ## === stage dotfiles ===
 FILES_TO_TRACK=(
   .zshrc .zshenv .zprofile .bash_profile .gitconfig
-  .config/hypr .config/waybar .config/kitty .config/rofi
+  .config/hypr .config/waybar .config/rofi
   .config/swaync .config/fastfetch .config/zsh
   .config/environment.d/
   .config/eww
@@ -98,6 +98,8 @@ FILES_TO_TRACK=(
   .local/bin/
   .local/share/envwrapper
   .local/share/applications/*.desktop
+  .zsh/ .config/nvim .config/starship.toml
+  .config/xournalapp .config/foot
 )
 
 log "📝 staging modified dotfiles..."

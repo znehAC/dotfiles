@@ -10,6 +10,7 @@ bash-completion
 bind
 bluez
 bluez-utils
+btop
 btrfs-progs
 cage
 cantarell-fonts
