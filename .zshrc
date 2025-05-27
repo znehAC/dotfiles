@@ -1,4 +1,4 @@
-# === Zsh basic setup ===
+
 autoload -Uz compinit colors add-zsh-hook
 compinit
 colors
@@ -39,7 +39,19 @@ TRAPWINCH() {
   zle && zle reset-prompt
 }
 
-# === Aliases ===
+
+uvvenv() {
+    uv venv "$@"
+    # wait for the venv's activate script (means venv is fully created)
+    while [[ ! -f .venv/bin/activate ]]; do
+        sleep 0.1
+    done
+    if [[ ! -f .envrc ]]; then
+        echo 'export VIRTUAL_ENV=".venv"; layout python' > .envrc
+    fi
+    direnv allow
+}
+
 alias ll='ls -lh'
 alias gs='git status'
 alias dc='docker compose'
@@ -49,6 +61,7 @@ alias sudo='sudo '
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias history='atuin history list'
 alias nvcc='nvcc -arch=sm_80'
+alias vim='nvim'
 
 wind() {
   "$HOME/.local/bin/wrappers/windsurf" "${@:-.}"
@@ -63,6 +76,7 @@ fi
 
 # fc -R ~/.zsh_history
 eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(direnv hook zsh)"
 
 # === Environment ===
 export PATH="$HOME/bin:$PATH"

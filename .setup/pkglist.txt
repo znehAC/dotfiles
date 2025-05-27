@@ -22,6 +22,7 @@ cryptsetup
 cuda
 device-mapper
 diffutils
+direnv
 dmraid
 dnsmasq
 docker
@@ -112,6 +113,7 @@ mpv
 mtools
 nano
 ncdu
+neovim
 networkmanager
 networkmanager-openconnect
 networkmanager-openvpn
@@ -147,6 +149,7 @@ pipewire-jack
 pipewire-pulse
 pkgfile
 plocate
+pokeget
 polkit-gnome
 poppler-glib
 postgresql
@@ -155,6 +158,7 @@ postman-bin
 power-profiles-daemon
 protontricks
 python
+python-numpy
 python-pip
 python-pyqt6
 qbittorrent-nox
@@ -185,6 +189,7 @@ sysfsutils
 systemd-sysvcompat
 texinfo
 thunar
+trivy
 ttf-bitstream-vera
 ttf-dejavu
 ttf-font-awesome
