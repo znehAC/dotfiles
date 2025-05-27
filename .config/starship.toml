@@ -1,0 +1,69 @@
+add_newline = true
+command_timeout = 2000
+
+format = """$env_var$username$hostname $directory $git_branch $git_status $python
+$character
+"""
+
+[character]
+success_symbol = "╰─▶"
+error_symbol = "╰─✗"
+
+[env_var]
+symbol = "╭╴"
+variable = 'SHELL'
+format = "$symbol"
+disabled = false
+
+[username]
+style_user = "bold #7fbbff"        # softer blue
+style_root = "bold #6a504a"        # less harsh dark brown
+format = "[$user:]($style)"
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = true
+format = "[[$hostname]󰇙]($style)"
+style = "bold #6aa0ff"             # pastel blue
+disabled = false
+
+[directory]
+truncation_symbol = "󰇘/"
+home_symbol = "~"
+read_only = ' []'
+format = "[$path$read_only]($style)"
+style = "bold #66afff"             # light pastel blue
+
+[git_branch]
+symbol = "  "
+format = "[](#bb5588) [$symbol$branch]($style)"  # changed symbol to separator icon you liked
+style = "bold #ff7f9e"             # muted pastel pink
+
+[git_status]
+style = "bold #db7a8f"             # soft rosy pink
+format = '[\[($all_status)\]]($style)'
+conflicted = ""
+ahead = "⇡"
+behind = "⇣"
+stashed = ""
+modified = ""
+staged = ""
+renamed = "➜"
+deleted = ""
+untracked = ""
+
+[python]
+symbol = "󰌠"
+python_binary = ["./venv/bin/python", "python", "python3", "python2"]
+format = "[](#bb5588) [$symbol $pyenv_prefix-($version) $virtualenv]($style)"  # keep consistent separator
+style = "#eea296"                  # lighter peachy pink
+
+[docker_context]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ruby]
+disabled = true
