@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=STRAFTAT
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/2386720
+Icon=steam_icon_2386720
+Terminal=false
+Type=Application
+Categories=Game;

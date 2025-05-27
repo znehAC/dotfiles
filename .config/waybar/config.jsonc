@@ -43,8 +43,8 @@
   },
 
   "network": {
-    "format-wifi": "  <span font_family='monospace > {bandwidthDownBits} </span>",
-    "format-ethernet": "  <span font_family='monospace'> {bandwidthDownBits} </span>",
+    "format-wifi": "  <span font_family='monospace' > {bandwidthDownBits:>8} </span>",
+    "format-ethernet": "  <span font_family='monospace'> {bandwidthDownBits:>8} </span>",
     "format-disconnected": "",
     "interval": 5,
     "tooltip": false
