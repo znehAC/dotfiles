@@ -78,6 +78,20 @@ fi
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(direnv hook zsh)"
 
+
+if command -v tmux >/dev/null 2>&1; then
+  if [ -z "$TMUX" ]; then
+    # check if session exists
+    if tmux has-session -t 󱥰 2>/dev/null; then
+      # session exists: create new window and attach
+      tmux new-window -t 󱥰 && tmux attach -t 󱥰
+    else
+      # session doesn't exist: create new session (with first window)
+      tmux new-session -s 󱥰
+    fi
+  fi
+fi
+
 # === Environment ===
 export PATH="$HOME/bin:$PATH"
 export MICRO_TRUECOLOR=1
