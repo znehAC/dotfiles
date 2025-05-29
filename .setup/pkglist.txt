@@ -142,6 +142,7 @@ opentabletdriver
 os-prober
 pacman-contrib
 parsec-bin
+pastel
 pavucontrol
 perf
 perl
@@ -190,6 +191,7 @@ sysfsutils
 systemd-sysvcompat
 texinfo
 thunar
+tmux
 trivy
 ttf-bitstream-vera
 ttf-dejavu
@@ -209,6 +211,7 @@ vulkan-tools
 waybar
 wayfreeze-git
 wev
+wezterm-git
 wget
 which
 windsurf
@@ -237,6 +240,7 @@ xorg-xrandr
 xournalpp
 xsettingsd
 yay
+zellij
 zip
 zotero
 zsh

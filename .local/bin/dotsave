@@ -99,7 +99,7 @@ FILES_TO_TRACK=(
   .local/share/envwrapper
   .local/share/applications/*.desktop
   .zsh/*.zsh .config/nvim .config/starship.toml
-  .config/xournalapp .config/foot
+  .config/xournalapp .config/wezterm .tmux.conf
 )
 
 log "📝 staging modified dotfiles..."
