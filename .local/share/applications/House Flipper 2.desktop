@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=House Flipper 2
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/1190970
+Icon=steam_icon_1190970
+Terminal=false
+Type=Application
+Categories=Game;

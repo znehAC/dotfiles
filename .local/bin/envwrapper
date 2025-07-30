@@ -14,4 +14,4 @@ else
     echo "[envwrapper] no env file for $appname, running clean"
 fi
 
-exec /usr/bin/"$appname" "$@"
+exec "/usr/bin/$appname" "$@"

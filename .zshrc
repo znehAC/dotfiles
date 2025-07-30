@@ -1,3 +1,6 @@
+#if [ -z "$TMUX" ]; then
+#    smart-tsession.sh
+#fi
 
 autoload -Uz compinit colors add-zsh-hook
 compinit
@@ -32,13 +35,11 @@ fi
 
 # === Prompt ===
 eval "$(starship init zsh)"
-# PROMPT='%F{cyan}%n@%m %F{yellow}%1~%f %# '
-# RPROMPT=''
+PROMPT_EOL_MARK=""
 
 TRAPWINCH() {
   zle && zle reset-prompt
 }
-
 
 uvvenv() {
     uv venv "$@"
@@ -60,7 +61,7 @@ alias nano='micro'
 alias sudo='sudo '
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias history='atuin history list'
-alias nvcc='nvcc -arch=sm_80'
+alias nvcc8='nvcc -arch=sm_80'
 alias vim='nvim'
 
 wind() {
@@ -78,19 +79,6 @@ fi
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(direnv hook zsh)"
 
-
-if command -v tmux >/dev/null 2>&1; then
-  if [ -z "$TMUX" ]; then
-    # check if session exists
-    if tmux has-session -t 󱥰 2>/dev/null; then
-      # session exists: create new window and attach
-      tmux new-window -t 󱥰 && tmux attach -t 󱥰
-    else
-      # session doesn't exist: create new session (with first window)
-      tmux new-session -s 󱥰
-    fi
-  fi
-fi
 
 # === Environment ===
 export PATH="$HOME/bin:$PATH"

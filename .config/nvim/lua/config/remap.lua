@@ -19,6 +19,11 @@ vim.keymap.set("n", "<leader>Y", [["+Y]])
 
 vim.keymap.set("i", "<C-c>", "<Esc>")
 
+vim.keymap.set("n", "<Esc>", function()
+    vim.cmd("nohlsearch")
+    vim.cmd("echo ''") -- limpa mensagem da statusline
+end, { desc = "clear highlight + echo" })
+
 vim.keymap.set("n", "Q", "<nop>")
 
 vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
