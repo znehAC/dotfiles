@@ -2,34 +2,40 @@
 set -euo pipefail
 trap 'echo "[💥] abort at ${BASH_SOURCE[0]}:$LINENO"; exit 1' ERR
 
+##############################################################################
+# dot‑save  ─ snapshot wallpapers / fonts / system bits and commit dotfiles  #
+##############################################################################
+
 SETUP="$HOME/.setup"
 DOT="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+HOST=$(hostname 2>/dev/null || uname -n)
 
 log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
 log "🧷 saving…"
 mkdir -p "$SETUP"
 
-# wallpapers ────────────────────────────────────────────────────────────────
+# ─────────────────────────── wallpapers ────────────────────────────────────
 for ext in jpg png; do
-  if [[ -f "$HOME/Pictures/wallpaper.$ext" ]]; then
+  wp="$HOME/Pictures/wallpaper.$ext"
+  if [[ -f $wp ]]; then
     mkdir -p "$SETUP/wallpapers"
-    rsync -aHAXx "$HOME/Pictures/wallpaper.$ext" "$SETUP/wallpapers/"
+    rsync -aHAXx "$wp" "$SETUP/wallpapers/"
     break
   fi
 done
 
-# fonts
-if [[ -d "$HOME/.local/share/fonts" ]]; then
+# ───────────────────────────── fonts ───────────────────────────────────────
+if [[ -d $HOME/.local/share/fonts ]]; then
   log "🔤 fonts…"
   rsync -aHAXx --delete "$HOME/.local/share/fonts/" "$SETUP/fonts/"
 fi
 
-# user icon
+# ─────────────────────────── user icon ─────────────────────────────────────
 ICON_SRC="/var/lib/AccountsService/icons/$USER"
 [[ -f $ICON_SRC ]] && cp "$ICON_SRC" "$SETUP/user-icon"
 
-# zen browser desktop + user.js
+# ───────────── zen browser desktop + profile prefs (user.js) ───────────────
 if [[ -f /usr/share/applications/zen.desktop ]]; then
   mkdir -p "$SETUP/zen"
   cp /usr/share/applications/zen.desktop "$SETUP/zen/"
@@ -38,21 +44,20 @@ fi
 profile_dir=$(find "$HOME/.mozilla" -maxdepth 2 -type d -name '*.zen*' | head -n1 || true)
 [[ -n $profile_dir && -f $profile_dir/user.js ]] && cp "$profile_dir/user.js" "$SETUP/zen/"
 
-# pkg lists
+# ──────────────────────────── package lists ────────────────────────────────
 if command -v yay &>/dev/null; then
-  yay -Qqen > "$SETUP/pkglist-repo.txt"
-  yay -Qqem > "$SETUP/pkglist-aur.txt"
+  yay  -Qqen > "$SETUP/pkglist-repo.txt"
+  yay  -Qqem > "$SETUP/pkglist-aur.txt"
 elif command -v paru &>/dev/null; then
   paru -Qqen > "$SETUP/pkglist-repo.txt"
   paru -Qqem > "$SETUP/pkglist-aur.txt"
 fi
 
-# greetd + environment
+# ───────────────────────────── system files ────────────────────────────────
 sudo rsync -aHAXx /etc/greetd/ "$SETUP/etc/greetd/"
-sudo cp /etc/environment "$SETUP/environment"
-sudo chown "$USER":"$USER" "$SETUP/environment"
+sudo cp /etc/environment "$SETUP/environment" && sudo chown "$USER":"$USER" "$SETUP/environment"
 
-# dotfiles tracking list
+# ─────────────────────────── dotfiles staging ──────────────────────────────
 FILES_TO_TRACK=(
   .zshrc .zshenv .zprofile .gitconfig
   .config/hypr/ .config/waybar/ .config/rofi/
@@ -65,15 +70,30 @@ FILES_TO_TRACK=(
   .tmux.conf
 )
 
-log "📝 staging…"
-for f in "${FILES_TO_TRACK[@]}"; do
-  [[ -e $HOME/$f ]] && $DOT add -- "$f"
+log "📝 staging dotfiles…"
+for path in "${FILES_TO_TRACK[@]}"; do
+  [[ -e $HOME/$path ]] && $DOT add -- "$path"
 done
 
+# ───────────────────── show what will be committed ─────────────────────────
+if ! $DOT diff --cached --quiet; then
+  log "🔍 changes to commit:"
+  printf '%s\n' \
+    "────────────────────────────────────────" \
+    "$( $DOT diff --cached --name-status | sort )" \
+    "────────────────────────────────────────"
+else
+  log "⚠️  nothing new to commit."
+fi
+
+# ───────────────────────────── commit / push ───────────────────────────────
 if ! $DOT diff --cached --quiet; then
   log "✅ committing…"
-  $DOT commit -m "backup: $(date '+%F %T') on $(hostname)"
-  [[ ${1:-} == "--push" ]] && $DOT push
-else
-  log "⚠️  nothing to commit."
+  $DOT commit -m "backup: $(date '+%F %T') on $HOST" >/dev/null
+  if [[ ${1:-} == "--push" ]]; then
+    log "📡 pushing…"
+    $DOT push --quiet
+  else
+    log "☑️  run 'dot push' later to sync."
+  fi
 fi
