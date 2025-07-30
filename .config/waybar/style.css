@@ -1,116 +1,168 @@
 /* ~/.config/waybar/style.css */
 * {
-  border: none;
-  border-radius: 10px;
-  font-family: "GeistMono Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  margin: 0;
-  padding: 0;
-  background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: "GeistMono Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    background: transparent;
 }
 
 /* main bar */
 #waybar {
-  background: linear-gradient(90deg, #ffecec 20%, #e0f0ff 80%);
-  border: 2px solid rgba(83, 166, 227, 0.8);
-  border-radius: 12px;
-  margin: 8px;
-  padding: 8px 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    background: linear-gradient(90deg, #ffecec 20%, #e0f0ff 80%);
+    border: 2px solid rgba(83, 166, 227, 0.8);
+    border-radius: 12px;
+    margin: 8px;
+    padding: 8px 12px;
 }
 
+/* all modules default */
 .module {
-  background-color: rgba(255,224,227,0.95);
-  border: 2px solid rgba(200,220,255,0.3);
-  border-radius: 10px;
-  padding: 4px 8px;
-  margin: 4px 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  color: #332c2c;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: rgba(255,224,227,0.95);
+    border: 2px solid rgba(200,220,255,0.3);
+    border-radius: 10px;
+    padding: 4px 8px;
+    margin: 4px 6px;
+    color: #332c2c;
+    box-shadow:
+        0 0 3px 2px rgba(255,183,223,0.38),
+        0 0 4px 2px rgba(83,166,227,0.33);
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-/* optional for workspace buttons if you want */
+/* -------- STATUS PILL GROUP --------- */
+/* no class, use ID and adjacent selectors */
+#custom-updates,
+#network,
+#wireplumber,
+#custom-notification {
+    border-radius: 0;
+    margin: 3px 0px 4px 0px;
+    border: none;
+    background: rgba(255,224,227,0.95);
+    padding: 4px 8px;
+    color: #332c2c;
+    box-shadow: none;
+}
+
+#custom-updates,
+#network {
+    padding-right: 14px;
+}
+
+#wireplumber {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    margin-left: 6px;
+    box-shadow:
+        -4px 0 4px 0 rgba(255,183,223,0.36),    /* left edge */
+        0 -2px 2px 0 rgba(255,183,223,0.22),    /* top */
+        0 2px 2px 0 rgba(83,166,227,0.21);
+}
+
+#custom-notification {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-right: 2px solid rgba(200,220,255,0.3);
+    margin-right: 6px;
+    padding-left: 12px;
+    box-shadow:
+        4px 0 4px 0 rgba(83,166,227,0.33),  /* right edge ONLY */
+        0 -2px 2px 0 rgba(255,183,223,0.22),/* top */
+        0 2px 2px 0 rgba(83,166,227,0.21);  /* bottom */
+}
+
+#custom-updates:hover,
+#network:hover,
+#wireplumber:hover,
+#custom-notification:hover {
+    background-color: rgba(255,198,199,0.9);
+}
+
+
+/* -------- END STATUS PILL --------- */
+
+/* workspace buttons */
 #workspaces button {
-  background: transparent;
-  color: #332c2c;
-  /* border: 2px solid rgba(200,220,255,0.5); */
-  border-radius: 8px;
-  margin: 0 6px;
-  padding: 2px 6px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.module:hover {
-  background-color: rgba(255,198,199,0.9);
-  box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    background: transparent;
+    color: #332c2c;
+    border-radius: 8px;
+    margin: 0 6px;
+    padding: 2px 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
 }
 
 #workspaces {
-	padding: 1px 6px;
+    padding: 1px 6px;
 }
 
 #workspaces button.active {
-  background: #ffb6b9;
-  color: #fff;
+    background: #ffb6b9;
+    color: #fff;
 }
 
 #workspaces button:hover {
-  background: #ffc6c7;
-  color: #fff;
+    background: #ffc6c7;
+    color: #fff;
 }
 
 #workspaces button.urgent {
-  background: #ffd54f;
-  color: #332c2c;
-  animation: urgent-blink 1.5s infinite alternate;
+    background: #ffd54f;
+    color: #332c2c;
+    animation: urgent-blink 1.5s infinite alternate;
+}
+
+.module:hover {
+    background-color: rgba(255,198,199,0.9);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
 }
 
 /* window title */
 #hyprland-window {
-  background: rgba(255,240,242,0.85);
-  font-weight: 700;
-  padding: 6px 12px;
-  min-width: 200px;
-  color: #332c2c;
+    background: rgba(255,240,242,0.85);
+    font-weight: 700;
+    padding: 6px 12px;
+    min-width: 200px;
+    color: #332c2c;
 }
 
 /* tooltips */
 tooltip,
 menuitem:hover,
 menuitem:focus {
-  background-color: rgba(255,224,227,0.95);
-  color: #332c2c;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background-color: rgba(255,224,227,0.95);
+    color: #332c2c;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 /* urgent workspace blink */
 @keyframes urgent-blink {
-  from { background-color: #ff8fa3; }
-  to   { background-color: #ffc6d0; }
+  from { background-color: #ffeaa7; }
+  to   { background-color: #fff5ce; }
 }
 
 /* tray context menu */
 #waybar menu {
-  background-color: rgba(255,224,227,0.95);
-  color: #332c2c;
-  border-radius: 8px;
-  padding: 6px 10px;
-  min-width: 140px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    background-color: rgba(255,224,227,0.95);
+    color: #332c2c;
+    border-radius: 8px;
+    padding: 6px 10px;
+    min-width: 140px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 #waybar menuitem {
-  padding: 4px 8px;
+    padding: 4px 8px;
 }
 
 #waybar menuitem:hover,
 #waybar menuitem:focus {
-  background-color: rgba(255,198,199,0.9);
+    background-color: rgba(255,198,199,0.9);
 }
-

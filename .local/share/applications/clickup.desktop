@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=ClickUp
-Exec=/home/cesar/.local/bin/envwrapper clickup --enable-features=UseOzonePlatform,WaylandLinuxDrmSyncobj
+Exec=/home/cesar/.local/bin/envwrapper clickup
 Icon=/opt/clickup/logo.svg
 Type=Application
 Categories=Utility

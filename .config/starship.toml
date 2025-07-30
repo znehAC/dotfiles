@@ -1,16 +1,16 @@
 add_newline = true
 command_timeout = 2000
+right_format = ""
 
-format = """$env_var$username$hostname $directory $git_branch $git_status $python
-$character
-"""
+format = """$env_var$username$hostname $directory$git_branch$git_status$python
+$character"""
+
 
 [character]
-success_symbol = "╰─▶"
-error_symbol = "╰─✗"
+success_symbol = "❯"
+error_symbol = "❯"
 
 [env_var]
-symbol = "╭╴"
 variable = 'SHELL'
 format = "$symbol"
 disabled = false

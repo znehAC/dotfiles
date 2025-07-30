@@ -10,3 +10,7 @@
 [user]
 	name = znehAC
 	email = adrianocesar321@gmail.com
+[init]
+	defaultBranch = main
+[fetch]
+	prune = true

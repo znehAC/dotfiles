@@ -34,23 +34,28 @@ printf "%s\n" "${envs[@]}" > "$envdir/${appname}.env"
 
 # 2. find and copy .desktop
 srcdesktop=$(find /usr/share/applications ~/.local/share/applications -name "${appname}.desktop" | head -n1)
+if [[ -z "$srcdesktop" ]]; then
+  srcdesktop=$(find /usr/share/applications ~/.local/share/applications -iname "*${appname}*.desktop" | head -n1)
+fi
 
 if [[ -z "$srcdesktop" ]]; then
   echo "❌ No .desktop file found for $appname."
   exit 1
 fi
 
-cp "$srcdesktop" "$desktopdir/"
+basename_app=$(basename "$srcdesktop" .desktop)
 
-# 3. patch Exec line
+cp "$srcdesktop" "$desktopdir/${basename_app}.desktop"
+
+# 3. patch Exec line (add %u for custom schemes)
 flag_str="${flags[*]}"
-sed -i "s|^Exec=.*|Exec=$wrapper $appname $flag_str|" "$desktopdir/${appname}.desktop"
+sed -i "s|^Exec=.*|Exec=$wrapper $appname $flag_str %u|" "$desktopdir/${basename_app}.desktop"
 
 # 4. remove duplicate or broken Path= lines
-sed -i '/^Path=.*$/d' "$desktopdir/${appname}.desktop"
+sed -i '/^Path=.*$/d' "$desktopdir/${basename_app}.desktop"
 
 # 5. clean trailing whitespace
-sed -i 's/[ \t]*$//' "$desktopdir/${appname}.desktop"
+sed -i 's/[ \t]*$//' "$desktopdir/${basename_app}.desktop"
 
 # 6. update desktop DB
 update-desktop-database "$desktopdir"
@@ -63,7 +68,7 @@ exec $wrapper "$appname" $flag_str "\$@"
 EOF
 chmod +x "$wrapper_path"
 
-echo "[✓] Patched .desktop file: $desktopdir/${appname}.desktop"
+echo "[✓] Patched .desktop file: $desktopdir/${basename_app}.desktop"
 echo "[✓] Env file written: $envdir/${appname}.env"
 echo "[✓] CLI wrapper created: $wrapper_path"
 echo "[✓] Now run '$appname' from rofi/menu, or call 'wrappers/$appname <args>' from terminal"

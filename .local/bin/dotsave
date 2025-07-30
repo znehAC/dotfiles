@@ -1,138 +1,79 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-# pastel save script
-# saves wallpapers, dotfiles, settings in a clean safe way
+trap 'echo "[💥] abort at ${BASH_SOURCE[0]}:$LINENO"; exit 1' ERR
 
 SETUP="$HOME/.setup"
 DOT="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
-timestamp() {
-  date '+%Y-%m-%d %H:%M:%S'
-}
+log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
-log() {
-  echo "[$(timestamp)] $*"
-}
-
-log "🧷 starting dotfiles save..."
-
-# ensure setup dir exists
+log "🧷 saving…"
 mkdir -p "$SETUP"
 
-## === backup wallpaper ===
-wallpaper_src="$HOME/Pictures/wallpaper.jpg"
-wallpaper_dst="$SETUP/wallpapers/wallpaper.jpg"
-
-if [ -f "$wallpaper_src" ]; then
-  log "🖼 backing up wallpaper..."
-  mkdir -p "$(dirname "$wallpaper_dst")"
-  rsync -a "$wallpaper_src" "$wallpaper_dst"
-fi
-
-## === backup fonts ===
-font_src="$HOME/.local/share/fonts"
-font_dst="$SETUP/fonts"
-
-if [ -d "$font_src" ]; then
-  log "🔤 backing up fonts..."
-  rsync -a --delete "$font_src/" "$font_dst/"
-fi
-
-## === backup user icon ===
-icon_src="/var/lib/AccountsService/icons/$USER"
-icon_dst="$SETUP/user-icon"
-
-if [ -f "$icon_src" ]; then
-  log "👤 backing up user icon..."
-  cp "$icon_src" "$icon_dst"
-fi
-
-## === backup firefox desktop entry ===
-firefox_src="/usr/share/applications/firefox.desktop"
-firefox_dst="$SETUP/firefox/firefox.desktop"
-
-if [ -f "$firefox_src" ]; then
-  log "🖇 backing up firefox.desktop..."
-  mkdir -p "$(dirname "$firefox_dst")"
-  cp "$firefox_src" "$firefox_dst"
-fi
-
-## === backup firefox user.js ===
-profile_dir=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default*" | head -n1 || true)
-
-if [ -n "$profile_dir" ] && [ -f "$profile_dir/user.js" ]; then
-  log "🦊 backing up firefox user.js..."
-  cp "$profile_dir/user.js" "$SETUP/firefox/user.js"
-fi
-
-## === save package list ===
-log "📦 saving package list..."
-if command -v yay &>/dev/null; then
-  yay -Qqe > "$SETUP/pkglist.txt"
-elif command -v paru &>/dev/null; then
-  paru -Qqe > "$SETUP/pkglist.txt"
-else
-  log "⚠️  no yay or paru found, skipping package list backup."
-fi
-
-## === backup /etc/environment ===
-log "🌍 backing up /etc/environment..."
-sudo cp /etc/environment "$SETUP/environment"
-sudo chown $USER:$USER "$SETUP/environment"
-
-## === backup /etc/greetd/config.toml
-mkdir -p "$SETUP/etc/greetd"
-sudo cp -r /etc/greetd "$SETUP/etc/greetd"
-
-## === stage dotfiles ===
-FILES_TO_TRACK=(
-  .zshrc .zshenv .zprofile .bash_profile .gitconfig
-  .config/hypr .config/waybar .config/rofi
-  .config/swaync .config/fastfetch .config/zsh
-  .config/environment.d/
-  .config/eww
-  .config/gtk-3.0/settings.ini
-  .config/gtk-4.0/settings.ini
-  .setup/
-  .local/bin/
-  .local/share/envwrapper
-  .local/share/applications/*.desktop
-  .zsh/*.zsh .config/nvim .config/starship.toml
-  .config/xournalapp .config/wezterm .tmux.conf
-)
-
-log "📝 staging modified dotfiles..."
-for file in "${FILES_TO_TRACK[@]}"; do
-  fullpath="$HOME/$file"
-  if [ -e "$fullpath" ]; then
-    $DOT add "$file"
+# wallpapers ────────────────────────────────────────────────────────────────
+for ext in jpg png; do
+  if [[ -f "$HOME/Pictures/wallpaper.$ext" ]]; then
+    mkdir -p "$SETUP/wallpapers"
+    rsync -aHAXx "$HOME/Pictures/wallpaper.$ext" "$SETUP/wallpapers/"
+    break
   fi
 done
 
-# list only what actually changed
-changed_files=$($DOT diff --name-only --cached)
-if [[ -n "$changed_files" ]]; then
-  while IFS= read -r file; do
-    log "➕ $file"
-  done <<< "$changed_files"
-else
-  log "⚠️  nothing new to stage."
+# fonts
+if [[ -d "$HOME/.local/share/fonts" ]]; then
+  log "🔤 fonts…"
+  rsync -aHAXx --delete "$HOME/.local/share/fonts/" "$SETUP/fonts/"
 fi
 
+# user icon
+ICON_SRC="/var/lib/AccountsService/icons/$USER"
+[[ -f $ICON_SRC ]] && cp "$ICON_SRC" "$SETUP/user-icon"
 
+# zen browser desktop + user.js
+if [[ -f /usr/share/applications/zen.desktop ]]; then
+  mkdir -p "$SETUP/zen"
+  cp /usr/share/applications/zen.desktop "$SETUP/zen/"
+fi
 
-## === commit if anything changed ===
+profile_dir=$(find "$HOME/.mozilla" -maxdepth 2 -type d -name '*.zen*' | head -n1 || true)
+[[ -n $profile_dir && -f $profile_dir/user.js ]] && cp "$profile_dir/user.js" "$SETUP/zen/"
+
+# pkg lists
+if command -v yay &>/dev/null; then
+  yay -Qqen > "$SETUP/pkglist-repo.txt"
+  yay -Qqem > "$SETUP/pkglist-aur.txt"
+elif command -v paru &>/dev/null; then
+  paru -Qqen > "$SETUP/pkglist-repo.txt"
+  paru -Qqem > "$SETUP/pkglist-aur.txt"
+fi
+
+# greetd + environment
+sudo rsync -aHAXx /etc/greetd/ "$SETUP/etc/greetd/"
+sudo cp /etc/environment "$SETUP/environment"
+sudo chown "$USER":"$USER" "$SETUP/environment"
+
+# dotfiles tracking list
+FILES_TO_TRACK=(
+  .zshrc .zshenv .zprofile .gitconfig
+  .config/hypr/ .config/waybar/ .config/rofi/
+  .config/swaync/ .config/fastfetch/ .config/zsh/
+  .config/environment.d/ .config/eww/
+  .config/gtk-3.0/ .config/gtk-4.0/
+  .config/nvim/ .config/wezterm/ .config/starship.toml
+  .setup/ .local/bin/ .local/share/envwrapper/
+  .local/share/applications/*.desktop
+  .tmux.conf
+)
+
+log "📝 staging…"
+for f in "${FILES_TO_TRACK[@]}"; do
+  [[ -e $HOME/$f ]] && $DOT add -- "$f"
+done
+
 if ! $DOT diff --cached --quiet; then
-  log "✅ committing changes..."
-  $DOT commit -m "🔒 backup: $(timestamp)" >/dev/null
+  log "✅ committing…"
+  $DOT commit -m "backup: $(date '+%F %T') on $(hostname)"
+  [[ ${1:-} == "--push" ]] && $DOT push
 else
-  log "⚠️  nothing new to commit."
-fi
-
-if [[ "${1:-}" == "--push" ]]; then
-  log "📡 pushing to remote..."
-  $DOT push
-else
-	log "✅ save complete! Run '$DOT push' to sync."
+  log "⚠️  nothing to commit."
 fi

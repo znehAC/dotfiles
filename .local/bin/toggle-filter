@@ -1,0 +1,8 @@
+#!/bin/bash
+if pgrep -x easyeffects > /dev/null; then
+  easyeffects -q
+  notify-send "EasyEffects" "Noise suppression OFF"
+else
+  nohup easyeffects --gapplication-service >/dev/null 2>&1 &
+  notify-send "EasyEffects" "Noise suppression ON"
+fi
