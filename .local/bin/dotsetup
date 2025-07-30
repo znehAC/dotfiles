@@ -1,173 +1,120 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-# pastel restore script
-# restores wallpapers, fonts, settings in a clean way
+trap 'echo "[💥] abort @ ${BASH_SOURCE[0]}:$LINENO"; exit 1' ERR
 
 SETUP="$HOME/.setup"
+log(){ printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
-timestamp() {
-  date '+%Y-%m-%d %H:%M:%S'
+log "🔧 restoring…"
+
+##############################################################################
+# wallpapers
+##############################################################################
+for ext in jpg png; do
+  src="$SETUP/wallpapers/wallpaper.$ext"
+  [[ -f $src ]] && { mkdir -p "$HOME/Pictures"; cp "$src" "$HOME/Pictures/"; break; }
+done
+
+##############################################################################
+# fonts
+##############################################################################
+if [[ -d $SETUP/fonts ]]; then
+  rsync -aHAXx --chmod=u+rwX --delete "$SETUP/fonts/" "$HOME/.local/share/fonts/"
+  fc-cache -fv
+fi
+
+##############################################################################
+# zen browser desktop + user.js
+##############################################################################
+if [[ -f $SETUP/zen/zen.desktop ]]; then
+  mkdir -p "$HOME/.local/share/applications"
+  cp "$SETUP/zen/zen.desktop" "$HOME/.local/share/applications/"
+fi
+
+prof=$(find "$HOME/.mozilla" -maxdepth 2 -type d -name '*.zen*' | head -n1 || true)
+[[ -n $prof && -f $SETUP/zen/user.js ]] && cp "$SETUP/zen/user.js" "$prof/user.js"
+
+##############################################################################
+# user icon (accounts‑service)
+##############################################################################
+if [[ -f $SETUP/user-icon ]]; then
+  sudo install -D "$SETUP/user-icon" "/var/lib/AccountsService/icons/$USER"
+  printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$USER" | \
+    sudo tee "/var/lib/AccountsService/users/$USER" >/dev/null
+  sudo systemctl restart accounts-daemon
+fi
+
+##############################################################################
+# package install
+##############################################################################
+install_list(){ file="$1"; [[ -f $file ]] || return
+  if command -v yay &>/dev/null;  then xargs -a "$file" yay  -S --needed --noconfirm
+  elif command -v paru &>/dev/null; then xargs -a "$file" paru -S --needed --noconfirm
+  else log "⚠️  yay/paru missing → skip packages"; fi
 }
+install_list "$SETUP/pkglist-repo.txt"
+install_list "$SETUP/pkglist-aur.txt"
 
-log() {
-  echo "[$(timestamp)] $*"
-}
-
-log "🔧 starting pastel restore..."
-
-## === restore wallpapers ===
-wallpaper_src="$SETUP/wallpapers/wallpaper.jpg"
-wallpaper_dst="$HOME/Pictures/wallpaper.jpg"
-
-if [ -f "$wallpaper_src" ]; then
-  log "🖼 restoring wallpaper..."
-  mkdir -p "$(dirname "$wallpaper_dst")"
-  cp "$wallpaper_src" "$wallpaper_dst"
-fi
-
-## === restore fonts ===
-font_src="$SETUP/fonts"
-font_dst="$HOME/.local/share/fonts"
-
-if [ -d "$font_src" ]; then
-  log "🔤 restoring fonts..."
-  mkdir -p "$font_dst"
-  rsync -a --delete "$font_src/" "$font_dst/"
-  fc-cache -f
-fi
-
-## === restore firefox.desktop ===
-firefox_src="$SETUP/firefox/firefox.desktop"
-firefox_dst="$HOME/.local/share/applications/firefox.desktop"
-
-if [ -f "$firefox_src" ]; then
-  log "🖇 restoring firefox.desktop..."
-  mkdir -p "$(dirname "$firefox_dst")"
-  cp "$firefox_src" "$firefox_dst"
-fi
-
-## === restore firefox user.js ===
-profile_dir=$(find "$HOME/.mozilla/firefox" -type d -name "*.default*" | head -n1)
-
-if [ -n "$profile_dir" ] && [ -f "$SETUP/firefox/user.js" ]; then
-  log "🦊 restoring firefox user.js..."
-  cp "$SETUP/firefox/user.js" "$profile_dir/user.js"
-fi
-
-## === restore user icon ===
-icon_file="$SETUP/user-icon"
-if [ -f "$icon_file" ]; then
-  log "👤 restoring user icon..."
-  sudo mkdir -p /var/lib/AccountsService/icons/
-  sudo mkdir -p /var/lib/AccountsService/users/
-
-  sudo cp "$icon_file" "/var/lib/AccountsService/icons/$USER"
-  echo -e "[User]\nIcon=/var/lib/AccountsService/icons/$USER" | sudo tee "/var/lib/AccountsService/users/$USER" > /dev/null
-fi
-
-## === install packages from pkglist.txt ===
-pkglist="$SETUP/pkglist.txt"
-
-if [ -f "$pkglist" ]; then
-  if command -v yay &>/dev/null; then
-    log "📦 installing packages with yay..."
-    yay -S --needed --noconfirm $(< "$pkglist") || true
-  elif command -v paru &>/dev/null; then
-    log "📦 installing packages with paru..."
-    paru -S --needed --noconfirm $(< "$pkglist") || true
-  else
-    log "⚠️  no yay/paru found, skipping package restore."
-  fi
-fi
-
-## ===  realtime audio setup ===
-sudo groupadd realtime 2>/dev/null || true
+##############################################################################
+# realtime audio limits
+##############################################################################
+getent group realtime >/dev/null || sudo groupadd realtime
 sudo usermod -aG realtime "$USER"
+sudo install -Dm644 <(printf '@realtime - rtprio 95\n@realtime - memlock unlimited\n') \
+  /etc/security/limits.d/99-realtime.conf
 
-sudo mkdir -p /etc/security/limits.d
-sudo tee /etc/security/limits.d/99-realtime.conf > /dev/null <<EOF
-@realtime   -  rtprio     95
-@realtime   -  memlock    unlimited
-EOF
-
-
-# tell user to reboot after first run
-echo "✅ realtime audio configured. reboot for changes to apply."
-
-
-## === restore envwrapper configs ===
-env_src="$SETUP/envwrapper"
-env_dst="$HOME/.local/share/envwrapper"
-
-if [ -d "$env_src" ]; then
-  log "🧬 restoring envwrapper configs..."
-  mkdir -p "$env_dst"
-  rsync -a --delete "$env_src/" "$env_dst/"
+##############################################################################
+# envwrapper
+##############################################################################
+if [[ -d $SETUP/envwrapper ]]; then
+  rsync -aHAXx --delete "$SETUP/envwrapper/" "$HOME/.local/share/envwrapper/"
 fi
 
-## === restore /etc/environment ===
-env_backup="$SETUP/environment"
+##############################################################################
+# /etc files
+##############################################################################
+if [[ -f $SETUP/environment ]]; then
+  read -rp "overwrite /etc/environment with backup? [y/N] " ans
+  [[ $ans =~ ^[Yy]$ ]] && sudo cp "$SETUP/environment" /etc/environment
+fi
+sudo rsync -aHAXx "$SETUP/etc/greetd/" /etc/greetd/
 
-if [ -f "$env_backup" ]; then
-  log "🌍 restoring /etc/environment..."
-  read -rp "⚠️ overwrite /etc/environment with backup? [y/N] " answer
-  if [[ "$answer" =~ ^[Yy]$ ]]; then
-    sudo cp "$env_backup" /etc/environment
-    log "✅ /etc/environment restored."
-  else
-    log "⏭ skipped /etc/environment restore."
-  fi
+##############################################################################
+# .desktop overrides
+##############################################################################
+if [[ -d $SETUP/desktops ]]; then
+  mkdir -p "$HOME/.local/share/applications"
+  shopt -s nullglob; cp "$SETUP/desktops"/*.desktop "$HOME/.local/share/applications/"; shopt -u nullglob
 fi
 
-## === restore /etc/greetd ===
-sudo mkdir -p /etc/greetd
-sudo cp -r "$SETUP/etc/greetd" /etc/greetd
-
-
-## === restore local .desktop overrides ===
-desktop_src="$SETUP/desktops"
-desktop_dst="$HOME/.local/share/applications"
-
-if [ -d "$desktop_src" ]; then
-  log "📁 restoring .desktop files..."
-  mkdir -p "$desktop_dst"
-  cp "$desktop_src"/*.desktop "$desktop_dst/" || true
-fi
-
-log "♻️ reloading user environment..."
-systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
-
-## === apply GTK settings ===
+##############################################################################
+# gtk + cursor theme
+##############################################################################
 GTK_THEME="catppuccin-latte-pink-standard+default"
 ICON_THEME="Colloid-Pink-Catppuccin"
-SYSTEM_FONT="GeistMono Nerd Font Mono 11"
-
-log "🎨 applying GTK settings..."
-mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
-
-cat > "$HOME/.config/gtk-3.0/settings.ini" <<EOF
-[Settings]
-gtk-theme-name=$GTK_THEME
-gtk-icon-theme-name=$ICON_THEME
-gtk-font-name=$SYSTEM_FONT
-EOF
-
-cp "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
-
-if pgrep -x dconf-service >/dev/null 2>&1; then
-  log "⚙️ applying appearance via gsettings..."
-  gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
-  gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
-  gsettings set org.gnome.desktop.interface font-name "$SYSTEM_FONT" || true
-fi
-
-## === apply cursor settings ===
+SYS_FONT="GeistMono Nerd Font Mono 11"
 CURSOR_THEME="catppuccin-latte-light-cursors"
 CURSOR_SIZE=24
 
-log "🖱 applying cursor theme..."
-gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
-gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
+mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
+cat >"$HOME/.config/gtk-3.0/settings.ini"<<EOF
+[Settings]
+gtk-theme-name=$GTK_THEME
+gtk-icon-theme-name=$ICON_THEME
+gtk-font-name=$SYS_FONT
+EOF
+cp "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
 
-log "✅ restore complete!"
+if command -v gsettings &>/dev/null; then
+  gsettings set org.gnome.desktop.interface gtk-theme   "$GTK_THEME"   || true
+  gsettings set org.gnome.desktop.interface icon-theme  "$ICON_THEME"  || true
+  gsettings set org.gnome.desktop.interface font-name   "$SYS_FONT"    || true
+  gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME"|| true
+  gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
+fi
+
+##############################################################################
+# import env + done
+##############################################################################
+systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
+log "✅ restore done — reboot recommended."
