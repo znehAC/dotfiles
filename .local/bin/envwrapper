@@ -13,5 +13,5 @@ if [[ -f "$envfile" ]]; then
 else
     echo "[envwrapper] no env file for $appname, running clean"
 fi
-
+env > /tmp/envwrapper_debug.log
 exec "/usr/bin/$appname" "$@"
