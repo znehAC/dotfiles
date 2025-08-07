@@ -1,6 +1,5 @@
 anydesk-bin
 aws-cli-bin
-betterbird-bin
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
 clipse
@@ -23,13 +22,11 @@ slack-desktop
 spotify
 stremio
 swaync-git
-ttf-font-awesome
 vesktop
 visual-studio-code-bin
 vkd3d-proton-bin
 wayfreeze-git
 wezterm-git
 windsurf
-xdg-desktop-portal-hyprland-git
 zen-browser-bin
 zotero

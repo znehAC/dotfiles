@@ -42,7 +42,6 @@ exfatprogs
 f2fs-tools
 fastfetch
 ffmpegthumbnailer
-firefox
 firewalld
 flatpak
 foot
@@ -73,7 +72,10 @@ htop
 hwdetect
 hyprcursor
 hyprland
+hyprlang
 hyprlock
+hyprutils
+hyprwayland-scanner
 i2c-tools
 imv
 intel-ucode
@@ -222,9 +224,11 @@ wireguard-tools
 wireplumber
 wl-clip-persist
 wl-clipboard
+woff2-font-awesome
 wpa_supplicant
 xclip
 xdg-desktop-portal
+xdg-desktop-portal-hyprland
 xdg-user-dirs
 xdg-utils
 xf86-input-libinput
