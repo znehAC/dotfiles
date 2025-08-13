@@ -13,9 +13,7 @@
         "hyprland/window"
     ],
 
-    "modules-center": [
-        "custom/media"
-    ],
+    "modules-center": ["custom/media"],
 
     "modules-right": [
         "custom/easyeffects",
@@ -42,13 +40,17 @@
     },
 
     "wireplumber": {
-        "format": "{icon} {volume}%",
-        "format-muted": "",
-        "interval": 1,
-        "format-icons": ["", "", ""],
-        "scroll-step": 5,
-        "on-click": "pavucontrol",
-        "tooltip": false
+      "format": "{icon} {volume}%",
+      "format-muted": "",
+      "format-icons": ["","",""],
+      "scroll-step": 5,
+      "on-click": "pavucontrol",
+      "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+      "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%+",
+      "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
+      "ignored-sinks": ["Easy Effects*", "Auto Gain (EasyEffects)"],
+      "ignored-sources": ["Easy Effects*"],
+      "tooltip": false
     },
 
     "network": {
@@ -57,12 +59,14 @@
         "format-disconnected": "",
         "tooltip": true,
         "tooltip-format": "{ifname} {ipaddr}\n↓ {bandwidthDownBits}bps\n↑ {bandwidthUpBits}bps",
-        "interval": 5
+        "interval": 3
     },
 
     "tray": {
         "spacing": 8,
-        "icon-size": 16
+        "icon-size": 16,
+        "show-passive-items": true,
+        "icon-theme": "Papirus"
     },
 
     "clock": {

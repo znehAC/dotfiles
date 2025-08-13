@@ -8,6 +8,7 @@ f5fpc
 f5vpn
 google-cloud-cli
 heroic-games-launcher-bin
+kdeconnect-git
 mailspring
 openrgb-git
 opentabletdriver

@@ -48,6 +48,10 @@ vim.keymap.set('n', '<leader>?', function()
     vim.cmd('tabnew ~/.config/nvim/cheatsheet.md')
 end, { desc = "open vim cheat sheet" })
 
+
+vim.keymap.set("v", "<Tab>", ">gv", { silent = true })
+vim.keymap.set("v", "<S-Tab>", "<gv", { silent = true })
+
 -- disable arrow keys in all main modes
 vim.keymap.set({ "n", "i", "v" }, "<Up>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Down>", "<nop>")
