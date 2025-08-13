@@ -81,6 +81,7 @@ imv
 intel-ucode
 iptables-nft
 ipython
+irqbalance
 jfsutils
 joyutils
 jq
@@ -97,6 +98,7 @@ libdvdcss
 libgnome-keyring
 libgsf
 libopenraw
+libratbag
 libreoffice-fresh
 libva-nvidia-driver
 libva-utils
@@ -145,6 +147,7 @@ nvidia-inst
 nvidia-settings
 nvtop
 obs-studio
+openbsd-netcat
 openresolv
 openssh
 os-prober
@@ -154,6 +157,7 @@ pastel
 pavucontrol
 perf
 perl
+piper
 pipewire-alsa
 pipewire-jack
 pipewire-pulse
