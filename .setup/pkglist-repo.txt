@@ -1,5 +1,6 @@
 accountsservice
 alsa-plugins
+android-tools
 aspell
 aspell-pt
 atuin
@@ -26,16 +27,11 @@ dnsmasq
 docker
 docker-compose
 dosfstools
-downgrade
 dpkg
 dracut
 e2fsprogs
 easyeffects
 efibootmgr
-endeavouros-branding
-endeavouros-keyring
-endeavouros-mirrorlist
-eos-dracut
 ethtool
 evtest
 exfatprogs
@@ -47,8 +43,10 @@ flatpak
 foot
 freerdp
 gamemode
+gammastep
 garcon
 gdb
+geoclue
 gnome-keyring
 gnome-themes-extra
 gparted
@@ -142,8 +140,6 @@ nss-mdns
 ntfs-3g
 ntp
 nvidia-dkms
-nvidia-hook
-nvidia-inst
 nvidia-settings
 nvtop
 obs-studio
@@ -323,7 +319,7 @@ xorg-xwud
 xournalpp
 xsettingsd
 xterm
-yay
+yt-dlp
 zip
 zsh
 zsh-autosuggestions

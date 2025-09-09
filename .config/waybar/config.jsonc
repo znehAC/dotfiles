@@ -13,7 +13,7 @@
         "hyprland/window"
     ],
 
-    "modules-center": ["custom/media"],
+    "modules-center": ["custom/mpris-prev", "mpris", "custom/mpris-next"],
 
     "modules-right": [
         "custom/easyeffects",
@@ -103,14 +103,28 @@
         "escape": true
     },
 
-    "custom/media": {
-        "interval": 5,
-        "exec": "bash -c 'players=\"$(playerctl -l 2>/dev/null)\"; if [[ \"$players\" == *spotify* ]]; then artist=\"$(playerctl -p spotify metadata artist 2>/dev/null)\"; title=\"$(playerctl -p spotify metadata title 2>/dev/null)\"; printf \"  %.10s %s %.20s\" \"$artist\" \"|\" \"$title\"; elif [[ -n \"$players\" ]]; then player=\"$(echo \"$players\" | head -n1)\"; name=\"$(playerctl -p \"$player\" metadata title 2>/dev/null)\"; printf \"  %.30s\" \"$name\"; else printf \"\"; fi'",
-        "format": "{}",
-        "return-type": "default",
-        "tooltip": false,
-        "on-click": "bash -c 'playerctl -p spotify status &>/dev/null && playerctl -p spotify play-pause || playerctl play-pause'"
+    "mpris": {
+      "format": "{player_icon} {artist} {status_icon} {title}",
+      "max-length": 50,
+      "ellipsis": true,
+      "player-icons": {
+        "spotify": "",
+        "firefox": "",
+      },
+      "status-icons": {
+        "paused": "",
+        "playing": "",
+        "stopped": "",
+      },
+      "on-click": "playerctl play-pause",
+      "on-scroll-up": "playerctld shift",
+      "on-scroll-down": "playerctld unshift",
+      "ignored-players": ["chromium"],
+      "title-len": 20,
+      "artist-len": 10,
     },
+    "custom/mpris-prev": { "format": "⟵", "on-click": "playerctld unshift", "tooltip": false },
+    "custom/mpris-next": { "format": "⟶", "on-click": "playerctld shift",   "tooltip": false },
 
     "custom/updates": {
         "format": "{}",
