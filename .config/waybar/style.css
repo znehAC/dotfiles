@@ -130,18 +130,6 @@
     color: #332c2c;
 }
 
-/* tooltips */
-tooltip,
-menuitem:hover,
-menuitem:focus {
-    background-color: rgba(255,224,227,0.95);
-    color: #332c2c;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
 /* urgent workspace blink */
 @keyframes urgent-blink {
   from { background-color: #ffeaa7; }
@@ -166,3 +154,23 @@ menuitem:focus {
 #waybar menuitem:focus {
     background-color: rgba(255,198,199,0.9);
 }
+
+/* tooltips */
+tooltip,
+menuitem:hover,
+menuitem:focus {
+    background-color: rgba(255,224,227,0.95);
+    color: #332c2c;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+tooltip label {
+  color: #332c2c;
+  font-family: "Geist", "JetBrainsMono Nerd Font", sans-serif;
+  font-weight: 500; 
+  font-size: 13px;     
+}
+

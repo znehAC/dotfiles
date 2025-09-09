@@ -1,8 +1,9 @@
-anydesk-bin
+alvr-nvidia
 aws-cli-bin
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
 clipse
+downgrade
 eww
 f5fpc
 f5vpn
@@ -10,6 +11,7 @@ google-cloud-cli
 heroic-games-launcher-bin
 kdeconnect-git
 mailspring
+opencomposite-git
 openrgb-git
 opentabletdriver
 parsec-bin
@@ -28,6 +30,7 @@ visual-studio-code-bin
 vkd3d-proton-bin
 wayfreeze-git
 wezterm-git
-windsurf
+wivrn-dashboard
+yay
 zen-browser-bin
 zotero
