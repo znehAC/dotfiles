@@ -30,9 +30,42 @@ return {
             [16] = "#ffd6d9",
             [17] = "#ffc6c7",
         },
+        tab_bar = {
+            background = "#ffd6e0", -- soft pink strip
+
+            active_tab = {
+                bg_color = "#a8d8ff", -- baby blue for the selected tab
+                fg_color = "#332c2c",
+                intensity = "Bold",
+            },
+
+            inactive_tab = {
+                bg_color = "#ffeef7", -- lighter pink
+                fg_color = "#665c5c",
+            },
+
+            inactive_tab_hover = {
+                bg_color = "#d6f5ff", -- pale blue hover
+                fg_color = "#332c2c",
+                italic = true,
+            },
+
+            new_tab = {
+                bg_color = "#a8d8ff", -- same baby blue as active tab
+                fg_color = "#332c2c",
+            },
+
+            new_tab_hover = {
+                bg_color = "#ccecff", -- lighter blue hover
+                fg_color = "#332c2c",
+                italic = true,
+            },
+        },
     },
-    enable_tab_bar = false,
+    enable_tab_bar = true,
     enable_scroll_bar = false,
+    use_fancy_tab_bar = false,
+    tab_max_width = 20,
     window_padding = {
         left = 8, right = 8, top = 6, bottom = 6,
     },

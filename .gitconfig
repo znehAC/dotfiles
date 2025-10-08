@@ -14,3 +14,6 @@
 	defaultBranch = main
 [fetch]
 	prune = true
+[color "diff"]
+	old = "#332c2c #ff6b81"
+	new = "#332c2c #a8dadc"

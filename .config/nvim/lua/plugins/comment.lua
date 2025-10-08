@@ -15,6 +15,6 @@ return {
         end, { silent = true })
 
         -- Quick normal/visual toggles (besides gcc / gc in visual)
-        vim.keymap.set({ "n", "v" }, "<C-_>", "gcc", { remap = true, silent = true }) -- some terminals send C-_ instead of C-/
+        vim.keymap.set({ "n", "v" }, "<C-/>", "gcc", { remap = true, silent = true }) -- some terminals send C-_ instead of C-/
     end,
 }
