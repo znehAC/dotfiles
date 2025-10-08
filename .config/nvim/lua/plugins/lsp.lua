@@ -17,6 +17,7 @@ return {
     config = function()
         local autoformat_filetypes = {
             "lua",
+            "cs",
             "python",
             "typescript",
             "javascript",
@@ -111,6 +112,7 @@ return {
                 "html",
                 "cssls",
                 "ruff",
+                "omnisharp",
             },
             handlers = {
                 -- this first function is the "default handler"

@@ -16,6 +16,7 @@ cage
 calf
 cantarell-fonts
 clang
+cli11
 cmake
 cryptsetup
 cuda
@@ -25,6 +26,7 @@ direnv
 dmraid
 dnsmasq
 docker
+docker-buildx
 docker-compose
 dosfstools
 dpkg
@@ -40,15 +42,16 @@ fastfetch
 ffmpegthumbnailer
 firewalld
 flatpak
-foot
 freerdp
 gamemode
 gammastep
 garcon
 gdb
 geoclue
+glib2-devel
 gnome-keyring
 gnome-themes-extra
+godot-mono
 gparted
 greetd
 greetd-gtkgreet
@@ -85,6 +88,7 @@ joyutils
 jq
 jre-openjdk
 kdenlive
+keyd
 krita
 less
 lib32-gnutls
@@ -107,7 +111,6 @@ linux-headers
 logrotate
 lsb-release
 lsp-plugins
-lutris
 lvm2
 man-db
 man-pages
@@ -131,6 +134,7 @@ networkmanager-openvpn
 nfs-utils
 nilfs-utils
 ninja
+nlohmann-json
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
@@ -139,10 +143,11 @@ npm
 nss-mdns
 ntfs-3g
 ntp
-nvidia-dkms
+nvidia
 nvidia-settings
 nvtop
 obs-studio
+obsidian
 openbsd-netcat
 openresolv
 openssh
@@ -150,6 +155,7 @@ os-prober
 pacman-contrib
 parole
 pastel
+patchelf
 pavucontrol
 perf
 perl
@@ -164,6 +170,7 @@ poppler-glib
 postgresql
 postgresql-libs
 power-profiles-daemon
+prismlauncher
 python
 python-numpy
 python-pip
@@ -179,6 +186,8 @@ rsync
 rtkit
 rust
 sassc
+sbctl
+sbsigntools
 seahorse
 sg3_utils
 slurp
@@ -193,6 +202,8 @@ sudo
 swaybg
 sysfsutils
 systemd-sysvcompat
+systemd-ukify
+tcpdump
 texinfo
 thunar
 thunar-archive-plugin
@@ -319,6 +330,7 @@ xorg-xwud
 xournalpp
 xsettingsd
 xterm
+ydotool
 yt-dlp
 zip
 zsh
