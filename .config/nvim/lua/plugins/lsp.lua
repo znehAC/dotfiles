@@ -18,6 +18,8 @@ return {
         local autoformat_filetypes = {
             "lua",
             "cs",
+            "md",
+            "markdown",
             "python",
             "typescript",
             "javascript",
@@ -113,6 +115,7 @@ return {
                 "cssls",
                 "ruff",
                 "omnisharp",
+                "marksman",
             },
             handlers = {
                 -- this first function is the "default handler"

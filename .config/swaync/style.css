@@ -1,94 +1,123 @@
-@define-color cc-bg rgba(255,236,236,0.95);
-@define-color noti-border-color rgba(224,240,255,0.5);
-@define-color noti-bg rgba(255,224,227,1);
-@define-color noti-bg-darker rgba(255,198,199,1);
-@define-color noti-bg-hover rgba(255,198,199,0.9);
-@define-color noti-bg-focus rgba(255,198,199,0.6);
-@define-color noti-close-bg rgba(255,182,185,0.2);
-@define-color noti-close-bg-hover rgba(255,182,185,0.4);
+/* --- Variables --- */
+@define-color cc-bg rgba(255, 236, 236, 0.95);
+@define-color noti-border-color rgba(224, 240, 255, 0.5);
+@define-color noti-bg rgba(255, 224, 227, 1);
+@define-color noti-bg-darker rgba(255, 198, 199, 1);
+@define-color noti-bg-hover rgba(255, 198, 199, 0.9);
 @define-color text-color #332c2c;
 @define-color text-color-disabled #aaa;
-@define-color bg-selected rgba(174,200,255,1); /* pastel blue */
 
-* {
-  font-family: JetBrainsMono NFM SemiBold;
+/* --- Candy Bubble Theme Palette --- */
+@define-color accent-blue #34548a;
+@define-color accent-pink #f7768e;
+@define-color accent-light-blue #7aa2f7;
+@define-color accent-green #9ece6a;
+@define-color accent-dark-bg #1b1b2b;
+@define-color bubble-radius 16px;
+
+/* --- Animation --- */
+@keyframes bubble-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
+/* --- Base & Resets --- */
+* {
+  font-family: JetBrainsMono NFM SemiBold;
+  border: none;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.blank-window {
+  background: alpha(black, 0.1);
+}
+
+/* --- Notifications --- */
 .notification-row {
-  outline: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 8px;
+  background: transparent;
+  animation: bubble-rise 500ms cubic-bezier(0.1, 0.7, 0.3, 1);
 }
 
 .notification {
-  background: @cc-bg;
-  border: 2px solid #34548a;
-  border-radius: 0px;
-  margin: 3px -2px 3px 0px;
-  padding: 4px;
+  padding: 12px;
+  border-radius: @bubble-radius;
+  background-color: @noti-bg;
+  border: 2px solid @accent-blue;
 }
 
 .notification-content {
-  background: @cc-bg;
+  background: transparent;
 }
 
-.notification-default-action {
-  margin: 0;
-  padding: 0;
-  border-radius: 0px;
+.summary {
+  font-size: 16px;
+  font-weight: 700;
+  color: @accent-green;
+  background: transparent;
+}
+
+.body {
+  font-size: 15px;
+  font-weight: 400;
+  color: @text-color;
+  background: transparent;
+}
+
+.time {
+  font-size: 16px;
+  font-weight: 700;
+  color: @text-color;
+  background: transparent;
+  margin-right: 18px;
+}
+
+.image {
+  border-radius: calc(@bubble-radius - 6px);
+  margin-right: 10px;
 }
 
 .close-button {
-  background: #f7768e;
+  background: @accent-pink;
   color: @cc-bg;
-  text-shadow: none;
-  padding: 0px;
-  border-radius: 0px;
+  border-radius: @bubble-radius;
   margin-top: 5px;
   margin-right: 5px;
 }
 
 .close-button:hover {
-  box-shadow: none;
-  background: #f7768e;
-  transition: all 0.15s ease-in-out;
-  border: none;
+  background: alpha(@accent-pink, 0.8);
 }
 
+/* Notification Actions & Reply */
+.notification-default-action,
 .notification-action {
-  border: 2px solid #34548a;
-  border-top: none;
-  border-radius: 0px;
+  color: @text-color;
+  background: @cc-bg;
+  border: 2px solid @accent-blue;
+  border-radius: calc(@bubble-radius - 4px);
+  margin-top: 6px;
 }
 
 .notification-default-action:hover,
 .notification-action:hover {
-  color: #7aa2f7;
-  background: @cc-bg;
-}
-
-.notification-default-action {
-  border-radius: 5px;
-  margin: 0px;
-}
-
-.notification-default-action:not(:only-child) {
-  border-bottom-left-radius: 7px;
-  border-bottom-right-radius: 7px;
+  background: @noti-bg-hover;
+  color: @accent-light-blue;
 }
 
 .notification-action:first-child {
-  border-bottom-left-radius: 10px;
-  background: #1b1b2b;
+  background: @accent-dark-bg;
 }
 
 .notification-action:last-child {
-  border-bottom-right-radius: 10px;
-  background: #1b1b2b;
-}
-
-.inline-reply {
-  margin-top: 8px;
+  background: @accent-dark-bg;
 }
 
 .inline-reply-entry {
@@ -96,110 +125,47 @@
   color: @text-color;
   caret-color: @text-color;
   border: 1px solid @noti-border-color;
-  border-radius: 5px;
+  border-radius: calc(@bubble-radius - 8px);
 }
 
 .inline-reply-button {
   margin-left: 4px;
   background: @noti-bg;
   border: 1px solid @noti-border-color;
-  border-radius: 5px;
+  border-radius: calc(@bubble-radius - 8px);
   color: @text-color;
 }
 
-.inline-reply-button:disabled {
-  background: initial;
-  color: @text-color-disabled;
-  border: 1px solid transparent;
-}
-
-.inline-reply-button:hover {
-  background: @noti-bg-hover;
-}
-
-.image {
-  border-radius: 0px;
-  margin-right: 10px;
-}
-
-.summary {
-  font-size: 16px;
-  font-weight: 700;
-  background: transparent;
-  color: rgba(158, 206, 106, 1);
-  text-shadow: none;
-}
-
-.time {
-  font-size: 16px;
-  font-weight: 700;
-  background: transparent;
-  color: @text-color;
-  text-shadow: none;
-  margin-right: 18px;
-}
-
-.body {
-  font-size: 15px;
-  font-weight: 400;
-  background: transparent;
-  color: @text-color;
-  text-shadow: none;
-}
-
+/* --- Control Center --- */
 .control-center {
   background: @cc-bg;
-  border: 2px solid #34548a;
-  border-radius: 0px;
+  border: 2px solid @accent-blue;
+  border-radius: @bubble-radius;
 }
 
 .control-center-list {
   background: transparent;
 }
 
-.control-center-list-placeholder {
-  opacity: 0.5;
-}
-
-
-.notification-group,
-.notification-group:selected,
-.notification-group:focus,
-.notification-group:active {
-  background: transparent;
-  box-shadow: none;
-  outline: none;
-}
-
-
-.floating-notifications {
-  background: transparent;
-}
-
-.blank-window {
-  background: alpha(black, 0.1);
-}
-
+/* Widgets */
 .widget-title {
-  color: #7aa2f7;
+  color: @accent-light-blue;
   background: @noti-bg-darker;
   padding: 5px 10px;
-  margin: 10px 10px 5px 10px;
+  margin: 10px;
   font-size: 1.5rem;
-  border-radius: 5px;
+  border-radius: calc(@bubble-radius - 4px);
 }
 
-.widget-title>button {
+.widget-title > button {
   font-size: 1rem;
   color: @text-color;
-  text-shadow: none;
   background: @noti-bg;
-  box-shadow: none;
-  border-radius: 5px;
+  border-radius: calc(@bubble-radius - 8px);
 }
 
-.widget-title>button:hover {
-  background: #f7768e;
+.widget-title > button:hover {
+  background: @accent-pink;
   color: @cc-bg;
 }
 
@@ -207,167 +173,74 @@
   background: @noti-bg-darker;
   padding: 5px 10px;
   margin: 5px 10px;
-  border-radius: 5px;
+  border-radius: @bubble-radius;
   font-size: large;
-  color: #7aa2f7;
+  color: @accent-light-blue;
 }
 
-.widget-dnd>switch {
-  border-radius: 5px;
-  background: #7aa2f7;
+.widget-dnd > switch {
+  border-radius: @bubble-radius;
+  background: @accent-light-blue;
 }
 
-.widget-dnd>switch:checked {
-  background: #f7768e;
-  border: 1px solid #f7768e;
+.widget-dnd > switch:checked {
+  background: @accent-pink;
 }
 
-.widget-dnd>switch slider,
-.widget-dnd>switch:checked slider {
+.widget-dnd > switch slider {
   background: @cc-bg;
-  border-radius: 5px;
-}
-
-.widget-label {
-  margin: 10px 10px 5px 10px;
-}
-
-.widget-label>label {
-  font-size: 1rem;
-  color: @text-color;
-}
-
-.widget-mpris>box>button {
-  border-radius: 5px;
+  border-radius: @bubble-radius;
 }
 
 .widget-mpris {
-  background: @noti-bg; /* your light pastel */
+  background: @noti-bg;
   color: @text-color;
   padding: 10px;
   margin: 8px 10px;
-  border-radius: 10px;
+  border-radius: @bubble-radius;
   border: 2px solid @noti-border-color;
-  box-shadow: none;
-}
-
-.widget-mpris .image-button {
-	color: white;
-}
-
-.widget-mpris-player {
-  background: @noti-bg-hover;
-  color: @text-color;
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.05);
-}
-
-.widget-mpris-title,
-.widget-mpris-subtitle {
-  color: white;
-  text-shadow: none;
-}
-
-.widget-mpris-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-.widget-mpris-subtitle {
-  font-size: 1rem;
-  opacity: 1;
-}
-
-.mpris-overlay {
-	background: transparent;
 }
 
 .widget-mpris-album-art {
-  border-radius: 8px;
+  border-radius: calc(@bubble-radius - 6px);
   margin-right: 8px;
-  min-width: 48px;
-  min-height: 48px;
 }
 
-.widget-mpris>box>button {
-  margin: 4px;
-  padding: 4px;
+.widget-buttons-grid {
+  font-size: x-large;
+  padding: 5px;
+  margin: 10px;
+  border-radius: @bubble-radius;
+  background: @noti-bg-darker;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  margin: 3px;
   background: @cc-bg;
+  border-radius: calc(@bubble-radius - 8px);
   color: @text-color;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: background-color 0.2s ease;
 }
 
-.widget-mpris>box>button:hover {
-  background: @noti-bg-hover;
-  color: @text-color;
+.widget-volume,
+.widget-backlight {
+  background: @noti-bg-darker;
+  padding: 5px;
+  margin: 5px 10px;
+  border-radius: @bubble-radius;
+  font-size: 2rem;
+  color: @accent-light-blue;
 }
 
 scale trough {
   all: unset;
   background: @noti-bg-darker;
-  border-radius: 10px;
+  border-radius: @bubble-radius;
   min-height: 6px;
   margin: 6px 0;
 }
 
 scale trough highlight {
   all: unset;
-  background: rgba(122,162,247,1); /* pastel blue progress */
-  border-radius: 10px;
-}
-
-
-.widget-buttons-grid {
-  font-size: x-large;
-  padding: 5px;
-  margin: 10px 10px 5px 10px;
-  border-radius: 0px;
-  background: @noti-bg-darker;
-}
-
-.widget-buttons-grid>flowbox>flowboxchild>button {
-  margin: 3px;
-  background: @cc-bg;
-  border-radius: 0px;
-  color: @text-color;
-}
-
-.widget-buttons-grid>flowbox>flowboxchild>button:hover {
-  background: rgba(122, 162, 247, 1);
-  color: @cc-bg;
-}
-
-.widget-buttons-grid>flowbox>flowboxchild>button:checked {
-  background: rgb(158, 206, 106);
-  color: @cc-bg;
-}
-
-.widget-menubar>box>.menu-button-bar>button {
-  border: none;
-  background: transparent;
-}
-
-.topbar-buttons>button {
-  border: none;
-  background: transparent;
-}
-
-.widget-volume {
-  background: @noti-bg-darker;
-  padding: 5px;
-  margin: 5px 10px;
-  border-radius: 0px;
-  font-size: 2rem;
-  color: #7aa2f7;
-  margin-bottom: 40px;
-}
-
-.widget-backlight {
-  background: @noti-bg-darker;
-  padding: 5px;
-  margin: 5px 10px;
-  border-radius: 0px;
-  font-size: 2rem;
-  color: #7aa2f7;
+  background: @accent-light-blue;
+  border-radius: @bubble-radius;
 }

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=MISERY Demo
+Comment=Play this game on Steam
+Exec=steam steam://rungameid/4059420
+Icon=steam_icon_4059420
+Terminal=false
+Type=Application
+Categories=Game;
