@@ -47,6 +47,7 @@ gamemode
 gammastep
 garcon
 gdb
+gdu
 geoclue
 glib2-devel
 gnome-keyring
@@ -64,6 +65,7 @@ gst-plugins-bad
 gst-plugins-base
 gst-plugins-good
 gst-plugins-ugly
+gtk-engine-murrine
 gtk4-demos
 gvfs
 gvfs-mtp
@@ -112,6 +114,7 @@ logrotate
 lsb-release
 lsp-plugins
 lvm2
+lxappearance
 man-db
 man-pages
 mdadm
@@ -146,6 +149,7 @@ ntp
 nvidia
 nvidia-settings
 nvtop
+nwg-look
 obs-studio
 obsidian
 openbsd-netcat
@@ -194,6 +198,7 @@ slurp
 socat
 sof-firmware
 solaar
+sqlitebrowser
 starship
 steam
 strace
