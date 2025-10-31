@@ -10,6 +10,7 @@ eww
 f5fpc
 f5vpn
 google-cloud-cli
+gtk-engine-murrine
 heroic-games-launcher-bin
 kdeconnect-git
 monado

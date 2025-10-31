@@ -89,3 +89,5 @@ export EDITOR=micro
 
 export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH=/opt/cuda/bin:$PATH
+
+export PATH=$PATH:/home/cesar/.spicetify

@@ -65,7 +65,6 @@ gst-plugins-bad
 gst-plugins-base
 gst-plugins-good
 gst-plugins-ugly
-gtk-engine-murrine
 gtk4-demos
 gvfs
 gvfs-mtp
