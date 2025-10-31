@@ -1,3 +1,4 @@
+-- lua/config/remap.lua
 -- KEYBINDS
 vim.g.mapleader = " "
 vim.keymap.set("n", "<leader>cd", vim.cmd.Ex)
@@ -17,8 +18,6 @@ vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
-vim.keymap.set("i", "<C-c>", "<Esc>")
-
 vim.keymap.set("n", "<Esc>", function()
     vim.cmd("nohlsearch")
     vim.cmd("echo ''") -- limpa mensagem da statusline
@@ -36,8 +35,6 @@ vim.keymap.set("n", "<leader>s", [[:s/\<<C-r><C-w>\>//gI<Left><Left><Left>]])
 
 -- make file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
-
-vim.keymap.set("n", "<leader>u", vim.cmd.UndotreeToggle)
 
 -- source file
 vim.keymap.set("n", "<leader><leader>", function()
@@ -57,8 +54,3 @@ vim.keymap.set({ "n", "i", "v" }, "<Up>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Down>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Left>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Right>", "<nop>")
-
-vim.keymap.set("n", "<leader>gf", "<cmd>Telescope find_files<CR>", { desc = "Find Files" })
-vim.keymap.set("n", "<leader>gc", "<cmd>Telescope git_commits<CR>", { desc = "Git Commits" })
-vim.keymap.set("n", "<leader>gb", "<cmd>Telescope git_branches<CR>", { desc = "Git Branches" })
-vim.keymap.set("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "Git Status" })

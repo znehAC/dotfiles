@@ -1,7 +1,11 @@
+-- lua/plugins/treesitter.lua
 return {
     {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
+        dependencies = {
+            "windwp/nvim-ts-autotag", -- FIXED: This is the correct repo
+        },
         config = function()
             local configs = require("nvim-treesitter.configs")
             configs.setup({
