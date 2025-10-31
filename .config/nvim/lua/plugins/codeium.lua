@@ -1,20 +1,15 @@
+-- lua/plugins/codeium.lua
 return {
-    "Exafunction/windsurf.vim", -- you’re using the Windsurf shim that exposes codeium#*
+    "Exafunction/windsurf.vim",
     event = "BufEnter",
+    dependencies = {
+        "nvim-lua/plenary.nvim",
+        "hrsh7th/nvim-cmp",
+    },
     config = function()
-        -- nuke default tab mappings from codeium.vim
-        vim.g.codeium_disable_bindings = 1 -- stops all default imaps, including <Tab>
-        -- older variants also honor this:
-        vim.g.codeium_no_map_tab = 1
-
-        -- your custom bindings
-        vim.keymap.set("i", "<C-l>", function() return vim.fn["codeium#Accept"]() end, { expr = true, silent = true })
-        vim.keymap.set("i", "<C-,>", function() return vim.fn["codeium#CycleCompletions"](-1) end,
-            { expr = true, silent = true })
-        vim.keymap.set("i", "<C-x>", function() return vim.fn["codeium#Clear"]() end, { expr = true, silent = true })
-
-        -- optional: show/hide
-        vim.keymap.set("n", "<leader>ae", ":CodeiumEnable<CR>", { silent = true })
-        vim.keymap.set("n", "<leader>ad", ":CodeiumDisable<CR>", { silent = true })
+        -- this is the correct way to configure windsurf.vim
+        -- it tells the vimscript plugin not to map its default keys
+        -- so that nvim-cmp can take control.
+        vim.g.codeium_disable_bindings = 1
     end,
 }

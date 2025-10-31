@@ -17,7 +17,6 @@ set.smartcase = true
 
 -- appearance
 set.termguicolors = true
-set.background = "light"
 set.signcolumn = "yes"
 
 -- cursor line
@@ -25,7 +24,7 @@ set.cursorline = true
 
 set.wrap = false
 
-set.colorcolumn = "80"
+set.colorcolumn = "100"
 
 -- clipboard
 set.clipboard:append("unnamedplus")

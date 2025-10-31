@@ -1,6 +1,7 @@
 return {
     'neovim/nvim-lspconfig',
     dependencies = {
+        'Exafunction/windsurf.vim',
         'williamboman/mason.nvim',
         'williamboman/mason-lspconfig.nvim',
         -- Autocompletion
@@ -44,7 +45,6 @@ return {
             end
         })
 
-        -- Add borders to floating windows
         vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
             vim.lsp.handlers.hover,
             { border = 'rounded' }
@@ -74,8 +74,6 @@ return {
             },
         })
 
-        -- Add cmp_nvim_lsp capabilities settings to lspconfig
-        -- This should be executed before you configure any language server
         local lspconfig_defaults = require('lspconfig').util.default_config
         lspconfig_defaults.capabilities = vim.tbl_deep_extend(
             'force',
@@ -83,8 +81,6 @@ return {
             require('cmp_nvim_lsp').default_capabilities()
         )
 
-        -- This is where you enable features that only work
-        -- if there is a language server active in the file
         vim.api.nvim_create_autocmd('LspAttach', {
             callback = function(event)
                 local opts = { buffer = event.buf }
@@ -107,24 +103,21 @@ return {
         require('mason-lspconfig').setup({
             ensure_installed = {
                 "lua_ls",
+                "basedpyright", -- For types/navigation
+                "ruff",         -- For linting/formatting
                 "ts_ls",
                 "eslint",
-                "basedpyright",
                 "clangd",
                 "html",
                 "cssls",
-                "ruff",
                 "omnisharp",
                 "marksman",
             },
             handlers = {
-                -- this first function is the "default handler"
-                -- it applies to every language server without a custom handler
                 function(server_name)
                     require('lspconfig')[server_name].setup({})
                 end,
 
-                -- this is the "custom handler" for `lua_ls`
                 lua_ls = function()
                     require('lspconfig').lua_ls.setup({
                         settings = {
@@ -162,6 +155,7 @@ return {
             sources = {
                 { name = 'path' },
                 { name = 'nvim_lsp' },
+                { name = 'codeium' }, -- This source is provided by windsurf.vim
                 { name = 'buffer',  keyword_length = 3 },
                 { name = 'luasnip', keyword_length = 2 },
             },
@@ -176,6 +170,8 @@ return {
                     local n = entry.source.name
                     if n == 'nvim_lsp' then
                         item.menu = '[LSP]'
+                    elseif n == 'codeium' then
+                        item.menu = '[AI]'
                     else
                         item.menu = string.format('[%s]', n)
                     end
