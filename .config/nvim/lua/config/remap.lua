@@ -57,3 +57,8 @@ vim.keymap.set({ "n", "i", "v" }, "<Up>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Down>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Left>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Right>", "<nop>")
+
+vim.keymap.set("n", "<leader>gf", "<cmd>Telescope find_files<CR>", { desc = "Find Files" })
+vim.keymap.set("n", "<leader>gc", "<cmd>Telescope git_commits<CR>", { desc = "Git Commits" })
+vim.keymap.set("n", "<leader>gb", "<cmd>Telescope git_branches<CR>", { desc = "Git Branches" })
+vim.keymap.set("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "Git Status" })

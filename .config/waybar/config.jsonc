@@ -128,7 +128,7 @@
 
     "custom/updates": {
         "format": "{}",
-        "exec": "yay -Quq 2>/dev/null | wc -l | awk '{print ($1>0)?\" \"$1:\"\"}'",
+        "exec": "(checkupdates 2>/dev/null && yay -Qua 2>/dev/null) | wc -l | awk '{print ($1>0)?\" \"$1:\"\"}'",
         "interval": 10,
         "on-click": "wezterm -e yay -Syu --noconfirm --answerupgrade Y & notify-send '✅ system updated'",
         "tooltip": false
