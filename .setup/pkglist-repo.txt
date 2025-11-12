@@ -15,6 +15,7 @@ btrfs-progs
 cage
 calf
 cantarell-fonts
+clamav
 clang
 cli11
 cmake
@@ -127,6 +128,7 @@ mousepad
 mpv
 mtools
 nano
+nautilus
 ncdu
 neovim
 net-tools
@@ -185,6 +187,7 @@ rebuild-detector
 reflector
 remmina
 ristretto
+rkhunter
 rsync
 rtkit
 rust

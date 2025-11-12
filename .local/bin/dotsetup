@@ -7,6 +7,12 @@ log(){ printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
 log "🔧 restoring…"
 
+# ──────────────── upfront sudo password prompt ─────────────────────────────
+if ! sudo -n true 2>/dev/null; then
+  log "🔒 sudo password required…"
+  sudo -v
+fi
+
 ##############################################################################
 # wallpapers
 ##############################################################################
@@ -31,8 +37,12 @@ if [[ -f $SETUP/zen/zen.desktop ]]; then
   cp "$SETUP/zen/zen.desktop" "$HOME/.local/share/applications/"
 fi
 
-prof=$(find "$HOME/.mozilla" -maxdepth 2 -type d -name '*.zen*' | head -n1 || true)
-[[ -n $prof && -f $SETUP/zen/user.js ]] && cp "$SETUP/zen/user.js" "$prof/user.js"
+shopt -s nullglob
+profile_dirs=("$HOME/.mozilla/firefox"/*.zen*)
+shopt -u nullglob
+if [[ ${#profile_dirs[@]} -gt 0 && -f "$SETUP/zen/user.js" ]]; then
+  cp "$SETUP/zen/user.js" "${profile_dirs[0]}/user.js"
+fi
 
 ##############################################################################
 # user icon (accounts‑service)
@@ -47,18 +57,30 @@ fi
 ##############################################################################
 # package install
 ##############################################################################
-install_list(){ file="$1"; [[ -f $file ]] || return
-  if command -v yay &>/dev/null;  then xargs -a "$file" yay  -S --needed --noconfirm
-  elif command -v paru &>/dev/null; then xargs -a "$file" paru -S --needed --noconfirm
-  else log "⚠️  yay/paru missing → skip packages"; fi
+install_packages() {
+  local file="$1"
+  local pkg_manager="$2"
+  if [[ -f "$file" ]]; then
+    read -rp "Install packages from $file with $pkg_manager? [y/N] " ans
+    if [[ $ans =~ ^[Yy]$ ]]; then
+      if command -v "$pkg_manager" &>/dev/null; then
+        xargs -a "$file" sudo "$pkg_manager" -S --needed --noconfirm
+      else
+        log "⚠️  $pkg_manager missing → skip packages"
+      fi
+    fi
+  fi
 }
-install_list "$SETUP/pkglist-repo.txt"
-install_list "$SETUP/pkglist-aur.txt"
+
+install_packages "$SETUP/pkglist-repo.txt" "pacman"
+install_packages "$SETUP/pkglist-aur.txt" "yay"
 
 ##############################################################################
 # realtime audio limits
 ##############################################################################
-getent group realtime >/dev/null || sudo groupadd realtime
+if ! getent group realtime >/dev/null; then
+  sudo groupadd realtime
+fi
 sudo usermod -aG realtime "$USER"
 sudo install -Dm644 <(printf '@realtime - rtprio 95\n@realtime - memlock unlimited\n') \
   /etc/security/limits.d/99-realtime.conf
@@ -74,10 +96,21 @@ fi
 # /etc files
 ##############################################################################
 if [[ -f $SETUP/environment ]]; then
-  read -rp "overwrite /etc/environment with backup? [y/N] " ans
-  [[ $ans =~ ^[Yy]$ ]] && sudo cp "$SETUP/environment" /etc/environment
+  read -rp "Overwrite /etc/environment with backup? [y/N] " ans
+  if [[ $ans =~ ^[Yy]$ ]]; then
+    sudo cp "$SETUP/environment" /etc/environment
+  fi
 fi
-sudo rsync -aHAXx "$SETUP/etc/greetd/" /etc/greetd/
+if [[ -d "$SETUP/etc/greetd/" ]]; then
+  sudo rsync -aHAXx "$SETUP/etc/greetd/" /etc/greetd/
+fi
+
+##############################################################################
+# Pacman hooks
+##############################################################################
+if [ -d "$SETUP/pacman-hooks" ]; then
+  sudo rsync -aHAXx "$SETUP/pacman-hooks/" /etc/pacman.d/hooks/
+fi
 
 ##############################################################################
 # .desktop overrides
@@ -90,26 +123,24 @@ fi
 ##############################################################################
 # gtk + cursor theme
 ##############################################################################
-GTK_THEME="catppuccin-latte-pink-standard+default"
-ICON_THEME="Colloid-Pink-Catppuccin"
-SYS_FONT="GeistMono Nerd Font Mono 11"
-CURSOR_THEME="catppuccin-latte-light-cursors"
-CURSOR_SIZE=24
-
-mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
-cat >"$HOME/.config/gtk-3.0/settings.ini"<<EOF
-[Settings]
-gtk-theme-name=$GTK_THEME
-gtk-icon-theme-name=$ICON_THEME
-gtk-font-name=$SYS_FONT
-EOF
-cp "$HOME/.config/gtk-3.0/settings.ini" "$HOME/.config/gtk-4.0/settings.ini"
+for v in 3.0 4.0; do
+  if [[ -f $SETUP/gtk-$v-settings.ini ]]; then
+    mkdir -p "$HOME/.config/gtk-$v"
+    cp "$SETUP/gtk-$v-settings.ini" "$HOME/.config/gtk-$v/settings.ini"
+  fi
+done
 
 if command -v gsettings &>/dev/null; then
-  gsettings set org.gnome.desktop.interface gtk-theme   "$GTK_THEME"   || true
-  gsettings set org.gnome.desktop.interface icon-theme  "$ICON_THEME"  || true
-  gsettings set org.gnome.desktop.interface font-name   "$SYS_FONT"    || true
-  gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME"|| true
+  GTK_THEME=$(grep 'gtk-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
+  ICON_THEME=$(grep 'gtk-icon-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
+  FONT_NAME=$(grep 'gtk-font-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
+  CURSOR_THEME=$(grep 'cursor-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
+  CURSOR_SIZE=$(grep 'cursor-size' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
+
+  gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
+  gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
+  gsettings set org.gnome.desktop.interface font-name "$FONT_NAME" || true
+  gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
   gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
 fi
 

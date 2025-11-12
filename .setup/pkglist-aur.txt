@@ -51,4 +51,5 @@ wivrn-server
 xrizer-git
 yay
 zen-browser-bin
+zgen-git
 zotero

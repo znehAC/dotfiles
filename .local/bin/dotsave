@@ -15,6 +15,12 @@ log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 log "🧷 saving…"
 mkdir -p "$SETUP"
 
+# ──────────────── upfront sudo password prompt ─────────────────────────────
+if ! sudo -n true 2>/dev/null; then
+  log "🔒 sudo password required…"
+  sudo -v
+fi
+
 # ─────────────────────────── wallpapers ────────────────────────────────────
 for ext in jpg png; do
   wp="$HOME/Pictures/wallpaper.$ext"
@@ -41,39 +47,47 @@ if [[ -f /usr/share/applications/zen.desktop ]]; then
   cp /usr/share/applications/zen.desktop "$SETUP/zen/"
 fi
 
-profile_dir=$(find "$HOME/.mozilla" -maxdepth 2 -type d -name '*.zen*' | head -n1 || true)
-[[ -n $profile_dir && -f $profile_dir/user.js ]] && cp "$profile_dir/user.js" "$SETUP/zen/"
+shopt -s nullglob
+profile_dirs=("$HOME/.mozilla/firefox"/*.zen*)
+shopt -u nullglob
+if [[ ${#profile_dirs[@]} -gt 0 && -f "${profile_dirs[0]}/user.js" ]]; then
+  cp "${profile_dirs[0]}/user.js" "$SETUP/zen/"
+fi
 
 # ──────────────────────────── package lists ────────────────────────────────
 if command -v yay &>/dev/null; then
-  yay  -Qqen > "$SETUP/pkglist-repo.txt"
-  yay  -Qqem > "$SETUP/pkglist-aur.txt"
+  yay -Qqen > "$SETUP/pkglist-repo.txt"
+  yay -Qqem > "$SETUP/pkglist-aur.txt"
 elif command -v paru &>/dev/null; then
   paru -Qqen > "$SETUP/pkglist-repo.txt"
   paru -Qqem > "$SETUP/pkglist-aur.txt"
 fi
 
+# ───────────────────────── GTK 3/4 settings ────────────────────────────────
+for v in 3.0 4.0; do
+  [[ -f $HOME/.config/gtk-$v/settings.ini ]] && \
+    cp "$HOME/.config/gtk-$v/settings.ini" "$SETUP/gtk-$v-settings.ini"
+done
+
 # ───────────────────────────── system files ────────────────────────────────
 sudo rsync -aHAXx /etc/greetd/ "$SETUP/etc/greetd/"
 sudo cp /etc/environment "$SETUP/environment" && sudo chown "$USER":"$USER" "$SETUP/environment"
 
-# ─────────────────────────── dotfiles staging ──────────────────────────────
-FILES_TO_TRACK=(
-  .zshrc .zshenv .zprofile .gitconfig
-  .config/hypr/ .config/waybar/ .config/rofi/
-  .config/swaync/ .config/fastfetch/ .config/zsh/
-  .config/environment.d/ .config/eww/
-  .config/gtk-3.0/ .config/gtk-4.0/
-  .config/nvim/ .config/wezterm/ .config/starship.toml
-  .setup/ .local/bin/ .local/share/envwrapper/
-  .local/share/applications/*.desktop
-  .tmux.conf
-)
+# ────────────────────────── Pacman hooks ─────────────────────────────────
+if [ -d /etc/pacman.d/hooks ]; then
+  mkdir -p "$SETUP/pacman-hooks"
+  sudo rsync -aHAXx /etc/pacman.d/hooks/ "$SETUP/pacman-hooks/"
+fi
 
+# ─────────────────────────── dotfiles staging ──────────────────────────────
 log "📝 staging dotfiles…"
-for path in "${FILES_TO_TRACK[@]}"; do
-  [[ -e $HOME/$path ]] && $DOT add -- "$path"
-done
+if [[ -f $HOME/.dotfiles_tracked ]]; then
+  while IFS= read -r path; do
+    [[ -e $HOME/$path ]] && $DOT add -- "$path"
+  done < "$HOME/.dotfiles_tracked"
+else
+  log "⚠️  .dotfiles_tracked not found, skipping staging."
+fi
 
 # ───────────────────── show what will be committed ─────────────────────────
 if ! $DOT diff --cached --quiet; then
