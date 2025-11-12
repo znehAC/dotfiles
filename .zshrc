@@ -22,11 +22,25 @@ setopt share_history
 setopt inc_append_history
 setopt extended_history
 
-# === Plugins ===
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/.config/zsh/catppuccin-syntax/themes/catppuccin_latte-zsh-syntax-highlighting.zsh
-source ~/.zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
+# === zgen plugin manager ===
+source /usr/share/zsh/share/zgen.zsh
+
+# check if there's no init script
+if ! zgen saved; then
+    # specify plugins here
+    zgen load zsh-users/zsh-autosuggestions
+    zgen load zsh-users/zsh-syntax-highlighting
+    zgen load zsh-users/zsh-history-substring-search
+    
+    # Catppuccin theme for zsh-syntax-highlighting
+    zgen load catppuccin/zsh-syntax-highlighting
+
+
+    # generate the init script from plugins above
+    zgen save
+fi
+
+zstyle ':zsh-syntax-highlighting:*' theme 'catppuccin_latte'
 
 if [[ -f ~/.zprofile ]]; then
   source ~/.zprofile
@@ -71,23 +85,8 @@ wind() {
 bindkey -e
 source ~/.zsh/keybinds.zsh
 
-if [[ $- == *i* ]]; then
-  fastfetch
-fi
+fastfetch
 
 # fc -R ~/.zsh_history
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(direnv hook zsh)"
-
-
-# === Environment ===
-export PATH="$HOME/bin:$PATH"
-export MICRO_TRUECOLOR=1
-export MICRO_CLIPBOARD=external
-export EDITOR=micro
-
-
-export PATH="$HOME/.npm-global/bin:$PATH"
-export PATH=/opt/cuda/bin:$PATH
-
-export PATH=$PATH:/home/cesar/.spicetify

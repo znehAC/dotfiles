@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = File
+Target = boot/EFI/Linux/arch-linux.efi
+
+[Action]
+Description = Signing UKI with sbctl...
+When = PostTransaction
+Exec = /usr/bin/sbctl sign -s /boot/EFI/Linux/arch-linux.efi

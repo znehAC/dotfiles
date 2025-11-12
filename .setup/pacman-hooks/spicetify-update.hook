@@ -1,0 +1,10 @@
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = spotify
+
+[Action]
+Description = Applying Spicetify patch to Spotify...
+When = PostTransaction
+Exec = /usr/local/bin/spicetify-hook.sh
