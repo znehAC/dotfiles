@@ -29,6 +29,7 @@ dnsmasq
 docker
 docker-buildx
 docker-compose
+dolphin
 dosfstools
 dpkg
 dracut
@@ -92,6 +93,7 @@ jre-openjdk
 kdenlive
 keyd
 krita
+kvantum
 less
 lib32-gnutls
 lib32-libpulse
@@ -128,7 +130,6 @@ mousepad
 mpv
 mtools
 nano
-nautilus
 ncdu
 neovim
 net-tools
@@ -182,6 +183,8 @@ python-pip
 python-pyqt6
 qbittorrent-nox
 qt5-graphicaleffects
+qt5ct
+qt6ct
 rclone
 rebuild-detector
 reflector
@@ -212,10 +215,6 @@ systemd-sysvcompat
 systemd-ukify
 tcpdump
 texinfo
-thunar
-thunar-archive-plugin
-thunar-media-tags-plugin
-thunar-volman
 tmux
 trivy
 ttf-bitstream-vera
@@ -289,7 +288,6 @@ xfce4-wavelan-plugin
 xfce4-weather-plugin
 xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
-xfdesktop
 xfsprogs
 xfwm4
 xfwm4-themes
