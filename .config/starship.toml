@@ -1,48 +1,49 @@
 add_newline = true
 command_timeout = 2000
-right_format = ""
+right_format = """$git_branch$git_status$python$cmd_duration"""
 
-format = """$env_var$username$hostname $directory$git_branch$git_status$python
+format = """$username$hostname$directory
 $character"""
 
+[cmd_duration]
+min_time = 500
+show_milliseconds = false
+format = " 󱎫 [$duration]($style)"
+style = "bold #f9e2af"
 
 [character]
-success_symbol = "❯"
-error_symbol = "❯"
-
-[env_var]
-variable = 'SHELL'
-format = "$symbol"
-disabled = false
+success_symbol = "❯ "
+error_symbol = "❯ "
 
 [username]
-style_user = "bold #7fbbff"        # softer blue
-style_root = "bold #6a504a"        # less harsh dark brown
+show_always = false
+style_user = "bold #7fbbff"
+style_root = "bold #6a504a"
 format = "[$user:]($style)"
-disabled = false
-show_always = true
 
 [hostname]
 ssh_only = true
 format = "[[$hostname]󰇙]($style)"
-style = "bold #6aa0ff"             # pastel blue
-disabled = false
+style = "bold #6aa0ff"
 
 [directory]
+truncation_length = 3
+truncate_to_repo = true
 truncation_symbol = "󰇘/"
 home_symbol = "~"
 read_only = ' []'
-format = "[$path$read_only]($style)"
-style = "bold #66afff"             # light pastel blue
+# simplified format to prevent wrap/glitch
+format = "[$path$read_only]($style) "
+style = "bold #66afff"
 
 [git_branch]
-symbol = "  "
-format = "[](#bb5588) [$symbol$branch]($style)"  # changed symbol to separator icon you liked
-style = "bold #ff7f9e"             # muted pastel pink
+symbol = " "
+format = "[$symbol$branch]($style) "
+style = "bold #ff7f9e"
 
 [git_status]
-style = "bold #db7a8f"             # soft rosy pink
-format = '[\[($all_status)\]]($style)'
+style = "bold #db7a8f"
+format = '[\[($all_status)\]]($style) '
 conflicted = ""
 ahead = "⇡"
 behind = "⇣"
@@ -54,10 +55,10 @@ deleted = ""
 untracked = ""
 
 [python]
-symbol = "󰌠"
+symbol = "󰌠 "
 python_binary = ["./venv/bin/python", "python", "python3", "python2"]
-format = "[](#bb5588) [$symbol $pyenv_prefix-($version) $virtualenv]($style)"  # keep consistent separator
-style = "#eea296"                  # lighter peachy pink
+format = "[$symbol($version) $virtualenv]($style)"
+style = "#eea296"
 
 [docker_context]
 disabled = true

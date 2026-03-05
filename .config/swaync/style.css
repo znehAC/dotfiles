@@ -1,246 +1,338 @@
-/* --- Variables --- */
-@define-color cc-bg rgba(255, 236, 236, 0.95);
-@define-color noti-border-color rgba(224, 240, 255, 0.5);
-@define-color noti-bg rgba(255, 224, 227, 1);
-@define-color noti-bg-darker rgba(255, 198, 199, 1);
-@define-color noti-bg-hover rgba(255, 198, 199, 0.9);
-@define-color text-color #332c2c;
-@define-color text-color-disabled #aaa;
+/* * -----------------------------------------------------------------------------
+ * SWAYNC CANDY BUBBLE THEME - FINAL PRODUCTION BUILD v5
+ * -----------------------------------------------------------------------------
+ */
 
-/* --- Candy Bubble Theme Palette --- */
-@define-color accent-blue #34548a;
-@define-color accent-pink #f7768e;
-@define-color accent-light-blue #7aa2f7;
-@define-color accent-green #9ece6a;
-@define-color accent-dark-bg #1b1b2b;
-@define-color bubble-radius 16px;
+/* --- Variables & Palette --- */
+@define-color cc-bg rgba(255, 240, 245, 0.98);      /* Milky Pink Control Center */
+@define-color noti-bg rgba(255, 248, 250, 0.95);    /* Almost white pink Notification */
+@define-color noti-bg-hover rgb(255, 255, 255);     /* Pure white on hover */
 
-/* --- Animation --- */
-@keyframes bubble-rise {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
+/* Text Colors */
+@define-color text-color #4c4f69;                   /* Dark Gray/Blue for readability */
+@define-color text-color-disabled #9ca0b0;
+
+/* Candy Palette */
+@define-color accent-blue #2596be;        
+@define-color accent-cyan #4aa0e3;                  
+@define-color accent-pink #ea76cb;                  
+@define-color accent-purple #8839ef;      
+@define-color accent-light-blue #89b4fa;  
+
+@define-color bubble-radius 20px;
 
 /* --- Base & Resets --- */
 * {
-  font-family: JetBrainsMono NFM SemiBold;
-  border: none;
-  box-shadow: none;
+  font-family: "JetBrainsMono NFM SemiBold";
+  background-clip: padding-box;
   text-shadow: none;
+  box-shadow: none;
 }
 
 .blank-window {
-  background: alpha(black, 0.1);
+  background: rgba(0,0,0,0);
 }
+/* * -----------------------------------------------------------------------------
+ * NOTIFICATIONS
+ * -----------------------------------------------------------------------------
+ */
 
-/* --- Notifications --- */
+/* The Row Container */
 .notification-row {
-  margin: 8px;
-  background: transparent;
-  animation: bubble-rise 500ms cubic-bezier(0.1, 0.7, 0.3, 1);
+  outline: none;
+  margin: 6px 12px;
+  background: transparent !important;
+  transition: all 200ms ease;
 }
 
+/* The Notification Bubble */
 .notification {
-  padding: 12px;
+  padding: 10px;
   border-radius: @bubble-radius;
   background-color: @noti-bg;
-  border: 2px solid @accent-blue;
+  border: 2px solid @accent-blue; 
+  box-shadow: 0 4px 15px rgba(37, 150, 190, 0.15); 
+  transition: all 200ms ease;
 }
 
+.notification:hover {
+    background-color: @noti-bg-hover;
+    border-color: @accent-pink;
+    box-shadow: 0 4px 20px rgba(234, 118, 203, 0.25);
+}
+
+/* Content & Text */
 .notification-content {
-  background: transparent;
+    background: transparent;
+}
+
+.notification-default-action label,
+.notification-action label,
+.notification-content label,
+.body {
+    color: @text-color;
 }
 
 .summary {
-  font-size: 16px;
-  font-weight: 700;
-  color: @accent-green;
-  background: transparent;
-}
-
-.body {
-  font-size: 15px;
-  font-weight: 400;
-  color: @text-color;
-  background: transparent;
+    color: @accent-blue;
+    font-size: 16px;
+    font-weight: 800;
+    background: transparent;
 }
 
 .time {
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 700;
-  color: @text-color;
-  background: transparent;
-  margin-right: 18px;
+  color: @text-color-disabled;
+  margin-right: 12px;
 }
 
-.image {
-  border-radius: calc(@bubble-radius - 6px);
-  margin-right: 10px;
-}
-
-.close-button {
-  background: @accent-pink;
-  color: @cc-bg;
-  border-radius: @bubble-radius;
-  margin-top: 5px;
-  margin-right: 5px;
-}
-
-.close-button:hover {
-  background: alpha(@accent-pink, 0.8);
-}
-
-/* Notification Actions & Reply */
+/* Actions */
 .notification-default-action,
 .notification-action {
+  background: transparent;
+  border: none;
   color: @text-color;
-  background: @cc-bg;
-  border: 2px solid @accent-blue;
-  border-radius: calc(@bubble-radius - 4px);
-  margin-top: 6px;
+  transition: all 200ms ease;
 }
 
 .notification-default-action:hover,
 .notification-action:hover {
-  background: @noti-bg-hover;
-  color: @accent-light-blue;
+  background: rgba(234, 118, 203, 0.1);
+  border-radius: 10px;
+  color: @accent-pink;
 }
 
-.notification-action:first-child {
-  background: @accent-dark-bg;
+/* Close Button */
+.close-button {
+  background: rgba(234, 118, 203, 0.1);
+  color: @accent-pink;
+  border-radius: 100%;
+  min-width: 24px;
+  min-height: 24px;
+  margin-top: 5px;
+  margin-right: 5px;
+  border: none;
+  box-shadow: none;
 }
 
-.notification-action:last-child {
-  background: @accent-dark-bg;
+.close-button:hover {
+  background: @accent-pink;
+  color: white;
 }
 
-.inline-reply-entry {
-  background: @noti-bg-darker;
-  color: @text-color;
-  caret-color: @text-color;
-  border: 1px solid @noti-border-color;
-  border-radius: calc(@bubble-radius - 8px);
+/* * -----------------------------------------------------------------------------
+ * GROUPS
+ * -----------------------------------------------------------------------------
+ */
+
+.notification-group,
+.notification-group:focus,
+.notification-group:focus-within {
+    background: rgba(0, 0, 0, 0);
+    padding: 2px;
+    margin: 0;
 }
 
-.inline-reply-button {
-  margin-left: 4px;
-  background: @noti-bg;
-  border: 1px solid @noti-border-color;
-  border-radius: calc(@bubble-radius - 8px);
-  color: @text-color;
+.notification-group.collapsed:focus,
+.notification-group.collapsed:focus-within {
+    background: rgba(0,0,0,0);
 }
 
-/* --- Control Center --- */
+.notification-group-header, 
+.notification-group-icon {
+    color: @accent-blue;
+    background: transparent;
+}
+
+.notification-group-collapse-button {
+    background: transparent;
+    color: @accent-pink;
+    margin: 4px;
+}
+
+.notification-group-collapse-button:hover {
+    background: rgba(234, 118, 203, 0.1);
+    border-radius: 100%;
+}
+
+/* * -----------------------------------------------------------------------------
+ * CONTROL CENTER
+ * -----------------------------------------------------------------------------
+ */
+
 .control-center {
   background: @cc-bg;
-  border: 2px solid @accent-blue;
+  border: 2px solid @accent-blue; 
   border-radius: @bubble-radius;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  margin: 12px;
+  padding-bottom: 12px;
 }
 
-.control-center-list {
-  background: transparent;
-}
+/* --- Widgets --- */
 
-/* Widgets */
+/* Widget Headers */
 .widget-title {
-  color: @accent-light-blue;
-  background: @noti-bg-darker;
-  padding: 5px 10px;
-  margin: 10px;
-  font-size: 1.5rem;
-  border-radius: calc(@bubble-radius - 4px);
+  color: @accent-blue;
+  background: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  margin: 12px;
+  font-size: 1.3rem;
+  border-radius: 12px;
+  border: 1px solid rgba(137, 180, 250, 0.3); 
 }
 
 .widget-title > button {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: @text-color;
-  background: @noti-bg;
-  border-radius: calc(@bubble-radius - 8px);
+  background: white;
+  border-radius: 12px;
+  padding: 4px 12px;
+  border: 1px solid @accent-pink;
+  transition: all 200ms ease;
 }
 
 .widget-title > button:hover {
   background: @accent-pink;
-  color: @cc-bg;
+  color: white;
 }
 
+/* DND Widget */
 .widget-dnd {
-  background: @noti-bg-darker;
-  padding: 5px 10px;
-  margin: 5px 10px;
-  border-radius: @bubble-radius;
+  background: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  margin: 8px 12px;
+  border-radius: 12px;
   font-size: large;
-  color: @accent-light-blue;
+  border: 1px solid rgba(137, 180, 250, 0.3); 
+}
+
+.widget-dnd > label {
+  color: @accent-blue;
 }
 
 .widget-dnd > switch {
-  border-radius: @bubble-radius;
-  background: @accent-light-blue;
+  border-radius: 12px;
+  background: rgba(137, 180, 250, 0.3);
 }
 
 .widget-dnd > switch:checked {
-  background: @accent-pink;
+  background: @accent-cyan;
 }
 
 .widget-dnd > switch slider {
-  background: @cc-bg;
-  border-radius: @bubble-radius;
+  background: white;
+  border-radius: 100%;
 }
+
+/* * -----------------------------------------------------------------------------
+ * MPRIS (Media Player)
+ * -----------------------------------------------------------------------------
+ */
 
 .widget-mpris {
-  background: @noti-bg;
-  color: @text-color;
-  padding: 10px;
-  margin: 8px 10px;
-  border-radius: @bubble-radius;
-  border: 2px solid @noti-border-color;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 12px;
+    margin: 8px 12px;
+    border-radius: @bubble-radius;
+    border: 1px solid @accent-blue;
+    color: @text-color;
 }
 
-.widget-mpris-album-art {
-  border-radius: calc(@bubble-radius - 6px);
-  margin-right: 8px;
+.widget-mpris > box,
+.widget-mpris > box > box {
+    background: transparent !important;
 }
 
-.widget-buttons-grid {
-  font-size: x-large;
-  padding: 5px;
-  margin: 10px;
-  border-radius: @bubble-radius;
-  background: @noti-bg-darker;
+.widget-mpris-player {
+    background: transparent !important;
+    padding: 0;
+    margin: 0;
 }
 
-.widget-buttons-grid > flowbox > flowboxchild > button {
-  margin: 3px;
-  background: @cc-bg;
-  border-radius: calc(@bubble-radius - 8px);
-  color: @text-color;
+.widget-mpris-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: @accent-blue;
 }
 
+.widget-mpris-subtitle {
+    font-size: 0.9rem;
+    color: @text-color;
+}
+
+.widget-mpris button {
+    background: transparent;
+    color: @accent-purple;
+    border-radius: 100%;
+    transition: all 200ms ease;
+}
+
+.widget-mpris button:hover {
+    background: rgba(136, 57, 239, 0.1);
+    color: @accent-purple;
+}
+
+/* Sliders */
 .widget-volume,
 .widget-backlight {
-  background: @noti-bg-darker;
-  padding: 5px;
-  margin: 5px 10px;
-  border-radius: @bubble-radius;
-  font-size: 2rem;
-  color: @accent-light-blue;
+  background: rgba(255,255,255,0.6);
+  padding: 8px 16px;
+  margin: 8px 12px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  color: @text-color;
+  border: 1px solid rgba(137, 180, 250, 0.3);
 }
 
 scale trough {
-  all: unset;
-  background: @noti-bg-darker;
-  border-radius: @bubble-radius;
-  min-height: 6px;
-  margin: 6px 0;
+  background: white;
+  border-radius: 12px;
+  min-height: 12px;
+  min-width: 100px;
+  margin: 0 10px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
 scale trough highlight {
-  all: unset;
-  background: @accent-light-blue;
+  background: linear-gradient(90deg, @accent-cyan, @accent-blue);
+  border-radius: 12px;
+}
+
+scale slider {
+  background: white;
+  border: 2px solid @accent-cyan;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 100%;
+  margin: -3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Buttons Grid */
+.widget-buttons-grid {
+  font-size: 1.4rem;
+  padding: 8px;
+  margin: 8px 12px;
   border-radius: @bubble-radius;
+  background: rgba(255,255,255,0.3);
+  border: 1px solid rgba(137, 180, 250, 0.3);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  margin: 4px;
+  background: white;
+  border-radius: 12px;
+  color: @text-color;
+  padding: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+  border: 1px solid transparent;
+  transition: all 200ms ease;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: @accent-cyan;
+  color: white;
+  border-color: @accent-blue;
 }

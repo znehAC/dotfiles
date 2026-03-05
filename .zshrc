@@ -9,8 +9,8 @@ setopt prompt_subst
 zstyle ':completion:*' menu select
 setopt append_history
 
-WORDCHARS=${WORDCHARS//\//}
-
+WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
+WORDCHARS=${WORDCHARS//[\/\.=-]/}
 
 # === History ===
 HISTSIZE=500000
@@ -25,6 +25,10 @@ setopt extended_history
 # === zgen plugin manager ===
 source /usr/share/zsh/share/zgen.zsh
 
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+export ZSH_AUTOSUGGEST_USE_ASYNC=1
+
 # check if there's no init script
 if ! zgen saved; then
     # specify plugins here
@@ -35,7 +39,6 @@ if ! zgen saved; then
     # Catppuccin theme for zsh-syntax-highlighting
     zgen load catppuccin/zsh-syntax-highlighting
 
-
     # generate the init script from plugins above
     zgen save
 fi
@@ -45,7 +48,6 @@ zstyle ':zsh-syntax-highlighting:*' theme 'catppuccin_latte'
 if [[ -f ~/.zprofile ]]; then
   source ~/.zprofile
 fi
-
 
 # === Prompt ===
 eval "$(starship init zsh)"
@@ -90,3 +92,11 @@ fastfetch
 # fc -R ~/.zsh_history
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(direnv hook zsh)"
+
+# bun completions
+[ -s "/home/cesar/.bun/_bun" ] && source "/home/cesar/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export PATH="$HOME/homebrew/bin:$PATH"

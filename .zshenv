@@ -14,4 +14,4 @@ export VIDEO_PLAYER="mpv"
 export IMAGE_VIEWER="imv"
 export MICRO_TRUECOLOR=1
 export MICRO_CLIPBOARD=external
-export TERM="xterm-256color"
+export TERM="wezterm"

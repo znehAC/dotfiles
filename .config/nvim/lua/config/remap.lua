@@ -54,3 +54,8 @@ vim.keymap.set({ "n", "i", "v" }, "<Up>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Down>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Left>", "<nop>")
 vim.keymap.set({ "n", "i", "v" }, "<Right>", "<nop>")
+
+vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Move to left window' })
+vim.keymap.set('n', '<C-j>', '<C-w>j', { desc = 'Move to below window' })
+vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = 'Move to above window' })
+vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = 'Move to right window' })
