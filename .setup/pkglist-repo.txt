@@ -21,6 +21,7 @@ chromium
 clamav
 clang
 cli11
+cliphist
 cloudflared
 cmake
 cryptsetup
