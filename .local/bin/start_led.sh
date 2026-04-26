@@ -1,44 +1,33 @@
 #!/bin/bash
 
-TARGET_COUNT=${1:-4}
 PROFILE="candy"
-MAX_RETRIES=30
+TARGET_COUNT=4
+MAX_RETRIES=25
+HOST="127.0.0.1:6742"
 
-echo "Iniciando OpenRGB Server..."
-killall -9 openrgb 2>/dev/null
-sleep 1
+# Give the server time to enumerate USB/HID devices (especially wireless ones)
+sleep 10
 
-openrgb --server > /dev/null 2>&1 &
-SERVER_PID=$!
+LAST_COUNT=0
+for ((i=1; i<=MAX_RETRIES; i++)); do
+    OUTPUT=$(openrgb --client "$HOST" --list-devices 2>&1)
 
-echo "Aguardando detecção de $TARGET_COUNT dispositivos..."
+    if [ $? -ne 0 ]; then
+        echo "Attempt $i/$MAX_RETRIES: Connection refused." >&2
+    else
+        COUNT=$(echo "$OUTPUT" | rg -o "Received controller count from server: \d+" | rg -o "\d+" | sort -rn | head -n 1)
+        COUNT=${COUNT:-0}
+        LAST_COUNT=$COUNT
 
-RETRY=1
-while [ $RETRY -le $MAX_RETRIES ]; do
-    OUTPUT=$(openrgb --client --list-devices 2>&1)
-    
-    COUNT=$(echo "$OUTPUT" | grep "Received controller count" | awk -F': ' '{print $NF}' | tr -dc '0-9')
-
-    if [ -z "$COUNT" ]; then
-        COUNT=0
+        echo "Attempt $i/$MAX_RETRIES: Found $COUNT/$TARGET_COUNT..."
+        if [ "$COUNT" -ge "$TARGET_COUNT" ]; then
+            sleep 2
+            openrgb --client "$HOST" -p "$PROFILE" > /dev/null 2>&1
+            exit 0
+        fi
     fi
-
-    echo "Status: Detectados $COUNT / $TARGET_COUNT (Tentativa $RETRY/$MAX_RETRIES)"
-
-    if [ "$COUNT" -ge "$TARGET_COUNT" ]; then
-        echo "Sucesso! $COUNT dispositivos encontrados."
-        echo "Aplicando perfil..."
-        openrgb --profile "$PROFILE" > /dev/null 2>&1
-        
-        # Lock do processo para o serviço Type=simple do Systemd não matar o servidor
-        wait $SERVER_PID
-        exit 0
-    fi
-
-    ((RETRY++))
-    sleep 1
+    [[ $i -lt $MAX_RETRIES ]] && sleep 2
 done
 
-echo "Erro: Timeout atingido após $MAX_RETRIES tentativas. Encerrando."
-kill -9 $SERVER_PID 2>/dev/null
+echo "Error: Target not reached after $MAX_RETRIES attempts (last count: $LAST_COUNT/$TARGET_COUNT)." >&2
 exit 1

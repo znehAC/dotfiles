@@ -7,7 +7,6 @@ catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
 clipse
 coolercontrol
-cursor-bin
 debtap
 devtunnel-cli-bin
 downgrade
@@ -25,9 +24,11 @@ gtk-engine-murrine
 heroic-games-launcher-bin
 hytale-launcher-bin
 kdeconnect-git
+lib32-gst-plugins-base-libs
 libgnome-keyring
 monado-vulkan-layers-git
 neovim-remote
+noisetorch-bin
 nsight-graphics
 opencomposite-git
 openconnect-sso
@@ -44,6 +45,7 @@ rustdesk-bin
 slack-desktop
 spotify
 stremio
+sunshine
 swaync-git
 vesktop
 visual-studio-code-bin
@@ -52,6 +54,10 @@ wayfreeze-git
 wezterm-git
 wivrn-dashboard
 wivrn-server
+xembed-sni-proxy-standalone-git
+xfce4-artwork
+xfwm4-themes
+xrizer-git
 yay
 zen-browser-bin
 zgen-git

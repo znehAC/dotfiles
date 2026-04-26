@@ -5,6 +5,6 @@ Type = Package
 Target = spotify
 
 [Action]
-Description = Applying Spicetify patch to Spotify...
+Description = Patching Spotify with Spicetify...
 When = PostTransaction
-Exec = /usr/local/bin/spicetify-hook.sh
+Exec = /usr/bin/bash -c "chmod a+wr /opt/spotify && chmod a+wr /opt/spotify/Apps -R && sudo -u cesar HOME=/home/cesar PATH=$PATH:/home/cesar/.spicetify /home/cesar/.spicetify/spicetify backup apply"

@@ -1,74 +1,77 @@
-#if [ -z "$TMUX" ]; then
-#    smart-tsession.sh
-#fi
+# === 1. Bootstrapping (Auto-instalação) === ZGEN_DIR="${HOME}/.zgen"
+if [[ -d "$ZGEN_DIR" && ! -f "$ZGEN_DIR/zgen.zsh" ]]; then
+    rm -rf "$ZGEN_DIR"
+fi
 
+if [[ ! -f "$ZGEN_DIR/zgen.zsh" ]]; then
+    if [[ -f "/usr/share/zsh/share/zgen.zsh" ]]; then
+        ZGEN_SOURCE="/usr/share/zsh/share/zgen.zsh"
+    else
+        echo "🚀 Instalando zgen localmente..."
+        git clone https://github.com/tarjoilija/zgen.git "$ZGEN_DIR"
+        ZGEN_SOURCE="$ZGEN_DIR/zgen.zsh"
+    fi
+else
+    ZGEN_SOURCE="$ZGEN_DIR/zgen.zsh"
+fi
+source "$ZGEN_SOURCE"
+
+# === 2. Plugins (zgen) ===
+if ! zgen saved; then
+    echo "📦 Instalando plugins..."
+    
+    zgen load zsh-users/zsh-autosuggestions
+    zgen load zsh-users/zsh-syntax-highlighting
+    zgen load zsh-users/zsh-history-substring-search
+    
+    zgen load catppuccin/zsh-syntax-highlighting "" main
+    
+    zgen oh-my-zsh
+    
+    zgen oh-my-zsh plugins/git
+    zgen oh-my-zsh plugins/sudo
+    zgen oh-my-zsh plugins/extract
+    zgen oh-my-zsh plugins/fzf
+
+    zgen save
+fi
+
+# === 3. Completion & Fuzzy Match ===
 autoload -Uz compinit colors add-zsh-hook
 compinit
 colors
+
 setopt prompt_subst
-zstyle ':completion:*' menu select
 setopt append_history
+setopt menu_complete
 
-WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
-WORDCHARS=${WORDCHARS//[\/\.=-]/}
+# Permite completar no meio da palavra (Fuzzy Matching)
+# m:{a-zA-Z}={A-Za-z} -> case insensitive
+# r:|[._-]=* r:|=* -> permite completar após separadores
+# l:|=* r:|=* -> permite completar em qualquer lugar (substring)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 
-# === History ===
+# === 4. History ===
 HISTSIZE=500000
 SAVEHIST=500000
 HISTFILE=~/.zsh_history
-setopt append_history
 setopt hist_ignore_all_dups
 setopt share_history
 setopt inc_append_history
 setopt extended_history
 
-# === zgen plugin manager ===
-source /usr/share/zsh/share/zgen.zsh
+# === 5. Word Chars & UX ===
+WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>'
+WORDCHARS=${WORDCHARS//[\/\.=-]/}
 
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 export ZSH_AUTOSUGGEST_USE_ASYNC=1
-
-# check if there's no init script
-if ! zgen saved; then
-    # specify plugins here
-    zgen load zsh-users/zsh-autosuggestions
-    zgen load zsh-users/zsh-syntax-highlighting
-    zgen load zsh-users/zsh-history-substring-search
-    
-    # Catppuccin theme for zsh-syntax-highlighting
-    zgen load catppuccin/zsh-syntax-highlighting
-
-    # generate the init script from plugins above
-    zgen save
-fi
-
 zstyle ':zsh-syntax-highlighting:*' theme 'catppuccin_latte'
 
-if [[ -f ~/.zprofile ]]; then
-  source ~/.zprofile
-fi
-
-# === Prompt ===
-eval "$(starship init zsh)"
-PROMPT_EOL_MARK=""
-
-TRAPWINCH() {
-  zle && zle reset-prompt
-}
-
-uvvenv() {
-    uv venv "$@"
-    # wait for the venv's activate script (means venv is fully created)
-    while [[ ! -f .venv/bin/activate ]]; do
-        sleep 0.1
-    done
-    if [[ ! -f .envrc ]]; then
-        echo 'export VIRTUAL_ENV=".venv"; layout python' > .envrc
-    fi
-    direnv allow
-}
-
+# === 6. Aliases & Functions ===
 alias ll='ls -lh'
 alias gs='git status'
 alias dc='docker compose'
@@ -80,23 +83,47 @@ alias history='atuin history list'
 alias nvcc8='nvcc -arch=sm_80'
 alias vim='nvim'
 
+# Wrapper para o macOS vs Linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    command -v gls >/dev/null 2>&1 && alias ls='gls --color=auto'
+fi
+
 wind() {
-  "$HOME/.local/bin/wrappers/windsurf" "${@:-.}"
+    "$HOME/.local/bin/wrappers/windsurf" "${@:-.}"
 }
-# === Keybinds ===
+
+uvvenv() {
+    uv venv "$@"
+    while [[ ! -f .venv/bin/activate ]]; do sleep 0.1; done
+    if [[ ! -f .envrc ]]; then
+        echo 'export VIRTUAL_ENV=".venv"; layout python' > .envrc
+    fi
+    direnv allow
+}
+
+# === 7. Keybinds ===
 bindkey -e
-source ~/.zsh/keybinds.zsh
+[[ -f ~/.zsh/keybinds.zsh ]] && source ~/.zsh/keybinds.zsh
 
-fastfetch
-
-# fc -R ~/.zsh_history
+# === 8. Init External Tools ===
+eval "$(starship init zsh)"
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(direnv hook zsh)"
 
-# bun completions
-[ -s "/home/cesar/.bun/_bun" ] && source "/home/cesar/.bun/_bun"
-
-# bun
+# Bun
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH="$HOME/homebrew/bin:$PATH"
+export PATH="$BUN_INSTALL/bin:$PATH:$HOME/homebrew/bin"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# macOS specific path
+[[ -d /opt/homebrew/bin ]] && export PATH="/opt/homebrew/bin:$PATH"
+
+# === 9. Final Touch ===
+PROMPT_EOL_MARK=""
+TRAPWINCH() { zle && zle reset-prompt }
+
+if [[ -f ~/.zprofile ]]; then
+  source ~/.zprofile
+fi
+
+fastfetch
