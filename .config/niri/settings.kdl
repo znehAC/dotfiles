@@ -1,0 +1,118 @@
+// --- INPUT ---
+input {
+    keyboard {
+        xkb {
+            layout "br"
+            variant "abnt2"
+            options "caps:none"
+        }
+        repeat-delay 600
+        repeat-rate 25
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+        accel-profile "flat"
+    }
+
+    mouse {
+        accel-profile "flat"
+    }
+    focus-follows-mouse
+}
+
+prefer-no-csd
+screenshot-path "~/Pictures/Screenshots/screenshot_%H_%M_%S_%Y-%m-%d.png"
+
+xwayland-satellite {
+    path "xwayland-satellite"
+}
+
+gestures {
+    dnd-edge-view-scroll {
+        trigger-width 30
+        delay-ms 100
+        max-speed 1500
+    }
+
+    dnd-edge-workspace-switch {
+        trigger-height 50
+        delay-ms 100
+        max-speed 1500
+    }
+}
+
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+// --- OUTPUT (MONITOR) ---
+output "DP-1" {
+    scale 1.0
+    variable-refresh-rate on-demand=true
+    position x=0 y=0
+}
+
+// --- LAYOUT & VISUALS ---
+layout {
+    gaps 4
+    center-focused-column "never"
+    struts {
+        // left -4
+        // right -4
+        // top -4
+        // bottom -4
+    }
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    background-color "transparent"
+    default-column-width { proportion 0.5; }
+    always-center-single-column
+
+    focus-ring {
+        // width 4
+        off
+        // active-color "#2a9ff5"
+        // inactive-color "#505050"
+
+        inactive-gradient from="#2a9ff5" to="#2a9ff5" angle=45
+
+    }
+
+    border {
+        // off
+        on
+        width 4
+        //
+        //
+        active-color "#2a9ff5"
+        inactive-color "#505050"
+    }
+    tab-indicator{
+        off
+    }
+}
+
+layer-rule {
+    match namespace="^wallpaper$"
+
+    place-within-backdrop true
+}
+
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "4"
+workspace "5"
+workspace "6"
+workspace "7"
+workspace "8"
+workspace "9"
+workspace "10"

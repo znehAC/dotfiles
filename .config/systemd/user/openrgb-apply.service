@@ -1,0 +1,12 @@
+[Unit]
+Description=OpenRGB Profile Applier
+Requisite=openrgb-server.service
+After=openrgb-server.service
+OnFailure=openrgb-server-restart.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/cesar/.local/bin/start_led.sh
+
+[Install]
+WantedBy=default.target

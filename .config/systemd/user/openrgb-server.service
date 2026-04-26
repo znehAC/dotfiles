@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenRGB SDK Server
+Wants=systemd-udev-settle.service openrgb-apply.service
+After=systemd-udev-settle.service network.target graphical-session.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/sleep 10
+ExecStart=/usr/bin/openrgb --server --server-host 127.0.0.1 --loglevel 4
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

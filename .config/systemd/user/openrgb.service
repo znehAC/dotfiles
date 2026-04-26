@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenRGB Auto Profile Applier
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/cesar/.local/bin/start_led.sh
+OOMScoreAdjust=-500
+
+[Install]
+WantedBy=default.target

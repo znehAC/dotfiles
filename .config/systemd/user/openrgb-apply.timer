@@ -1,0 +1,10 @@
+[Unit]
+Description=Executa o OpenRGB Auto Profile a cada 1 minuto
+
+[Timer]
+OnBootSec=10s
+OnUnitActiveSec=1min
+Unit=openrgb-apply.service
+
+[Install]
+WantedBy=timers.target
