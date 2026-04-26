@@ -6,6 +6,7 @@ archlinux-xdg-menu
 aspell
 aspell-pt
 atuin
+awww
 base
 base-devel
 bash-completion
@@ -64,6 +65,7 @@ garcon
 gdb
 gdu
 geoclue
+github-cli
 glib2-devel
 gnome-keyring
 gnome-themes-extra
@@ -97,8 +99,9 @@ hyprwayland-scanner
 i2c-tools
 imv
 inetutils
+inkscape
 intel-ucode
-iptables-nft
+iptables
 ipython
 irqbalance
 jfsutils
@@ -112,7 +115,6 @@ kvantum
 less
 lib32-gamemode
 lib32-gnutls
-lib32-gst-plugins-base-libs
 lib32-gtk3
 lib32-libpulse
 lib32-libxcomposite
@@ -165,6 +167,7 @@ ninja
 niri
 nlohmann-json
 nmap
+noise-suppression-for-voice
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
@@ -180,6 +183,7 @@ nwg-look
 obs-studio
 obsidian
 openbsd-netcat
+opencode
 openresolv
 openssh
 os-prober
@@ -240,7 +244,6 @@ strace
 stress-ng
 sudo
 swaybg
-swww
 sysfsutils
 systemd-sysvcompat
 systemd-ukify
@@ -289,7 +292,6 @@ xf86-input-libinput
 xf86-video-vesa
 xfburn
 xfce4-appfinder
-xfce4-artwork
 xfce4-battery-plugin
 xfce4-clipman-plugin
 xfce4-cpufreq-plugin
@@ -327,7 +329,6 @@ xfce4-whiskermenu-plugin
 xfce4-xkb-plugin
 xfsprogs
 xfwm4
-xfwm4-themes
 xl2tpd
 xorg-bdftopcf
 xorg-docs

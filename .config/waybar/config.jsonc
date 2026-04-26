@@ -20,12 +20,18 @@
     "custom/easyeffects",
     "tray",
     "clock",
-    "wireplumber",
-    "custom/updates",
-    "network",
-    "custom/notification",
+    "group/status",
     "custom/power"
   ],
+  "group/status": {
+    "orientation": "horizontal",
+    "modules": [
+      "wireplumber",
+      "custom/updates",
+      "network",
+      "custom/notification"
+    ]
+  },
   "niri/window": {
     "max-length": 50,
     "ellipsis": true,
@@ -110,12 +116,12 @@
     "ellipsis": true,
     "player-icons": {
       "spotify": "",
-      "firefox": "",
+      "firefox": ""
     },
     "status-icons": {
       "paused": "",
       "playing": "",
-      "stopped": "",
+      "stopped": ""
     },
     "on-click": "playerctl play-pause",
     "on-scroll-up": "playerctld shift",
@@ -124,7 +130,7 @@
       "chromium"
     ],
     "title-len": 20,
-    "artist-len": 10,
+    "artist-len": 10
   },
   "custom/mpris-prev": {
     "format": "⟵",
