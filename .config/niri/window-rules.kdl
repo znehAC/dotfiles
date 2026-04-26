@@ -1,0 +1,126 @@
+// --- 1. GLOBAL DEFAULTS ---
+window-rule {
+    clip-to-geometry true
+    geometry-corner-radius 12
+    opacity 0.99
+    draw-border-with-background false
+}
+
+// --- 2. SYSTEM UI & DAEMONS ---
+window-rule {
+    match title=r#"^(Open File|Save As|Enter name of file to save to|File Upload|Picture-in-Picture|Sign in|Authorize access|Authenticate)$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(org\.pulseaudio\.pavucontrol|qpwgraph|helvum|blueman-manager|nm-connection-editor)$"#
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match app-id=r#"^(org\.kde\.polkit-kde-authentication-agent-1|polkit-gnome-authentication-agent-1)$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id="rofi"
+    open-floating true
+    border { off; }
+}
+
+// --- 3. BROWSER & EXTENSIONS ---
+window-rule {
+    match app-id="zen"
+    open-on-workspace "1"
+    open-maximized true
+    open-focused true
+    variable-refresh-rate false
+}
+
+window-rule {
+    match app-id=r#"^chrome-extension"#
+    match title=r#"^Extension: \(.*\)"#
+    open-floating true
+}
+
+// --- 4. TERMINALS ---
+window-rule {
+    match app-id="wezterm"
+    exclude title="btop"
+    open-floating true
+    default-column-width { fixed 1000; }
+    default-window-height { fixed 800; }
+}
+
+window-rule {
+    match app-id="wezterm" title="btop"
+    open-on-workspace "2"
+    open-focused true
+}
+
+// --- 5. WORKSPACE MAPPINGS ---
+window-rule {
+    match app-id="spotify"
+    open-on-workspace "2"
+    open-focused true
+}
+
+window-rule {
+    match app-id="vesktop"
+    open-on-workspace "4"
+    open-focused true
+}
+
+window-rule {
+    match app-id=r#"^(steam|heroic|lutris)$"#
+    open-on-workspace "5"
+    open-focused true
+    open-maximized true
+}
+
+window-rule {
+    match app-id=r#"(?i)^slack$"#
+    open-on-workspace "9"
+    open-focused true
+}
+
+// --- 6. GAMING & VRR DRAGNET ---
+window-rule {
+    match app-id="steam" title=r#"^(Friends List|.* - Chat|Steam - News|Settings|.* - Properties)$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^steam_app_\d+$"#
+    match app-id=r#"^(gamescope|cs2|dota2|Cyberpunk2077|bg3\.exe|bg3_dx11\.exe|acs\.exe|assettocorsa\.exe|heroic|lutris-wrapper)$"#
+    variable-refresh-rate true
+}
+
+window-rule {
+    match app-id="steam_app_238960"
+    // open-fullscreen true
+}
+
+// --- 7. SPECIALIZED & DEV ---
+window-rule {
+    match app-id="exiled-exchange-2"
+    match title="Exiled Exchange 2"
+    open-floating true 
+    open-focused false
+    open-maximized true
+    clip-to-geometry true
+    opacity 0.95
+    draw-border-with-background false
+    border { off; }
+    focus-ring { off; }
+}
+
+window-rule {
+    match title=r#"^(Ara|Turi)$"#
+    open-floating true
+    default-column-width { fixed 1280; }
+    default-window-height { fixed 720; }
+    variable-refresh-rate true
+}

@@ -145,6 +145,17 @@ if command -v gsettings &>/dev/null; then
 fi
 
 ##############################################################################
+# custom systemd user services
+##############################################################################
+log "⚙️  enabling custom systemd user services…"
+systemctl --user daemon-reload
+systemctl --user enable \
+  openrgb-server.service \
+  openrgb-apply.service \
+  openrgb-apply.timer \
+  ydotoold.service || true
+
+##############################################################################
 # import env + done
 ##############################################################################
 systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
