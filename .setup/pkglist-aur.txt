@@ -1,14 +1,13 @@
-actiona
 alvr-nvidia
-antigravity
+antigravity2-bin
 bs-manager-git
 bun-bin
 catppuccin-cursors-latte
 catppuccin-gtk-theme-latte
 clipse
 coolercontrol
+cursor-bin
 debtap
-devtunnel-cli-bin
 downgrade
 envision-xr-git
 eww
@@ -23,6 +22,7 @@ gpu-burn-git
 gtk-engine-murrine
 heroic-games-launcher-bin
 hytale-launcher-bin
+ironbar-git
 kdeconnect-git
 lib32-gst-plugins-base-libs
 libgnome-keyring
@@ -42,7 +42,7 @@ python-pyqt5-webengine
 rofi-lbonn-wayland-git
 rofi-power-menu
 rustdesk-bin
-slack-desktop
+rusty-path-of-building
 spotify
 stremio
 sunshine
@@ -51,6 +51,7 @@ vesktop
 visual-studio-code-bin
 vkd3d-proton-bin
 wayfreeze-git
+wayvr-git
 wezterm-git
 wivrn-dashboard
 wivrn-server

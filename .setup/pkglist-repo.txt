@@ -2,7 +2,9 @@
 accountsservice
 alsa-plugins
 android-tools
+appstream-glib
 archlinux-xdg-menu
+ark
 aspell
 aspell-pt
 atuin
@@ -40,6 +42,7 @@ docker-buildx
 docker-compose
 dolphin
 dosfstools
+dotnet-sdk
 doxygen
 dpkg
 dracut
@@ -58,6 +61,7 @@ ffmpegthumbnailer
 firewalld
 flatpak
 freerdp
+fwupd
 gamemode
 gamescope
 gammastep
@@ -65,6 +69,7 @@ garcon
 gdb
 gdu
 geoclue
+gi-docgen
 github-cli
 glib2-devel
 gnome-keyring
@@ -72,6 +77,7 @@ gnome-themes-extra
 gnuplot
 godot-mono
 gparted
+gperf
 greetd
 greetd-gtkgreet
 grim
@@ -134,6 +140,7 @@ linux
 linux-firmware
 linux-headers
 logrotate
+lrzip
 lsb-release
 lsp-plugins
 lvm2
@@ -225,7 +232,10 @@ ristretto
 rkhunter
 rsync
 rtkit
+ruby
+ruby-stdlib
 rust
+rust-src
 s-tui
 sassc
 sbctl
@@ -259,6 +269,7 @@ ttf-jetbrains-mono-nerd
 ttf-liberation
 ttf-opensans
 tumbler
+unifdef
 unrar
 unzip
 upower

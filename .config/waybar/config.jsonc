@@ -1,157 +1,157 @@
-{
-  "layer": "top",
-  "position": "top",
-  "height": 42,
-  "margin-top": 4,
-  "margin-right": 8,
-  "margin-bottom": 0,
-  "margin-left": 8,
-  "modules-left": [
-    "custom/launcher",
-    "niri/workspaces",
-    "niri/window"
-  ],
-  "modules-center": [
-    "custom/mpris-prev",
-    "mpris",
-    "custom/mpris-next"
-  ],
-  "modules-right": [
-    "custom/easyeffects",
-    "tray",
-    "clock",
-    "group/status",
-    "custom/power"
-  ],
-  "group/status": {
-    "orientation": "horizontal",
-    "modules": [
-      "wireplumber",
-      "custom/updates",
-      "network",
-      "custom/notification"
-    ]
-  },
-  "niri/window": {
-    "max-length": 50,
-    "ellipsis": true,
-    "format": "{}"
-  },
-  "custom/easyeffects": {
-    "format": "{}",
-    "on-click": "toggle-filter",
-    "exec": "pgrep -x easyeffects >/dev/null 2>&1 && echo '󰢴' || echo '󰢳'",
-    "interval": 1
-  },
-  "wireplumber": {
-    "format": "{icon} {volume}%",
-    "format-muted": "",
-    "format-icons": [
-      "",
-      "",
-      ""
-    ],
-    "scroll-step": 5,
-    "on-click": "pavucontrol",
-    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-    "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%+",
-    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
-    "ignored-sinks": [
-      "Easy Effects*",
-      "Auto Gain (EasyEffects)"
-    ],
-    "ignored-sources": [
-      "Easy Effects*"
-    ],
-    "tooltip": false
-  },
-  "network": {
-    "format-wifi": "",
-    "format-ethernet": "",
-    "format-disconnected": "",
-    "tooltip": true,
-    "tooltip-format": "{ifname} {ipaddr}\n↓ {bandwidthDownBits}bps\n↑ {bandwidthUpBits}bps",
-    "interval": 3
-  },
-  "tray": {
-    "spacing": 8,
-    "icon-size": 16,
-    "show-passive-items": true,
-    "icon-theme": "Papirus"
-  },
-  "clock": {
-    "interval": 1,
-    "format": "{:%H:%M:%S  -  %d/%m/%Y}",
-    "tooltip-format": "{:%A, %d %B %Y %H:%M:%S}",
-    "on-click": "gsimplecal &"
-  },
-  "custom/launcher": {
-    "format": "󰈆",
-    "on-click": "rofi -show drun",
-    "tooltip": false
-  },
-  "custom/notification": {
-    "tooltip": false,
-    "format": "{icon}",
-    "format-icons": {
-      "notification": "<span foreground='red'><sup></sup></span>",
-      "none": " ",
-      "dnd-notification": "<span foreground='red'><sup></sup></span>",
-      "dnd-none": "",
-      "inhibited-notification": "<span foreground='red'><sup></sup></span>",
-      "inhibited-none": "",
-      "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
-      "dnd-inhibited-none": ""
-    },
-    "return-type": "json",
-    "exec-if": "which swaync-client",
-    "exec": "swaync-client -swb",
-    "on-click": "swaync-client -t -sw",
-    "on-click-right": "swaync-client -d -sw",
-    "escape": true
-  },
-  "mpris": {
-    "format": "{player_icon} {artist} {status_icon} {title}",
-    "max-length": 50,
-    "ellipsis": true,
-    "player-icons": {
-      "spotify": "",
-      "firefox": ""
-    },
-    "status-icons": {
-      "paused": "",
-      "playing": "",
-      "stopped": ""
-    },
-    "on-click": "playerctl play-pause",
-    "on-scroll-up": "playerctld shift",
-    "on-scroll-down": "playerctld unshift",
-    "ignored-players": [
-      "chromium"
-    ],
-    "title-len": 20,
-    "artist-len": 10
-  },
-  "custom/mpris-prev": {
-    "format": "⟵",
-    "on-click": "playerctld unshift",
-    "tooltip": false
-  },
-  "custom/mpris-next": {
-    "format": "⟶",
-    "on-click": "playerctld shift",
-    "tooltip": false
-  },
-  "custom/updates": {
-    "format": "{}",
-    "exec": "(checkupdates 2>/dev/null && yay -Qua 2>/dev/null) | wc -l | awk '{print ($1>0)?\" \"$1:\"\"}'",
-    "interval": 21600,
-    "on-click": "wezterm -e yay -Syu --noconfirm --answerupgrade Y & notify-send '✅ system updated'",
-    "tooltip": false
-  },
-  "custom/power": {
-    "format": "⏻",
-    "on-click": "rofi -show powermenu -modi \"powermenu:rofi-power-menu\"",
-    "tooltip": false
-  }
-}
+// {
+//   "layer": "top",
+//   "position": "top",
+//   "height": 42,
+//   "margin-top": 4,
+//   "margin-right": 8,
+//   "margin-bottom": 0,
+//   "margin-left": 8,
+//   "modules-left": [
+//     "custom/launcher",
+//     "niri/workspaces",
+//     "niri/window"
+//   ],
+//   "modules-center": [
+//     "custom/mpris-prev",
+//     "mpris",
+//     "custom/mpris-next"
+//   ],
+//   "modules-right": [
+//     "custom/easyeffects",
+//     "tray",
+//     "clock",
+//     "group/status",
+//     "custom/power"
+//   ],
+//   "group/status": {
+//     "orientation": "horizontal",
+//     "modules": [
+//       "wireplumber",
+//       "custom/updates",
+//       "network",
+//       "custom/notification"
+//     ]
+//   },
+//   "niri/window": {
+//     "max-length": 50,
+//     "ellipsis": true,
+//     "format": "{}"
+//   },
+//   "custom/easyeffects": {
+//     "format": "{}",
+//     "on-click": "toggle-filter",
+//     "exec": "pgrep -x easyeffects >/dev/null 2>&1 && echo '󰢴' || echo '󰢳'",
+//     "interval": 1
+//   },
+//   "wireplumber": {
+//     "format": "{icon} {volume}%",
+//     "format-muted": "",
+//     "format-icons": [
+//       "",
+//       "",
+//       ""
+//     ],
+//     "scroll-step": 5,
+//     "on-click": "pavucontrol",
+//     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+//     "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%+",
+//     "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
+//     "ignored-sinks": [
+//       "Easy Effects*",
+//       "Auto Gain (EasyEffects)"
+//     ],
+//     "ignored-sources": [
+//       "Easy Effects*"
+//     ],
+//     "tooltip": false
+//   },
+//   "network": {
+//     "format-wifi": "",
+//     "format-ethernet": "",
+//     "format-disconnected": "",
+//     "tooltip": true,
+//     "tooltip-format": "{ifname} {ipaddr}\n↓ {bandwidthDownBits}bps\n↑ {bandwidthUpBits}bps",
+//     "interval": 3
+//   },
+//   "tray": {
+//     "spacing": 8,
+//     "icon-size": 16,
+//     "show-passive-items": true,
+//     "icon-theme": "Papirus"
+//   },
+//   "clock": {
+//     "interval": 1,
+//     "format": "{:%H:%M:%S  -  %d/%m/%Y}",
+//     "tooltip-format": "{:%A, %d %B %Y %H:%M:%S}",
+//     "on-click": "gsimplecal &"
+//   },
+//   "custom/launcher": {
+//     "format": "󰈆",
+//     "on-click": "rofi -show drun",
+//     "tooltip": false
+//   },
+//   "custom/notification": {
+//     "tooltip": false,
+//     "format": "{icon}",
+//     "format-icons": {
+//       "notification": "<span foreground='red'><sup></sup></span>",
+//       "none": " ",
+//       "dnd-notification": "<span foreground='red'><sup></sup></span>",
+//       "dnd-none": "",
+//       "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+//       "inhibited-none": "",
+//       "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+//       "dnd-inhibited-none": ""
+//     },
+//     "return-type": "json",
+//     "exec-if": "which swaync-client",
+//     "exec": "swaync-client -swb",
+//     "on-click": "swaync-client -t -sw",
+//     "on-click-right": "swaync-client -d -sw",
+//     "escape": true
+//   },
+//   "mpris": {
+//     "format": "{player_icon} {artist} {status_icon} {title}",
+//     "max-length": 50,
+//     "ellipsis": true,
+//     "player-icons": {
+//       "spotify": "",
+//       "firefox": ""
+//     },
+//     "status-icons": {
+//       "paused": "",
+//       "playing": "",
+//       "stopped": ""
+//     },
+//     "on-click": "playerctl play-pause",
+//     "on-scroll-up": "playerctld shift",
+//     "on-scroll-down": "playerctld unshift",
+//     "ignored-players": [
+//       "chromium"
+//     ],
+//     "title-len": 20,
+//     "artist-len": 10
+//   },
+//   "custom/mpris-prev": {
+//     "format": "⟵",
+//     "on-click": "playerctld unshift",
+//     "tooltip": false
+//   },
+//   "custom/mpris-next": {
+//     "format": "⟶",
+//     "on-click": "playerctld shift",
+//     "tooltip": false
+//   },
+//   "custom/updates": {
+//     "format": "{}",
+//     "exec": "(checkupdates 2>/dev/null && yay -Qua 2>/dev/null) | wc -l | awk '{print ($1>0)?\" \"$1:\"\"}'",
+//     "interval": 21600,
+//     "on-click": "wezterm -e yay -Syu --noconfirm --answerupgrade Y & notify-send '✅ system updated'",
+//     "tooltip": false
+//   },
+//   "custom/power": {
+//     "format": "⏻",
+//     "on-click": "rofi -show powermenu -modi \"powermenu:rofi-power-menu\"",
+//     "tooltip": false
+//   }
+// }

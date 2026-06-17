@@ -83,7 +83,6 @@ alias history='atuin history list'
 alias nvcc8='nvcc -arch=sm_80'
 alias vim='nvim'
 
-# Wrapper para o macOS vs Linux
 if [[ "$OSTYPE" == "darwin"* ]]; then
     command -v gls >/dev/null 2>&1 && alias ls='gls --color=auto'
 fi
