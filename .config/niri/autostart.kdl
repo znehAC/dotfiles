@@ -1,27 +1,15 @@
 // --- AUTOSTART ---
 
-// Core System
+// Core System (Infraestrutura Wayland e D-Bus)
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-spawn-at-startup "swaync"
-spawn-at-startup "waybar"
-spawn-at-startup "gammastep-indicator"
-spawn-at-startup "nm-applet"
 spawn-at-startup "xembedsniproxy"
+spawn-at-startup "swaync"
+spawn-at-startup "nm-applet"
 
-// Clipboard & Persistence (Substituindo wl-clip-persist)
-spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
-spawn-at-startup "wl-paste" "--type" "image" "--watch" "cliphist" "store"
-spawn-at-startup "wl-clip-persist" "--clipboard" "both"
-// Storage & Background
-spawn-at-startup "rclone" "mount" "gdrive:" "/home/cesar/mnt/gdrive" "--vfs-cache-mode" "writes" "--daemon"
-//spawn-sh-at-startup "/home/cesar/.local/bin/start_led.sh"
-spawn-sh-at-startup "swaybg -m fill -i /home/cesar/Pictures/Wallpaper/wallpaper.png"
-
-// Apps
+// Apps Gráficas de Usuário (Persistent Windows)
 spawn-at-startup "zen-browser"
 spawn-at-startup "wezterm" "start" "--class" "btop" "-e" "btop"
 spawn-at-startup "spotify"
-spawn-at-startup "slack"
 spawn-sh-at-startup "gtk-launch vesktop"
 spawn-at-startup "steam" "-silent"
