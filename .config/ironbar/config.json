@@ -1,0 +1,129 @@
+{
+  "monitors": {
+    "DP-1": {
+      "position": "top",
+      "popup_autohide": "true",
+      "height": 32,
+      "start": [
+        {
+          "type": "workspaces"
+        },
+        {
+          "type": "focused",
+          "show_icon": true,
+          "show_title": true,
+          "icon_size": 12,
+          "truncate": {
+            "mode": "end",
+            "max_length": 20
+          }
+        }
+      ],
+      "center": [
+        {
+          "type": "music",
+          "player_type": "mpris",
+          "format": "{title} / {artist}"
+        }
+      ],
+      "end": [
+        {
+          "type": "custom",
+          "name": "easyeffects",
+          "bar": [
+            {
+              "type": "label",
+              "label": "{{2000:pgrep -x easyeffects >/dev/null && echo 󰢴 || echo 󰢳}}"
+            }
+          ]
+        },
+        {
+          "type": "tray"
+        },
+        {
+          "type": "volume",
+          "format": "{icon} {percentage}%"
+        },
+        {
+          "type": "custom",
+          "name": "sys-updates",
+          "bar": [
+            {
+              "type": "label",
+              "label": "{{21600000:UPDATES=$(checkupdates 2>/dev/null | wc -l); [ $UPDATES -gt 0 ] && echo  $UPDATES || echo }}"
+            }
+          ]
+        },
+        {
+          "type": "custom",
+          "name": "sys-network",
+          "bar": [
+            {
+              "type": "label",
+              "label": "{{5000:ip route | grep -q default && echo  || echo }}"
+            }
+          ]
+        },
+        {
+          "type": "clock",
+          "format": " %H:%M:%S"
+        },
+        {
+          "type": "notifications",
+          "show_count": true
+        },
+        {
+          "type": "custom",
+          "name": "power",
+          "class": "power-menu",
+          "bar": [
+            {
+              "type": "button",
+              "label": "",
+              "name": "power-btn-trigger",
+              "on_click": "popup:toggle"
+            }
+          ],
+          "popup": [
+            {
+              "type": "box",
+              "orientation": "vertical",
+              "class": "power-popup-box",
+              "widgets": [
+                {
+                  "type": "label",
+                  "label": "Power Menu",
+                  "name": "header"
+                },
+                {
+                  "type": "box",
+                  "orientation": "horizontal",
+                  "name": "buttons",
+                  "widgets": [
+                    {
+                      "type": "button",
+                      "class": "power-btn shutdown",
+                      "label": "",
+                      "on_click": "!shutdown now"
+                    },
+                    {
+                      "type": "button",
+                      "class": "power-btn reboot",
+                      "label": "",
+                      "on_click": "!reboot"
+                    }
+                  ]
+                },
+                {
+                  "type": "label",
+                  "label": "Uptime: {{30000:uptime -p | cut -d ' ' -f2-}}",
+                  "name": "uptime"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
