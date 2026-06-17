@@ -1,0 +1,253 @@
+/* Reset total do GTK para controle milimétrico */
+* {
+    outline: 0;
+    font-family: "GeistMono Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #332c2c;
+    background-image: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+.background {
+    background-color: transparent;
+}
+
+/* Base da barra principal */
+#bar, popover contents {
+    background: linear-gradient(90deg, #ffecec 20%, #e0f0ff 80%);
+}
+
+#bar {
+    border: 2px solid rgba(83, 166, 227, 0.5);
+    border-radius: 6px;
+    margin: 3px 8px 0 8px;
+    padding: 1px 4px;
+}
+
+/* Reset agressivo de botões internos */
+button, button:hover, button:active {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Definição das Pills Individuais do Início/Centro */
+.launcher, .power-menu, .workspaces, .music {
+    background-color: rgba(255, 224, 227, 0.95);
+    border: 1px solid rgba(200, 220, 255, 0.3);
+    border-radius: 5px;
+    padding: 1px 6px;
+    margin: 1px 2px;
+}
+
+/* Custom Ícone Puro: EasyEffects sem pílula de fundo */
+#easyeffects {
+    margin: 0 6px;
+    background: transparent;
+    border: none;
+}
+#easyeffects label {
+    font-size: 12px;
+}
+
+#power-btn label {
+    color: #e05f5f;
+}
+#power-btn:hover label {
+    color: #c03f3f;
+}
+
+/* Redução Drástica dos Workspaces */
+.workspaces {
+    padding: 1px 3px;
+}
+.workspaces .item {
+    color: #5c5252;
+    margin: 0 3px;
+    padding: 0 2px;
+    border-radius: 3px;
+    min-width: 12px;
+    min-height: 12px;
+}
+.workspaces .item:hover {
+    background: rgba(255, 182, 185, 0.4);
+    color: #332c2c;
+}
+.workspaces .focused {
+    background: #ffb6b9;
+    color: #ffffff;
+    font-weight: 800;
+}
+.workspaces .empty {
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+}
+
+/* Janela Focada */
+.focused {
+    margin-left: 6px;
+}
+.focused .label {
+    font-weight: 700;
+    color: #332c2c;
+}
+.focused .icon {
+    filter: grayscale(1) saturate(0) brightness(1.0);
+    margin-right: 4px;
+}
+
+/* System Tray */
+.tray {
+    padding: 0px 8px;
+    margin: 0px 5px;
+}
+.tray picture {
+    filter: grayscale(1) saturate(0) brightness(1.0);
+    opacity: 0.75;
+    padding: 0 4px;
+}
+.tray picture:hover {
+    filter: none;
+    opacity: 1.0;
+}
+
+.notifications, .volume, #sys-updates, #sys-network, .clock, .clock:hover, .volume:hover {
+    background-color: transparent;
+    border: none;
+    margin: 0px 5px;
+}
+
+/* ========================================== */
+/* ESTILIZAÇÃO DOS POPUPS                     */
+/* ========================================== */
+
+/* Nó pai do GTK: Remove decorações extras e espaçamento fantasma */
+popover, window.popup {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+/* Contêiner interno real: Onde o estilo deve viver */
+popover contents, .popup, .popup-custom {
+    border: 2px solid rgba(83, 166, 227, 0.6);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Garante que caixas internas não herdem backgrounds indesejados */
+box {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+/* Hover genérico para quaisquer botões normais dentro de popups (ex: midia, menus) */
+.popup button:hover, .popup-custom button:hover, popover contents button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+/* Sliders de Mídia e de Volume (Correção do MPRIS) */
+scale.horizontal highlight, 
+progressbar progress,
+.popup-music scale highlight,
+.popup-volume scale highlight {
+    background: linear-gradient(90deg, #ffb6b9 0%, #53a6e3 100%);
+    border-radius: 4px;
+}
+
+scale trough, 
+progressbar trough,
+.popup-music scale trough,
+.popup-volume scale trough {
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+/* Custom Powermenu Styling */
+.power-menu {
+    background-color: rgba(255, 224, 227, 0.95);
+    border: 1px solid rgba(200, 220, 255, 0.3);
+    border-radius: 5px;
+    padding: 1px 6px;
+    margin: 1px 2px;
+}
+
+#power-btn-trigger label {
+    color: #e05f5f;
+    font-size: 11px;
+}
+#power-btn-trigger:hover label {
+    color: #c03f3f;
+}
+
+/* Container de Popup Exclusivo para evitar colisão */
+.popup-power .power-popup-box {
+    padding: var(--margin-lg, 1em); /* Usando padding global estruturado */
+    background: linear-gradient(90deg, #ffecec 20%, #e0f0ff 80%);
+    border-radius: 12px;
+}
+
+#header {
+    font-size: 13px;
+    font-weight: 800;
+    color: #5c5252;
+    margin-bottom: 0.6em;
+}
+
+/* Espaçamento entre botões circulares (Fim da Sobreposição) */
+.popup-power #buttons {
+    padding: var(--margin-sm, 0.5em) 0;
+}
+/* Seletor específico do criador para separar os Revealeres */
+.popup-power #buttons > * + * {
+    margin-left: 1.3em;
+}
+
+/* Botões do Powermenu: Limpos e Circulares */
+.popup-power .power-btn {
+    border: 1px solid rgba(200, 220, 255, 0.2);
+    border-radius: 10px; /* Base circular */
+    transition: 0.2s;
+    background: transparent;
+}
+.popup-power .power-btn label {
+    font-size: var(--size-xxl, 2.6em); /* Ícone grande */
+    padding: var(--margin-xs, 0.25em) var(--margin-lg, 1em);
+}
+
+/* Cores do Shutdown e Reboot com Hover puro de icone */
+.popup-power .shutdown label {
+    color: #ffb6b9;
+}
+.popup-power .shutdown:hover label {
+    color: #e05f5f;
+    background-color: transparent; /* Garante ícone puro flutuante */
+}
+
+.popup-power .reboot label {
+    color: #53a6e3;
+}
+.popup-power .reboot:hover label {
+    color: #b0d5ff;
+    background-color: transparent; /* Garante ícone puro flutuante */
+}
+
+#uptime {
+    font-size: 10px;
+    color: #7c7272;
+    margin-top: var(--margin-xs, 0.25em);
+}
