@@ -124,5 +124,6 @@ TRAPWINCH() { zle && zle reset-prompt }
 if [[ -f ~/.zprofile ]]; then
   source ~/.zprofile
 fi
+[[ -f "$HOME/.env" ]] && source "$HOME/.env"
 
 fastfetch

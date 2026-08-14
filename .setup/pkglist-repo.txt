@@ -71,6 +71,7 @@ gdu
 geoclue
 gi-docgen
 github-cli
+glfw
 glib2-devel
 gnome-keyring
 gnome-themes-extra
@@ -125,6 +126,7 @@ lib32-gtk3
 lib32-libpulse
 lib32-libxcomposite
 lib32-openal
+lib32-pipewire-jack
 lib32-v4l-utils
 lib32-vkd3d
 libadwaita
@@ -145,6 +147,7 @@ lsb-release
 lsp-plugins
 lvm2
 lxappearance
+mame
 man-db
 man-pages
 mdadm
@@ -294,6 +297,7 @@ wl-clipboard
 woff2-font-awesome
 wpa_supplicant
 xclip
+xdelta3
 xdg-desktop-portal
 xdg-desktop-portal-gnome
 xdg-desktop-portal-gtk

@@ -27,8 +27,6 @@ window-rule {
 window-rule {
     match app-id="org.kde.dolphin"
     open-floating true
-    // default-column-width { fixed 800; }
-    // default-window-height { fixed 600; }
 }
 
 window-rule {
@@ -53,6 +51,10 @@ window-rule {
 
 window-rule {
     match app-id=r#"^chrome-extension"#
+    open-floating true
+}
+
+window-rule {
     match title=r#"^Extension: \(.*\)"#
     open-floating true
 }
@@ -62,13 +64,14 @@ window-rule {
     match app-id="wezterm"
     exclude title="btop"
     open-floating true
-    default-column-width { fixed 1000; }
+    default-column-width { fixed 1100; }
     default-window-height { fixed 800; }
 }
 
 window-rule {
     match app-id="wezterm" title="btop"
     open-on-workspace "2"
+    open-maximized true
     open-focused true
 }
 
@@ -76,17 +79,20 @@ window-rule {
 window-rule {
     match app-id="spotify"
     open-on-workspace "2"
+    open-maximized true
     open-focused true
 }
 
 window-rule {
     match app-id="vesktop"
     open-on-workspace "4"
+    open-maximized true
     open-focused true
 }
 
 window-rule {
     match app-id=r#"^(steam|heroic|lutris)$"#
+    exclude title=r#"^(Friends List|.* - Chat|Steam - News|Settings|.* - Properties)$"#
     open-on-workspace "5"
     open-focused true
     open-maximized true
@@ -95,6 +101,7 @@ window-rule {
 window-rule {
     match app-id=r#"(?i)^slack$"#
     open-on-workspace "9"
+    open-maximized true
     open-focused true
 }
 
@@ -104,12 +111,15 @@ window-rule {
     open-floating true
 }
 
+// Steam Games & Heavy Renderers -> Exclusive Fullscreen + VRR
 window-rule {
     match app-id=r#"^steam_app_\d+$"#
     match app-id=r#"^(gamescope|cs2|dota2|Cyberpunk2077|bg3\.exe|bg3_dx11\.exe|acs\.exe|assettocorsa\.exe|heroic|lutris-wrapper)$"#
+    open-fullscreen true
     variable-refresh-rate true
 }
 
+// Override specific app VRR exception
 window-rule {
     match app-id="steam_app_4698190"
     variable-refresh-rate false
@@ -118,7 +128,6 @@ window-rule {
 // --- 7. SPECIALIZED & DEV ---
 window-rule {
     match app-id="exiled-exchange-2"
-    match title="Exiled Exchange 2"
     open-floating true 
     open-focused false
     open-maximized true
