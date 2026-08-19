@@ -1,5 +1,6 @@
 7zip
 accountsservice
+age
 alsa-plugins
 android-tools
 appstream-glib

@@ -3,44 +3,69 @@ set -euo pipefail
 trap 'echo "[💥] abort @ ${BASH_SOURCE[0]}:$LINENO"; exit 1' ERR
 
 SETUP="$HOME/.setup"
+BACKUP_DIR="$HOME/.setup_restore_backup_$(date +%Y%m%d_%H%M%S)"
 log(){ printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
 log "🔧 restoring…"
 
+# Upfront sudo prompt
 if ! sudo -n true 2>/dev/null; then
   log "🔒 sudo password required…"
   sudo -v
 fi
 
+# Safe backup helper
+safe_backup() {
+  local target="$1"
+  if [[ -e "$target" ]]; then
+    mkdir -p "$BACKUP_DIR"
+    cp -rf "$target" "$BACKUP_DIR/"
+  fi
+}
+
+# Wallpapers
 for ext in jpg png; do
   src="$SETUP/wallpapers/wallpaper.$ext"
-  [[ -f $src ]] && { mkdir -p "$HOME/Pictures"; cp "$src" "$HOME/Pictures/"; break; }
+  if [[ -f "$src" ]]; then
+    mkdir -p "$HOME/Pictures"
+    safe_backup "$HOME/Pictures/wallpaper.$ext"
+    cp "$src" "$HOME/Pictures/"
+    break
+  fi
 done
 
-if [[ -d $SETUP/fonts ]]; then
-  rsync -aHAXx --chmod=u+rwX --delete "$SETUP/fonts/" "$HOME/.local/share/fonts/"
+# Fonts
+if [[ -d "$SETUP/fonts" ]]; then
+  mkdir -p "$HOME/.local/share/fonts"
+  rsync -aHAXx --chmod=u+rwX "$SETUP/fonts/" "$HOME/.local/share/fonts/"
   fc-cache -fv
 fi
 
-if [[ -f $SETUP/zen/zen.desktop ]]; then
+# Zen Browser desktop + user.js
+if [[ -f "$SETUP/zen/zen.desktop" ]]; then
   mkdir -p "$HOME/.local/share/applications"
   cp "$SETUP/zen/zen.desktop" "$HOME/.local/share/applications/"
 fi
 
 shopt -s nullglob
-profile_dirs=("$HOME/.mozilla/firefox"/*.zen*)
+profile_dirs=("$HOME/.mozilla/firefox"/*.zen* "$HOME/.zen"/*.default*)
 shopt -u nullglob
 if [[ ${#profile_dirs[@]} -gt 0 && -f "$SETUP/zen/user.js" ]]; then
-  cp "$SETUP/zen/user.js" "${profile_dirs[0]}/user.js"
+  for p in "${profile_dirs[@]}"; do
+    safe_backup "$p/user.js"
+    cp "$SETUP/zen/user.js" "$p/user.js"
+  done
 fi
 
-if [[ -f $SETUP/user-icon ]]; then
+# User icon
+if [[ -f "$SETUP/user-icon" ]]; then
   sudo install -D "$SETUP/user-icon" "/var/lib/AccountsService/icons/$USER"
   printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$USER" | \
     sudo tee "/var/lib/AccountsService/users/$USER" >/dev/null
-  sudo systemctl restart accounts-daemon
+  sudo systemctl restart accounts-daemon || true
 fi
 
+# Package install
 install_packages() {
   local file="$1"
   local pkg_manager="$2"
@@ -59,6 +84,7 @@ install_packages() {
 install_packages "$SETUP/pkglist-repo.txt" "pacman"
 install_packages "$SETUP/pkglist-aur.txt" "yay"
 
+# Realtime audio limits
 if ! getent group realtime >/dev/null; then
   sudo groupadd realtime
 fi
@@ -66,10 +92,27 @@ sudo usermod -aG realtime "$USER"
 sudo install -Dm644 <(printf '@realtime - rtprio 95\n@realtime - memlock unlimited\n') \
   /etc/security/limits.d/99-realtime.conf
 
-if [[ -d $SETUP/envwrapper ]]; then
-  rsync -aHAXx --delete "$SETUP/envwrapper/" "$HOME/.local/share/envwrapper/"
+# Secrets Decryption via age
+if [[ -f "$SETUP/secrets.tar.age" ]]; then
+  if command -v age &>/dev/null; then
+    read -rp "Found encrypted secrets. Decrypt now? [y/N] " ans
+    if [[ $ans =~ ^[Yy]$ ]]; then
+      echo "Paste your AGE private key (or path to key file):"
+      read -rsp "Key / File: " AGE_KEY
+      echo
+      if [[ -f "$AGE_KEY" ]]; then
+        age -d -i "$AGE_KEY" "$SETUP/secrets.tar.age" | tar -xz -C "$HOME"
+      else
+        echo "$AGE_KEY" | age -d -i - "$SETUP/secrets.tar.age" | tar -xz -C "$HOME"
+      fi
+      log "🔑 Secrets restored successfully."
+    fi
+  else
+    log "⚠️  'age' not installed. Skipping secrets decryption."
+  fi
 fi
 
+# System files
 if [[ -d "$SETUP/etc/greetd/" ]]; then
   sudo rsync -aHAXx "$SETUP/etc/greetd/" /etc/greetd/
 fi
@@ -78,18 +121,19 @@ if [ -d "$SETUP/pacman-hooks" ]; then
   sudo rsync -aHAXx "$SETUP/pacman-hooks/" /etc/pacman.d/hooks/
 fi
 
-if [[ -d $SETUP/desktops ]]; then
+if [[ -d "$SETUP/desktops" ]]; then
   mkdir -p "$HOME/.local/share/applications"
   shopt -s nullglob; cp "$SETUP/desktops"/*.desktop "$HOME/.local/share/applications/"; shopt -u nullglob
 fi
 
+# GTK Theme sync
 GTK3_CONF="$HOME/.config/gtk-3.0/settings.ini"
 if command -v gsettings &>/dev/null && [[ -f "$GTK3_CONF" ]]; then
-  GTK_THEME=$(grep -E '^gtk-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
-  ICON_THEME=$(grep -E '^gtk-icon-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
-  FONT_NAME=$(grep -E '^gtk-font-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
-  CURSOR_THEME=$(grep -E '^gtk-cursor-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
-  CURSOR_SIZE=$(grep -E '^gtk-cursor-theme-size' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
+  GTK_THEME=$(grep -E '^gtk-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs || true)
+  ICON_THEME=$(grep -E '^gtk-icon-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs || true)
+  FONT_NAME=$(grep -E '^gtk-font-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs || true)
+  CURSOR_THEME=$(grep -E '^gtk-cursor-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs || true)
+  CURSOR_SIZE=$(grep -E '^gtk-cursor-theme-size' "$GTK3_CONF" | cut -d'=' -f2 | xargs || true)
 
   [[ -n "$GTK_THEME" ]] && gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
   [[ -n "$ICON_THEME" ]] && gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
@@ -98,7 +142,8 @@ if command -v gsettings &>/dev/null && [[ -f "$GTK3_CONF" ]]; then
   [[ -n "$CURSOR_SIZE" ]] && gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
 fi
 
-log "⚙️  enabling custom systemd user services…"
+# Enable services
+log "⚙️  enabling systemd user services…"
 systemctl --user daemon-reload
 systemctl --user enable \
   openrgb-server.service \

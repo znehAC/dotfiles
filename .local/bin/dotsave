@@ -11,40 +11,48 @@ log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 log "🧷 saving…"
 mkdir -p "$SETUP"
 
+# Upfront sudo prompt
 if ! sudo -n true 2>/dev/null; then
   log "🔒 sudo password required…"
   sudo -v
 fi
 
+# Wallpapers
 for ext in jpg png; do
   wp="$HOME/Pictures/wallpaper.$ext"
-  if [[ -f $wp ]]; then
+  if [[ -f "$wp" ]]; then
     mkdir -p "$SETUP/wallpapers"
     rsync -aHAXx "$wp" "$SETUP/wallpapers/"
     break
   fi
 done
 
-if [[ -d $HOME/.local/share/fonts ]]; then
+# Fonts
+if [[ -d "$HOME/.local/share/fonts" ]]; then
   log "🔤 fonts…"
+  mkdir -p "$SETUP/fonts"
   rsync -aHAXx --delete "$HOME/.local/share/fonts/" "$SETUP/fonts/"
 fi
 
+# User icon
 ICON_SRC="/var/lib/AccountsService/icons/$USER"
-[[ -f $ICON_SRC ]] && cp "$ICON_SRC" "$SETUP/user-icon"
+[[ -f "$ICON_SRC" ]] && cp "$ICON_SRC" "$SETUP/user-icon"
 
+# Zen browser
 if [[ -f /usr/share/applications/zen.desktop ]]; then
   mkdir -p "$SETUP/zen"
   cp /usr/share/applications/zen.desktop "$SETUP/zen/"
 fi
 
 shopt -s nullglob
-profile_dirs=("$HOME/.mozilla/firefox"/*.zen*)
+profile_dirs=("$HOME/.mozilla/firefox"/*.zen* "$HOME/.zen"/*.default*)
 shopt -u nullglob
 if [[ ${#profile_dirs[@]} -gt 0 && -f "${profile_dirs[0]}/user.js" ]]; then
+  mkdir -p "$SETUP/zen"
   cp "${profile_dirs[0]}/user.js" "$SETUP/zen/"
 fi
 
+# Package lists
 if command -v yay &>/dev/null; then
   yay -Qqen > "$SETUP/pkglist-repo.txt"
   yay -Qqem > "$SETUP/pkglist-aur.txt"
@@ -53,22 +61,38 @@ elif command -v paru &>/dev/null; then
   paru -Qqem > "$SETUP/pkglist-aur.txt"
 fi
 
+# System files
 sudo rsync -aHAXx /etc/greetd/ "$SETUP/etc/greetd/"
 
+# Pacman hooks
 if [ -d /etc/pacman.d/hooks ]; then
   mkdir -p "$SETUP/pacman-hooks"
   sudo rsync -aHAXx /etc/pacman.d/hooks/ "$SETUP/pacman-hooks/"
 fi
 
+# Secrets encryption via age (opcional)
+AGE_RECIPIENT_FILE="$SETUP/age_recipient.pub"
+if command -v age &>/dev/null && [[ -f "$AGE_RECIPIENT_FILE" ]]; then
+  log "🔐 encrypting secrets..."
+  RECIPIENT=$(cat "$AGE_RECIPIENT_FILE")
+  tar -cz -C "$HOME" \
+    --exclude='.ssh/known_hosts*' \
+    $(test -d "$HOME/.ssh" && echo ".ssh") \
+    $(test -f "$HOME/.config/rclone/rclone.conf" && echo ".config/rclone/rclone.conf") 2>/dev/null | \
+    age -r "$RECIPIENT" > "$SETUP/secrets.tar.age" || log "⚠️  no secrets found to encrypt."
+fi
+
+# Dotfiles staging
 log "📝 staging dotfiles…"
-if [[ -f $HOME/.dotfiles_tracked ]]; then
+if [[ -f "$HOME/.dotfiles_tracked" ]]; then
   while IFS= read -r path; do
-    [[ -e $HOME/$path ]] && $DOT add -- "$path"
+    [[ -n "$path" && -e "$HOME/$path" ]] && $DOT add -- "$path"
   done < "$HOME/.dotfiles_tracked"
 else
   log "⚠️  .dotfiles_tracked not found, skipping staging."
 fi
 
+# Git Commit / Push
 if ! $DOT diff --cached --quiet; then
   log "🔍 changes to commit:"
   printf '%s\n' \
