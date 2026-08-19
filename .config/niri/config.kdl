@@ -3,7 +3,6 @@
 // ==========================
 
 // Includes
-include "./env.kdl"
 include "./settings.kdl"
 include "./window-rules.kdl"
 include "./autostart.kdl"
