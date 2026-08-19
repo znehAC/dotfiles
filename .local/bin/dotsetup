@@ -7,31 +7,21 @@ log(){ printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 
 log "🔧 restoring…"
 
-# ──────────────── upfront sudo password prompt ─────────────────────────────
 if ! sudo -n true 2>/dev/null; then
   log "🔒 sudo password required…"
   sudo -v
 fi
 
-##############################################################################
-# wallpapers
-##############################################################################
 for ext in jpg png; do
   src="$SETUP/wallpapers/wallpaper.$ext"
   [[ -f $src ]] && { mkdir -p "$HOME/Pictures"; cp "$src" "$HOME/Pictures/"; break; }
 done
 
-##############################################################################
-# fonts
-##############################################################################
 if [[ -d $SETUP/fonts ]]; then
   rsync -aHAXx --chmod=u+rwX --delete "$SETUP/fonts/" "$HOME/.local/share/fonts/"
   fc-cache -fv
 fi
 
-##############################################################################
-# zen browser desktop + user.js
-##############################################################################
 if [[ -f $SETUP/zen/zen.desktop ]]; then
   mkdir -p "$HOME/.local/share/applications"
   cp "$SETUP/zen/zen.desktop" "$HOME/.local/share/applications/"
@@ -44,9 +34,6 @@ if [[ ${#profile_dirs[@]} -gt 0 && -f "$SETUP/zen/user.js" ]]; then
   cp "$SETUP/zen/user.js" "${profile_dirs[0]}/user.js"
 fi
 
-##############################################################################
-# user icon (accounts‑service)
-##############################################################################
 if [[ -f $SETUP/user-icon ]]; then
   sudo install -D "$SETUP/user-icon" "/var/lib/AccountsService/icons/$USER"
   printf '[User]\nIcon=/var/lib/AccountsService/icons/%s\n' "$USER" | \
@@ -54,9 +41,6 @@ if [[ -f $SETUP/user-icon ]]; then
   sudo systemctl restart accounts-daemon
 fi
 
-##############################################################################
-# package install
-##############################################################################
 install_packages() {
   local file="$1"
   local pkg_manager="$2"
@@ -75,9 +59,6 @@ install_packages() {
 install_packages "$SETUP/pkglist-repo.txt" "pacman"
 install_packages "$SETUP/pkglist-aur.txt" "yay"
 
-##############################################################################
-# realtime audio limits
-##############################################################################
 if ! getent group realtime >/dev/null; then
   sudo groupadd realtime
 fi
@@ -85,78 +66,43 @@ sudo usermod -aG realtime "$USER"
 sudo install -Dm644 <(printf '@realtime - rtprio 95\n@realtime - memlock unlimited\n') \
   /etc/security/limits.d/99-realtime.conf
 
-##############################################################################
-# envwrapper
-##############################################################################
 if [[ -d $SETUP/envwrapper ]]; then
   rsync -aHAXx --delete "$SETUP/envwrapper/" "$HOME/.local/share/envwrapper/"
 fi
 
-##############################################################################
-# /etc files
-##############################################################################
-if [[ -f $SETUP/environment ]]; then
-  read -rp "Overwrite /etc/environment with backup? [y/N] " ans
-  if [[ $ans =~ ^[Yy]$ ]]; then
-    sudo cp "$SETUP/environment" /etc/environment
-  fi
-fi
 if [[ -d "$SETUP/etc/greetd/" ]]; then
   sudo rsync -aHAXx "$SETUP/etc/greetd/" /etc/greetd/
 fi
 
-##############################################################################
-# Pacman hooks
-##############################################################################
 if [ -d "$SETUP/pacman-hooks" ]; then
   sudo rsync -aHAXx "$SETUP/pacman-hooks/" /etc/pacman.d/hooks/
 fi
 
-##############################################################################
-# .desktop overrides
-##############################################################################
 if [[ -d $SETUP/desktops ]]; then
   mkdir -p "$HOME/.local/share/applications"
   shopt -s nullglob; cp "$SETUP/desktops"/*.desktop "$HOME/.local/share/applications/"; shopt -u nullglob
 fi
 
-##############################################################################
-# gtk + cursor theme
-##############################################################################
-for v in 3.0 4.0; do
-  if [[ -f $SETUP/gtk-$v-settings.ini ]]; then
-    mkdir -p "$HOME/.config/gtk-$v"
-    cp "$SETUP/gtk-$v-settings.ini" "$HOME/.config/gtk-$v/settings.ini"
-  fi
-done
+GTK3_CONF="$HOME/.config/gtk-3.0/settings.ini"
+if command -v gsettings &>/dev/null && [[ -f "$GTK3_CONF" ]]; then
+  GTK_THEME=$(grep -E '^gtk-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
+  ICON_THEME=$(grep -E '^gtk-icon-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
+  FONT_NAME=$(grep -E '^gtk-font-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
+  CURSOR_THEME=$(grep -E '^gtk-cursor-theme-name' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
+  CURSOR_SIZE=$(grep -E '^gtk-cursor-theme-size' "$GTK3_CONF" | cut -d'=' -f2 | xargs)
 
-if command -v gsettings &>/dev/null; then
-  GTK_THEME=$(grep 'gtk-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
-  ICON_THEME=$(grep 'gtk-icon-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
-  FONT_NAME=$(grep 'gtk-font-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
-  CURSOR_THEME=$(grep 'cursor-theme-name' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
-  CURSOR_SIZE=$(grep 'cursor-size' "$SETUP/gtk-3-settings.ini" | cut -d'=' -f2)
-
-  gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
-  gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
-  gsettings set org.gnome.desktop.interface font-name "$FONT_NAME" || true
-  gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
-  gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
+  [[ -n "$GTK_THEME" ]] && gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME" || true
+  [[ -n "$ICON_THEME" ]] && gsettings set org.gnome.desktop.interface icon-theme "$ICON_THEME" || true
+  [[ -n "$FONT_NAME" ]] && gsettings set org.gnome.desktop.interface font-name "$FONT_NAME" || true
+  [[ -n "$CURSOR_THEME" ]] && gsettings set org.gnome.desktop.interface cursor-theme "$CURSOR_THEME" || true
+  [[ -n "$CURSOR_SIZE" ]] && gsettings set org.gnome.desktop.interface cursor-size "$CURSOR_SIZE" || true
 fi
 
-##############################################################################
-# custom systemd user services
-##############################################################################
 log "⚙️  enabling custom systemd user services…"
 systemctl --user daemon-reload
 systemctl --user enable \
   openrgb-server.service \
   openrgb-apply.service \
-  openrgb-apply.timer \
   ydotoold.service || true
 
-##############################################################################
-# import env + done
-##############################################################################
-systemctl --user import-environment PATH EDITOR TERMINAL BROWSER || true
 log "✅ restore done — reboot recommended."

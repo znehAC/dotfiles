@@ -2,10 +2,6 @@
 set -euo pipefail
 trap 'echo "[💥] abort at ${BASH_SOURCE[0]}:$LINENO"; exit 1' ERR
 
-##############################################################################
-# dot‑save  ─ snapshot wallpapers / fonts / system bits and commit dotfiles  #
-##############################################################################
-
 SETUP="$HOME/.setup"
 DOT="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 HOST=$(hostname 2>/dev/null || uname -n)
@@ -15,13 +11,11 @@ log() { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
 log "🧷 saving…"
 mkdir -p "$SETUP"
 
-# ──────────────── upfront sudo password prompt ─────────────────────────────
 if ! sudo -n true 2>/dev/null; then
   log "🔒 sudo password required…"
   sudo -v
 fi
 
-# ─────────────────────────── wallpapers ────────────────────────────────────
 for ext in jpg png; do
   wp="$HOME/Pictures/wallpaper.$ext"
   if [[ -f $wp ]]; then
@@ -31,17 +25,14 @@ for ext in jpg png; do
   fi
 done
 
-# ───────────────────────────── fonts ───────────────────────────────────────
 if [[ -d $HOME/.local/share/fonts ]]; then
   log "🔤 fonts…"
   rsync -aHAXx --delete "$HOME/.local/share/fonts/" "$SETUP/fonts/"
 fi
 
-# ─────────────────────────── user icon ─────────────────────────────────────
 ICON_SRC="/var/lib/AccountsService/icons/$USER"
 [[ -f $ICON_SRC ]] && cp "$ICON_SRC" "$SETUP/user-icon"
 
-# ───────────── zen browser desktop + profile prefs (user.js) ───────────────
 if [[ -f /usr/share/applications/zen.desktop ]]; then
   mkdir -p "$SETUP/zen"
   cp /usr/share/applications/zen.desktop "$SETUP/zen/"
@@ -54,7 +45,6 @@ if [[ ${#profile_dirs[@]} -gt 0 && -f "${profile_dirs[0]}/user.js" ]]; then
   cp "${profile_dirs[0]}/user.js" "$SETUP/zen/"
 fi
 
-# ──────────────────────────── package lists ────────────────────────────────
 if command -v yay &>/dev/null; then
   yay -Qqen > "$SETUP/pkglist-repo.txt"
   yay -Qqem > "$SETUP/pkglist-aur.txt"
@@ -63,23 +53,13 @@ elif command -v paru &>/dev/null; then
   paru -Qqem > "$SETUP/pkglist-aur.txt"
 fi
 
-# ───────────────────────── GTK 3/4 settings ────────────────────────────────
-for v in 3.0 4.0; do
-  [[ -f $HOME/.config/gtk-$v/settings.ini ]] && \
-    cp "$HOME/.config/gtk-$v/settings.ini" "$SETUP/gtk-$v-settings.ini"
-done
-
-# ───────────────────────────── system files ────────────────────────────────
 sudo rsync -aHAXx /etc/greetd/ "$SETUP/etc/greetd/"
-sudo cp /etc/environment "$SETUP/environment" && sudo chown "$USER":"$USER" "$SETUP/environment"
 
-# ────────────────────────── Pacman hooks ─────────────────────────────────
 if [ -d /etc/pacman.d/hooks ]; then
   mkdir -p "$SETUP/pacman-hooks"
   sudo rsync -aHAXx /etc/pacman.d/hooks/ "$SETUP/pacman-hooks/"
 fi
 
-# ─────────────────────────── dotfiles staging ──────────────────────────────
 log "📝 staging dotfiles…"
 if [[ -f $HOME/.dotfiles_tracked ]]; then
   while IFS= read -r path; do
@@ -89,19 +69,12 @@ else
   log "⚠️  .dotfiles_tracked not found, skipping staging."
 fi
 
-# ───────────────────── show what will be committed ─────────────────────────
 if ! $DOT diff --cached --quiet; then
   log "🔍 changes to commit:"
   printf '%s\n' \
     "────────────────────────────────────────" \
     "$( $DOT diff --cached --name-status | sort )" \
     "────────────────────────────────────────"
-else
-  log "⚠️  nothing new to commit."
-fi
-
-# ───────────────────────────── commit / push ───────────────────────────────
-if ! $DOT diff --cached --quiet; then
   log "✅ committing…"
   $DOT commit -m "backup: $(date '+%F %T') on $HOST" >/dev/null
   if [[ ${1:-} == "--push" ]]; then
@@ -110,4 +83,6 @@ if ! $DOT diff --cached --quiet; then
   else
     log "☑️  run 'dot push' later to sync."
   fi
+else
+  log "⚠️  nothing new to commit."
 fi
