@@ -1,12 +1,23 @@
 [Unit]
-Description=OpenRGB Profile Applier
-Requisite=openrgb-server.service
-After=openrgb-server.service
+Description=Candy Lighting Applier (apply_candy.py, verified)
+After=openrgb-server.service graphical-session.target
 OnFailure=openrgb-server-restart.service
 
 [Service]
 Type=oneshot
 ExecStart=/home/cesar/.local/bin/start_led.sh
+# No RemainAfterExit: the unit must go back to "inactive (dead)" when it
+# finishes, otherwise `systemctl --user start openrgb-apply.service` is a
+# no-op on the second call and the lighting can never be re-applied manually.
+#
+# Re-apply any time with:  systemctl --user restart openrgb-apply.service
+#
+# Use *restart*, not start: while the service is still inside its post-apply
+# grace window (GRACE_SECONDS in start_led.sh, 5 min by default) it counts as
+# active and `start` does nothing.  This also matters after
+# `systemctl --user restart openrgb-server.service`, which re-detects devices
+# and drops the colours until something repaints them.
+TimeoutStartSec=15min
 
 [Install]
 WantedBy=default.target

@@ -147,7 +147,6 @@ log "⚙️  enabling systemd user services…"
 systemctl --user daemon-reload
 systemctl --user enable \
   openrgb-server.service \
-  openrgb-apply.service \
-  ydotoold.service || true
+  openrgb-apply.service || true
 
 log "✅ restore done — reboot recommended."

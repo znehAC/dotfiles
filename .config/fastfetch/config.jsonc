@@ -168,7 +168,8 @@
     {
       "type": "media",
       "key": "{$1}󰎈 Media",
-      "keyColor": "38;5;39"
+      "keyColor": "38;5;39",
+      "format": "{2:48}"
     },
     // 📦 extras
     {

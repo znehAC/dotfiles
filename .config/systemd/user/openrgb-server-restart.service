@@ -1,8 +1,8 @@
 [Unit]
-Description=Restart OpenRGB Server on Profile Apply Failure
+Description=Restart OpenRGB server and re-apply profile on apply failure
 StartLimitBurst=5
 StartLimitIntervalSec=600
 
 [Service]
 Type=oneshot
-ExecStart=/bin/systemctl --user restart openrgb-server.service
+ExecStart=/bin/systemctl --user restart --no-block openrgb-server.service openrgb-apply.service

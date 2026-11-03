@@ -1,4 +1,5 @@
 add_newline = true
+scan_timeout = 100
 command_timeout = 2000
 right_format = """$git_branch$git_status$python$cmd_duration"""
 
@@ -32,7 +33,6 @@ truncate_to_repo = true
 truncation_symbol = "󰇘/"
 home_symbol = "~"
 read_only = ' []'
-# simplified format to prevent wrap/glitch
 format = "[$path$read_only]($style) "
 style = "bold #66afff"
 
@@ -40,6 +40,7 @@ style = "bold #66afff"
 symbol = " "
 format = "[$symbol$branch]($style) "
 style = "bold #ff7f9e"
+ignore_branches = []
 
 [git_status]
 style = "bold #db7a8f"
@@ -53,6 +54,7 @@ staged = ""
 renamed = "➜"
 deleted = ""
 untracked = ""
+ignore_submodules = true
 
 [python]
 symbol = "󰌠 "

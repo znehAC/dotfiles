@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Regenerate the hourly chime bell.
+# A bell = fundamental + inharmonic partials with staggered decays (the
+# inharmonicity is what makes it read as "metal bell" instead of "beep").
+#
+#   ./hourly-chime-gen            writes ~/.local/share/hourly-chime/chime.ogg
+#   STRIKE1=880 STRIKE2=659.26 ./hourly-chime-gen   different interval
+set -euo pipefail
+
+F1="${STRIKE1:-880.00}"      # A5 — "ding"
+F2="${STRIKE2:-659.26}"      # E5 — "dong" (perfect fourth below)
+GAP="${GAP:-0.43}"           # seconds between strikes
+LEN="${LEN:-2.6}"            # strike length before the fade tail
+OUT="${OUT:-$HOME/.local/share/hourly-chime/chime.ogg}"
+
+mkdir -p "$(dirname "$OUT")"
+TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+
+bell() { # $1=freq  $2=outfile
+    ffmpeg -hide_banner -loglevel error -y -f lavfi -i \
+"aevalsrc='(sin(2*PI*$1*t)*exp(-3.0*t)+0.45*sin(2*PI*2.02*$1*t)*exp(-6.0*t)+0.22*sin(2*PI*2.76*$1*t)*exp(-9.0*t)+0.10*sin(2*PI*5.40*$1*t)*exp(-13.0*t)):s=48000:d=$LEN" \
+        -ac 1 -c:a pcm_s16le "$2"
+}
+
+bell "$F1" "$TMP/ding.wav"
+bell "$F2" "$TMP/dong.wav"
+
+ffmpeg -hide_banner -loglevel error -y -i "$TMP/ding.wav" -i "$TMP/dong.wav" \
+    -filter_complex "[1:a]adelay=$(awk "BEGIN{printf \"%d\", $GAP*1000}"):all=1[d];\
+[0:a][d]amix=inputs=2:duration=longest:normalize=0,volume=0.5,alimiter=limit=0.92,\
+afade=t=out:st=$(awk "BEGIN{printf \"%.2f\", $LEN-0.25}"):d=0.45" \
+    -ac 1 -c:a libvorbis -q:a 5 "$OUT"
+
+echo "wrote $OUT ($(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUT")s)"
+echo "test it with: hourly-chime test"

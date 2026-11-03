@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# ============================================================
+# hourly-chime — a bell + notification at every top of the hour (XX:00)
+#
+# Driven by a systemd user timer (hourly-chime.timer), which is what makes it
+# exact across suspend/DST and survives reboots. This script is what the timer
+# runs, plus the toggle front-end for it.
+#
+#   hourly-chime start      turn ON  (persists across reboots)
+#   hourly-chime stop       turn OFF
+#   hourly-chime toggle     flip ON/OFF
+#   hourly-chime status     current state + next chime
+#   hourly-chime test       fire one chime right now
+#   hourly-chime edit       open the config in $EDITOR
+#
+# Config: ~/.config/hourly-chime/config
+# ============================================================
+
+set -uo pipefail
+
+APP_NAME="Hourly Chime"
+UNIT="hourly-chime"
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/hourly-chime/config"
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}/hourly-chime"
+SELF="${BASH_SOURCE[0]}"
+
+# ---- defaults (the config file overrides these) -------------------------------
+SOUND=1
+NOTIFY=1
+SOUND_FILE="$DATA/chime.ogg"
+VOLUME=100
+MESSAGE="Hourly reminder — stand up, stretch, look away from the screen."
+QUIET_START=""
+QUIET_END=""
+
+# shellcheck disable=SC1090
+[ -r "$CONF" ] && . "$CONF"
+
+# ---- helpers ----------------------------------------------------------------
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Is the current hour inside the quiet window? Handles windows that wrap midnight.
+in_quiet_window() {
+    [ -n "$QUIET_START" ] && [ -n "$QUIET_END" ] || return 1
+    local h; h=$(date +%-H)
+    if (( QUIET_START <= QUIET_END )); then
+        (( h >= QUIET_START && h < QUIET_END ))
+    else
+        (( h >= QUIET_START || h < QUIET_END ))
+    fi
+}
+
+play_chime() {
+    [ "$SOUND" = 1 ] || return 0
+    [ -r "$SOUND_FILE" ] || return 0
+    local vol=$(( VOLUME * 655 ))   # paplay wants 0..65536
+    # Play synchronously: a systemd oneshot tears down its cgroup on exit,
+    # so a backgrounded player would get cut off mid-bell.
+    if   have paplay;            then paplay --volume="$vol" "$SOUND_FILE"
+    elif have pw-play;           then pw-play "$SOUND_FILE"
+    elif have canberra-gtk-play; then canberra-gtk-play -f "$SOUND_FILE"
+    fi
+}
+
+send_notify() { # $1=summary  $2=body   [$3=urgency]
+    [ "$NOTIFY" = 1 ] || return 0
+    have notify-send || return 0
+    # x-canonical-private-synchronous makes each new chime REPLACE the previous
+    # one instead of stacking 24 entries in the notification centre.
+    timeout 5 notify-send \
+        -a "$APP_NAME" \
+        -u "${3:-normal}" \
+        -t 8000 \
+        -h "string:x-canonical-private-synchronous:hourly-chime" \
+        "$1" "$2" 2>/dev/null
+}
+
+# Feedback for toggle/status: always shown, regardless of NOTIFY=... in config,
+# otherwise turning the thing on would look like it silently did nothing.
+# Normal urgency (not low) so the popup is actually visible as confirmation.
+say_notify() { # $1=summary  $2=body
+    have notify-send || return 0
+    timeout 5 notify-send \
+        -a "$APP_NAME" -u normal -t 4000 \
+        -h "string:x-canonical-private-synchronous:hourly-chime" \
+        "$1" "$2" 2>/dev/null
+}
+
+# Pure integer math on purpose: `date -d "10:00 +1 hour"` makes GNU date parse
+# the "+1" as a UTC offset instead, silently shifting the result by the TZ span.
+next_hour_label() {
+    local h=$(( 10#$(date +%H) + 1 ))
+    (( h >= 24 )) && h=0
+    printf '%02d:00' "$h"
+}
+
+timer_active()   { [ "$(systemctl --user is-active "$UNIT.timer" 2>/dev/null)" = active ]; }
+timer_enabled()  { [ "$(systemctl --user is-enabled "$UNIT.timer" 2>/dev/null)" = enabled ]; }
+
+# ---- the payload: what actually fires ---------------------------------------
+
+do_chime() {
+    local now; now=$(date +%H:%M)
+    if in_quiet_window; then
+        echo "[$(date '+%F %T')] quiet hours ($QUIET_START-$QUIET_END) — skipped"
+        return 0
+    fi
+    local body="${MESSAGE//\{time\}/$now}"
+    send_notify "$now" "$body"
+    play_chime
+    echo "[$(date '+%F %T')] chimed at $now"
+}
+
+# ---- control surface --------------------------------------------------------
+
+do_start() {
+    if ! systemctl --user enable --now "$UNIT.timer" 2>/dev/null; then
+        echo "error: could not enable $UNIT.timer" >&2
+        return 1
+    fi
+    echo "hourly-chime: ON  (next chime at $(next_hour_label))"
+    say_notify "$APP_NAME ON" "Next chime at $(next_hour_label)"
+}
+
+do_stop() {
+    systemctl --user disable --now "$UNIT.timer" 2>/dev/null
+    echo "hourly-chime: OFF"
+    say_notify "$APP_NAME OFF" "No more hourly reminders"
+}
+
+do_toggle() {
+    if timer_active || timer_enabled; then do_stop; else do_start; fi
+}
+
+do_status() {
+    local act en nxt
+    act=$(systemctl --user is-active  "$UNIT.timer" 2>/dev/null)
+    en=$(systemctl --user is-enabled "$UNIT.timer" 2>/dev/null)
+    echo "hourly-chime: $([ "$act" = active ] && echo ON || echo OFF)"
+    printf '  timer:    %s (autostart on login: %s)\n' "$act" "$en"
+    if [ "$act" = active ]; then
+        nxt=$(systemctl --user show "$UNIT.timer" -p NextElapseUSecRealtime --value 2>/dev/null)
+        [ -n "$nxt" ] && printf '  next:     %s\n' "$(date -d "$nxt" '+%F %H:%M:%S' 2>/dev/null || echo "$nxt")"
+    fi
+    printf '  sound:    %s\n' "$([ "$SOUND" = 1 ] && echo "on ($(basename "$SOUND_FILE"), vol ${VOLUME}%)" || echo off)"
+    printf '  notify:   %s\n' "$([ "$NOTIFY" = 1 ] && echo on || echo off)"
+    printf '  quiet:    %s\n' "$([ -n "$QUIET_START" ] && echo "${QUIET_START}:00–${QUIET_END}:00 (silent)" || echo 'none (chimes 24h)')"
+    printf '  schedule: %s\n' "$(systemctl --user cat "$UNIT.timer" 2>/dev/null | sed -n 's/^OnCalendar=//p')"
+}
+
+usage() {
+    sed -n '3,16p' "$SELF" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-}" in
+    start|on|enable)   do_start ;;
+    stop|off|disable)  do_stop ;;
+    toggle)            do_toggle ;;
+    status)            do_status ;;
+    chime|test|now)    do_chime ;;
+    edit|config)
+        if [ ! -f "$CONF" ]; then echo "no config at $CONF" >&2; exit 1; fi
+        "${EDITOR:-vi}" "$CONF" ;;
+    ""|-h|--help|help) usage ;;
+    *) echo "unknown command: $1" >&2; usage; exit 2 ;;
+esac

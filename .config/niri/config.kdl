@@ -11,7 +11,7 @@ include "./autostart.kdl"
 binds {
     // Basics
     Mod+Shift+Slash { show-hotkey-overlay; }
-    Mod+T { spawn "wezterm"; }
+    Mod+T { spawn "ghostty"; }
     Mod+Return { spawn "rofi" "-show" "drun" "-theme" "/home/cesar/.config/rofi/themes/pastel-candy.rasi"; }
     Mod+B { spawn "dolphin"; }
     Mod+Q { close-window; }

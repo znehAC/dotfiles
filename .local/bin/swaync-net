@@ -1,0 +1,745 @@
+#!/usr/bin/env python3
+"""SwayNC control-center helper: network/Bluetooth menus + actions.
+
+WHY THIS EXISTS
+---------------
+SwayNC's config.json is static, so the network list and the wired/wifi status
+icon cannot be dynamic. This script rewrites ONLY the `widget-config.menubar`
+block from live NetworkManager state. Everything else is untouched and the
+write is skipped entirely when nothing changed.
+
+TRAPS THIS CODE WORKS AROUND (all verified on this machine)
+----------------------------------------------------------
+* SwayNC splits `command` on whitespace and ignores quotes, so
+  `nmcli con up id "Adriano e Ana"` fails. Actions therefore pass space-free
+  arguments only (UUIDs / BSSIDs / MACs) and the work happens in here.
+* SwayNC's PATH has no ~/.local/bin, so every emitted command is absolute.
+* nmcli escapes ':' inside fields; a naive split() shreds BSSIDs.
+* Every state function is memoised: without it the script spawned ~20
+  subprocesses and the panel took noticeably longer to appear.
+
+POLICY
+------
+* Wired is preferred: turning Wi-Fi off brings a wired connection up if one
+  exists (not optional).
+* While Wi-Fi is on, the wired entries are hidden.
+* The Wi-Fi list is only built while the radio is on.
+
+USAGE
+  swaync-net                      regenerate menus (default)
+  swaync-net toggle-wifi          flip the radio; brings wired up when going off
+  swaync-net toggle-bt            flip bluetooth
+  swaync-net wifi-more            expand / collapse the full wifi list
+  swaync-net con-up UUID          bring a connection up
+  swaync-net con-down UUID        bring a connection down
+  swaync-net wifi-connect BSSID   join by BSSID (password via nm-applet)
+  swaync-net bt-connect MAC       connect a paired device
+  swaync-net bt-disconnect MAC    disconnect a device
+"""
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+
+CONFIG = os.path.expanduser("~/.config/swaync/config.json")
+SELF = os.path.realpath(__file__)          # swaync's PATH lacks ~/.local/bin
+CACHE_DIR = os.path.expanduser("~/.cache/swaync-net")
+STATE_FILE = os.path.join(CACHE_DIR, "state.json")
+LAYOUT_FILE = os.path.join(CACHE_DIR, "layout.json")
+
+# Collapse state. `avail` starts collapsed by design; `saved` starts open.
+DEFAULT_STATE = {"saved_collapsed": False, "avail_collapsed": True, "show_all": False}
+LASTSCAN_FILE = os.path.join(CACHE_DIR, "lastscan")
+SCAN_TTL = 60          # seconds between background wifi rescans
+
+STYLE = os.path.expanduser("~/.config/swaync/style.css")
+
+# Collapsed limits. Everything beyond these hides behind "Show N more".
+SAVED_TOP = 2
+AVAIL_TOP = 1
+MAX_AVAILABLE = 12                          # hard cap once expanded
+
+CSS_BEGIN = "/* >>> swaync-net: generated group colours - do not edit between markers <<< */"
+CSS_END = "/* <<< swaync-net: generated group colours <<< */"
+
+# One coherent treatment per group (see the palette in style.css):
+#   solid  = an active link
+#   tinted = an actionable list row
+#   muted  = chrome (headings, utilities)
+GROUP_STYLE = {
+    # Active links are tinted, not solid, so the toggle above them stays the
+    # only solid element and reads clearly as the control.
+    "connected": (
+        "background: alpha(@grp-active, 0.16);"
+        "border-color: alpha(@grp-active, 0.38);",
+        "color: @grp-active;font-weight:700;"),
+    "wired": (
+        "background: alpha(@grp-wired, 0.16);"
+        "border-color: alpha(@grp-wired, 0.38);",
+        "color: @grp-wired;font-weight:700;"),
+    "saved": (
+        "background: alpha(@grp-saved, 0.10);"
+        "border-color: alpha(@grp-saved, 0.22);",
+        "color: @grp-saved;font-weight:600;"),
+    "available": (
+        "background: alpha(@grp-available, 0.10);"
+        "border-color: alpha(@grp-available, 0.22);",
+        "color: @grp-available;font-weight:600;"),
+    "header": (
+        "background: transparent;border-color: transparent;",
+        "color: @grp-muted;font-size:0.8rem;font-weight:700;"),
+    "utility": (
+        "background: transparent;border-color: transparent;",
+        "color: @grp-muted;"),
+}
+GROUP_STYLE["more"] = GROUP_STYLE["utility"]
+GROUP_STYLE["less"] = GROUP_STYLE["utility"]
+
+# --- Nerd Font (Material Design) codepoints, name-checked against
+# --- nerd-fonts glyphnames.json and visually verified in the real font.
+I_ETHERNET   = "\U000f0200"   # ethernet
+I_WIFI       = "\U000f05a9"   # wifi
+I_WIFI_OFF   = "\U000f05aa"   # wifi_off
+I_WIFI_CHECK = "\U000f16bd"   # wifi_check      -> the connected network
+I_WIFI_S1    = "\U000f091f"   # wifi_strength_1
+I_WIFI_S2    = "\U000f0922"   # wifi_strength_2
+I_WIFI_S3    = "\U000f0925"   # wifi_strength_3
+I_WIFI_S4    = "\U000f0928"   # wifi_strength_4
+I_BLUETOOTH  = "\U000f00af"   # bluetooth
+I_BT_OFF     = "\U000f02af"   # bluetooth variant used for the "off" label
+I_TOGGLE     = "\U000f0a1a"   # toggle_switch
+I_CHEVRON_D  = "\U000f0140"   # chevron_down
+I_CHEVRON_U  = "\U000f0143"   # chevron_up
+I_CHEVRON_R  = "\U000f0142"   # chevron_right
+I_SETTINGS   = "\U000f0493"   # cog
+
+IGNORED_NAME_PREFIXES = ("br-", "docker", "virbr", "veth", "lo")
+
+
+# --------------------------------------------------------------------------
+# subprocess helpers
+# --------------------------------------------------------------------------
+
+def sh(*args, timeout=15):
+    try:
+        return subprocess.run(args, capture_output=True, text=True,
+                              timeout=timeout).stdout
+    except Exception:
+        return ""
+
+
+def nm(*args, timeout=15):
+    return sh("nmcli", "-t", *args, timeout=timeout)
+
+
+def split_terse(line):
+    """Split an nmcli -t line on UNESCAPED colons only.
+
+    nmcli escapes separators inside values, so a BSSID arrives as
+    `AA\\:BB\\:CC\\:DD\\:EE\\:FF`; line.split(":") shreds it.
+    """
+    out, cur, i = [], [], 0
+    while i < len(line):
+        c = line[i]
+        if c == "\\" and i + 1 < len(line):
+            cur.append(line[i + 1]); i += 2; continue
+        if c == ":":
+            out.append("".join(cur)); cur = []; i += 1; continue
+        cur.append(c); i += 1
+    out.append("".join(cur))
+    return out
+
+
+# --------------------------------------------------------------------------
+# memoised live state
+# --------------------------------------------------------------------------
+
+_cache = {}
+
+
+def cached(fn):
+    def wrapper(*a):
+        key = (fn.__name__, a)
+        if key not in _cache:
+            _cache[key] = fn(*a)
+        return _cache[key]
+    wrapper.__name__ = fn.__name__
+    return wrapper
+
+
+@cached
+def devices():
+    """[(device, type, state, connection)]"""
+    out = []
+    for line in nm("-f", "DEVICE,TYPE,STATE,CONNECTION", "device").splitlines():
+        p = split_terse(line)
+        if len(p) == 4:
+            out.append(tuple(p))
+    return out
+
+
+@cached
+def wired_active():
+    for _d, t, s, c in devices():
+        if t == "ethernet" and s == "connected" and c:
+            return c
+    return None
+
+
+@cached
+def wifi_active():
+    for _d, t, s, c in devices():
+        if t == "wifi" and s == "connected" and c:
+            return c
+    return None
+
+
+@cached
+def wifi_signal():
+    best = 0
+    for line in nm("-f", "IN-USE,SIGNAL,SECURITY,BSSID,SSID",
+                   "device", "wifi", "list", "--rescan", "no").splitlines():
+        p = split_terse(line)
+        if len(p) == 5 and p[0].strip() == "*":
+            try:
+                best = max(best, int(p[1]))
+            except ValueError:
+                pass
+    return best
+
+
+@cached
+def wifi_radio_on():
+    return nm("radio", "wifi").strip() == "enabled"
+
+
+@cached
+def bt_on():
+    return "Powered: yes" in sh("bluetoothctl", "show")
+
+
+@cached
+def bt_paired():
+    out = []
+    for line in sh("bluetoothctl", "devices").splitlines():
+        parts = line.split(" ", 2)
+        if len(parts) == 3 and parts[0] == "Device":
+            out.append((parts[1], parts[2]))
+    return out
+
+
+@cached
+def bt_connected_macs():
+    macs = set()
+    for line in sh("bluetoothctl", "devices", "Connected").splitlines():
+        parts = line.split(" ", 2)
+        if len(parts) == 3 and parts[0] == "Device":
+            macs.add(parts[1])
+    return macs
+
+
+@cached
+def all_connections():
+    """[(uuid, name, type)]"""
+    out = []
+    for line in nm("-f", "UUID,NAME,TYPE", "con", "show").splitlines():
+        p = split_terse(line)
+        if len(p) == 3:
+            out.append(tuple(p))
+    return out
+
+
+@cached
+def saved_wifi():
+    out = []
+    for uuid, name, ctype in all_connections():
+        if ctype == "802-11-wireless" and not name.startswith(IGNORED_NAME_PREFIXES):
+            out.append((uuid, name))
+    seen, uniq = set(), []
+    for uuid, name in sorted(out, key=lambda x: x[1].lower()):
+        if name not in seen:
+            seen.add(name); uniq.append((uuid, name))
+    return uniq
+
+
+@cached
+def saved_wired():
+    """Ethernet profiles that can be brought up."""
+    out = []
+    for uuid, name, ctype in all_connections():
+        if ctype == "802-3-ethernet" and not name.startswith(IGNORED_NAME_PREFIXES):
+            out.append((uuid, name))
+    return out
+
+
+@cached
+def wired_device_present():
+    return any(t == "ethernet" for _d, t, _s, _c in devices())
+
+
+@cached
+def available_wifi():
+    """[(ssid, signal, bssid)] strongest BSSID per SSID, best signal first."""
+    rows = {}
+    for line in nm("-f", "IN-USE,SIGNAL,SECURITY,BSSID,SSID",
+                   "device", "wifi", "list", "--rescan", "no").splitlines():
+        p = split_terse(line)
+        if len(p) != 5:
+            continue
+        _inuse, signal, _sec, bssid, ssid = p
+        if not ssid or ssid.startswith(IGNORED_NAME_PREFIXES):
+            continue
+        try:
+            sig = int(signal)
+        except ValueError:
+            sig = 0
+        if ssid not in rows or sig > rows[ssid][1]:
+            rows[ssid] = (ssid, sig, bssid)
+    # Stable order: signal BUCKET (the same 25/50/75 steps the icon uses), then
+    # name. Sorting by raw signal made the list reshuffle on every run as
+    # strengths drifted, which changed config.json, forced a SwayNC config
+    # reload, and closed any open menu.
+    def bucket(sig):
+        if sig >= 75:
+            return 3
+        if sig >= 50:
+            return 2
+        if sig >= 25:
+            return 1
+        return 0
+    return sorted(rows.values(), key=lambda r: (-bucket(r[1]), r[0].lower()))
+
+
+def signal_icon(sig):
+    if sig >= 75:
+        return I_WIFI_S4
+    if sig >= 50:
+        return I_WIFI_S3
+    if sig >= 25:
+        return I_WIFI_S2
+    return I_WIFI_S1
+
+
+def uuid_of(name):
+    for uuid, n, _t in all_connections():
+        if n == name:
+            return uuid
+    return None
+
+
+def read_state():
+    st = dict(DEFAULT_STATE)
+    try:
+        with open(STATE_FILE) as f:
+            st.update(json.load(f))
+    except Exception:
+        pass
+    return st
+
+
+def write_state(st):
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    atomic_write(STATE_FILE, json.dumps(st, indent=1) + "\n")
+
+
+def toggle_state(key):
+    st = read_state()
+    st[key] = not st.get(key, DEFAULT_STATE.get(key, False))
+    write_state(st)
+    return st
+
+
+def maybe_rescan():
+    """Keep NetworkManager's scan cache warm without ever blocking.
+
+    `nmcli device wifi list --rescan auto` costs 5.4s when the cache is stale
+    (measured), which is exactly what made the panel feel slow. A bare
+    `nmcli device wifi rescan` returns in ~19ms, so the scan is fired in the
+    background and a deferred refresh collects the results a few seconds
+    later. A config reload does not close an open panel (verified), so that
+    lands in place.
+    """
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    try:
+        age = time.time() - os.path.getmtime(LASTSCAN_FILE)
+    except OSError:
+        age = 1e9
+    if age < SCAN_TTL:
+        return
+    open(LASTSCAN_FILE, "w").close()
+    subprocess.Popen(["nmcli", "device", "wifi", "rescan"],
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+    # NOTE: deliberately no deferred refresh here. A follow-up regeneration
+    # landing a few seconds later would reload SwayNC's config while the user
+    # is browsing the dropdown, and a config reload closes open menus. The
+    # rescan only warms the cache; the next panel open picks the results up
+    # (and reloads before any menu is open, where it cannot be noticed).
+
+
+# --------------------------------------------------------------------------
+# policy
+# --------------------------------------------------------------------------
+
+def ensure_wired():
+    """Bring a wired connection up. Called when Wi-Fi is switched off.
+
+    Not optional by design: turning Wi-Fi off should not leave the machine
+    offline when there is a cable plugged in.
+    """
+    if wired_active():
+        return
+    if not wired_device_present():
+        return
+    for uuid, _name in saved_wired():
+        sh("nmcli", "con", "up", "uuid", uuid, timeout=45)
+        if wired_active():
+            return
+    for dev, t, state, _c in devices():
+        if t == "ethernet" and state != "connected":
+            sh("nmcli", "device", "connect", dev, timeout=45)
+            return
+
+
+# --------------------------------------------------------------------------
+# menus
+# --------------------------------------------------------------------------
+
+def net_label():
+    # Wi-Fi names the link whenever its radio is on; only then fall back to the
+    # cable. Wired-first made the button read "Wired connection 1" forever on a
+    # machine where both links are usually up, even after switching to Wi-Fi.
+    if wifi_radio_on() and wifi_active():
+        return f"{I_WIFI}  {wifi_active()}"
+    if wired_active():
+        return f"{I_ETHERNET}  {wired_active()}"
+    return f"{I_WIFI if wifi_radio_on() else I_WIFI_OFF}  Network"
+
+
+def item(label, command="", group="utility", vis="always"):
+    """(action, group, vis) - group drives the colour, vis drives collapse.
+
+    `vis` is a small descriptor rather than a bool so the generated CSS can be
+    recomputed from a SAVED layout without re-reading the network. That is what
+    lets a collapse toggle avoid touching config.json entirely.
+    """
+    a = {"label": label}
+    if command:
+        a["command"] = command
+    return (a, group, vis)
+
+
+def header_item(label, command=""):
+    return item(f"{I_CHEVRON_R}  {label}", command, "header")
+
+
+def toggle_row(label, active, command, update):
+    return ({"label": label, "type": "toggle", "active": active,
+             "command": command, "update-command": update}, "toggle", "always")
+
+
+def net_menu():
+    rows = []
+    on = wifi_radio_on()
+    rows.append(toggle_row(
+        f"{I_TOGGLE}  Wi-Fi: {'On' if on else 'Off'}", on,
+        f"{SELF} toggle-wifi",
+        "sh -c '[[ $(nmcli radio wifi) == enabled ]] && echo true || echo false'"))
+
+    if not on:
+        # Wi-Fi off -> wired takes over; the wifi list is not built at all
+        wa = wired_active()
+        if wa:
+            uuid = uuid_of(wa)
+            rows.append(item(f"{I_ETHERNET}  {wa}   \u00b7 connected",
+                             f"{SELF} con-down {uuid}" if uuid else "", "wired"))
+        else:
+            wired = saved_wired()
+            rows.append(header_item("Wired"))
+            for uuid, name in wired:
+                rows.append(item(f"{I_ETHERNET}  Connect {name}",
+                                 f"{SELF} con-up {uuid}", "wired"))
+            if not wired:
+                rows.append(item("no wired connection found", "", "header"))
+        rows.append(item(f"{I_SETTINGS}  Network settings", "nm-connection-editor"))
+        return rows
+
+    # --- Wi-Fi is on: wired entries are hidden -----------------------------
+    wifi = wifi_active()
+    if wifi:
+        uuid = uuid_of(wifi)
+        rows.append(item(f"{I_WIFI_CHECK}  {wifi}   \u00b7 connected",
+                         f"{SELF} con-down {uuid}" if uuid else "", "connected"))
+
+    known = saved_wifi()
+    known_names = {n for _u, n in known}
+    others = [(u, n) for u, n in known if n != wifi]
+    in_range = available_wifi()
+    fresh = [(s, sig, b) for s, sig, b in in_range
+             if s not in known_names and s != wifi][:MAX_AVAILABLE]
+
+    # Saved -- header is the collapse toggle, so its label stays static
+    if others:
+        rows.append(header_item(f"Saved \u00b7 {len(others)}", f"{SELF} toggle-saved"))
+        for i, (uuid, name) in enumerate(others):
+            rows.append(item(f"{I_WIFI}  {name}", f"{SELF} con-up {uuid}",
+                             "saved", ["saved", i]))
+
+    # Available -- collapsed by default
+    if fresh:
+        rows.append(header_item(f"Available \u00b7 {len(fresh)}", f"{SELF} toggle-avail"))
+        for i, (ssid, sig, bssid) in enumerate(fresh):
+            rows.append(item(f"{signal_icon(sig)}  {ssid}",
+                             f"{SELF} wifi-connect {bssid}", "available", ["avail", i]))
+    elif not in_range and on:
+        rows.append(item("scanning for networks\u2026", "", "header"))
+
+    # Both overflow rows are always present and have STATIC labels, so the
+    # collapse/expand toggle never changes config.json -- it only rewrites CSS,
+    # which lets the menu stay open (a config reload rebuilds and closes it).
+    rows.append(item(f"{I_CHEVRON_D}  Show all networks", f"{SELF} wifi-more",
+                     "more", "more"))
+    rows.append(item(f"{I_CHEVRON_U}  Show fewer networks", f"{SELF} wifi-more",
+                     "less", "less"))
+
+    rows.append(item(f"{I_SETTINGS}  Network settings", "nm-connection-editor"))
+    return rows
+
+
+def bt_settings_command():
+    for app, cmd in (("blueman-manager", "blueman-manager"),
+                     ("overskride", "overskride"),
+                     ("bluetuith", "ghostty -e bluetuith")):
+        if shutil.which(app):         # no subprocess needed
+            return cmd
+    return "ghostty -e bluetoothctl"
+
+
+def bt_menu():
+    on = bt_on()
+    rows = [toggle_row(
+        f"{I_TOGGLE}  Bluetooth: {'On' if on else 'Off'}", on,
+        f"{SELF} toggle-bt",
+        "sh -c 'bluetoothctl show 2>/dev/null | grep -q Powered && echo true || echo false'")]
+
+    paired, connected = bt_paired(), bt_connected_macs()
+    if paired:
+        rows.append(header_item("Devices"))
+        for mac, name in paired:
+            if mac in connected:
+                rows.append(item(f"{I_BLUETOOTH}  {name}   \u00b7 connected",
+                                 f"{SELF} bt-disconnect {mac}", "connected"))
+            else:
+                rows.append(item(f"   {name}", f"{SELF} bt-connect {mac}", "saved"))
+
+    rows.append(item(f"{I_SETTINGS}  Bluetooth settings", bt_settings_command()))
+    return rows
+
+
+def resolve_vis(vis, st, totals):
+    if vis == "always":
+        return True
+    if vis == "more":
+        return (not st["show_all"]) and totals["overflow"] > 0
+    if vis == "less":
+        return st["show_all"] and totals["overflow"] > 0
+    if isinstance(vis, list) and len(vis) == 2:
+        section, i = vis
+        if section == "saved":
+            return (not st["saved_collapsed"]) and (st["show_all"] or i < SAVED_TOP)
+        if section == "avail":
+            return (not st["avail_collapsed"]) and (st["show_all"] or i < AVAIL_TOP)
+    return True
+
+
+def layout_totals(rows):
+    saved = sum(1 for _a, _g, v in rows
+                if isinstance(v, list) and v[0] == "saved")
+    avail = sum(1 for _a, _g, v in rows
+                if isinstance(v, list) and v[0] == "avail")
+    return {"saved_total": saved, "avail_total": avail,
+            "overflow": max(0, saved - SAVED_TOP) + max(0, avail - AVAIL_TOP)}
+
+
+def group_css(rows, scope, st, totals):
+    """Colour + collapse rules for one dropdown, scoped by its `menu#name` class.
+
+    SwayNC renders every entry as a button, supports no markup, and GTK4 has no
+    `display: none` -- so a collapsed row is made invisible and zero-height
+    (verified: 5 rows 180px -> 108px, exactly the two hidden rows removed).
+    """
+    out = []
+    for idx, (_a, group, vis) in enumerate(rows, start=1):
+        if group == "toggle":
+            continue                  # already styled via .toggle in style.css
+        if not resolve_vis(vis, st, totals):
+            out.append(f"{scope} button:nth-child({idx}) {{"
+                       " opacity:0;min-height:0;min-width:0;padding:0;margin:0;"
+                       "border:none;background:transparent; }")
+            out.append(f"{scope} button:nth-child({idx}) label {{ font-size:0; }}")
+            continue
+        btn, lbl = GROUP_STYLE.get(group, GROUP_STYLE["utility"])
+        out.append(f"{scope} button:nth-child({idx}) {{ {btn} }}")
+        out.append(f"{scope} button:nth-child({idx}) label {{ {lbl} }}")
+    return "\n".join(out)
+
+
+def encode_layout(net_rows, bt_rows):
+    def enc(rows):
+        return [[group, vis] for _a, group, vis in rows]
+    t = layout_totals(net_rows)
+    return {"net": enc(net_rows), "bt": enc(bt_rows), **t}
+
+
+def build_css_block(layout, st):
+    """SwayNC's config is static, so the collapse state lives only in CSS.
+    Rebuilding from the saved layout means a toggle never has to read the
+    network or rewrite config.json -- a config reload would close the menu."""
+    net = [(None, g, v) for g, v in layout["net"]]
+    bt = [(None, g, v) for g, v in layout["bt"]]
+    return "\n".join([CSS_BEGIN,
+                       group_css(net, ".net", st, layout),
+                       group_css(bt, ".bt", st, layout),
+                       CSS_END])
+
+
+def apply_css_only():
+    """Re-emit the generated CSS for the current state. Touches nothing else."""
+    try:
+        with open(LAYOUT_FILE) as f:
+            layout = json.load(f)
+    except Exception:
+        return regenerate()          # no layout yet: do a full pass
+    st = read_state()
+    if write_group_css(build_css_block(layout, st)):
+        sh("swaync-client", "-rs")
+    return 0
+
+
+# --------------------------------------------------------------------------
+# regenerate
+# --------------------------------------------------------------------------
+
+def atomic_write(path, text):
+    d = os.path.dirname(path)
+    fd, tmp = tempfile.mkstemp(dir=d, prefix="." + os.path.basename(path) + ".")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    except Exception:
+        os.unlink(tmp)
+        raise
+
+
+def write_group_css(block):
+    """Replace the marked block inside style.css. GTK ignores @import, so the
+    generated rules have to live in the file SwayNC actually loads."""
+    try:
+        with open(STYLE) as f:
+            css = f.read()
+    except OSError:
+        return False
+
+    if CSS_BEGIN in css:
+        pre = css.split(CSS_BEGIN)[0].rstrip()
+        post = css.split(CSS_END, 1)[1].lstrip() if CSS_END in css else ""
+        new = f"{pre}\n\n{block}\n\n{post}" if post else f"{pre}\n\n{block}\n"
+    else:
+        new = f"{css.rstrip()}\n\n{block}\n"
+
+    if new == css:
+        return False
+    atomic_write(STYLE, new)
+    return True
+
+
+def regenerate():
+    if not os.path.exists(CONFIG):
+        print(f"swaync-net: {CONFIG} not found", file=sys.stderr)
+        return 1
+
+    if wifi_radio_on():
+        maybe_rescan()
+
+    with open(CONFIG) as f:
+        cfg = json.load(f)
+
+    net_rows, bt_rows = net_menu(), bt_menu()
+    menubar = {
+        "menu#net": {"label": net_label(), "position": "left",
+                     "actions": [a for a, _g, _v in net_rows]},
+        "menu#bt": {"label": f"{I_BLUETOOTH if bt_on() else I_BT_OFF}  Bluetooth",
+                    "position": "left",
+                    "actions": [a for a, _g, _v in bt_rows]},
+    }
+
+    # Remember the row layout so a collapse toggle can rebuild the CSS without
+    # re-reading the network (and therefore without touching config.json).
+    layout = encode_layout(net_rows, bt_rows)
+    atomic_write(LAYOUT_FILE, json.dumps(layout) + "\n")
+
+    wc = cfg.setdefault("widget-config", {})
+    if wc.get("menubar") != menubar:
+        wc["menubar"] = menubar
+        atomic_write(CONFIG, json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+        sh("swaync-client", "-R")
+
+    if write_group_css(build_css_block(layout, read_state())):
+        sh("swaync-client", "-rs")
+
+    return 0
+
+
+# --------------------------------------------------------------------------
+# actions
+# --------------------------------------------------------------------------
+
+def main(argv):
+    if len(argv) < 2:
+        return regenerate()
+
+    cmd = argv[1]
+
+    if cmd == "con-up" and len(argv) == 3:
+        sh("nmcli", "con", "up", "uuid", argv[2], timeout=60)
+    elif cmd == "con-down" and len(argv) == 3:
+        sh("nmcli", "con", "down", "uuid", argv[2], timeout=30)
+    elif cmd == "wifi-connect" and len(argv) == 3:
+        sh("nmcli", "device", "wifi", "connect", argv[2], timeout=60)
+    elif cmd == "toggle-wifi":
+        if nm("radio", "wifi").strip() == "enabled":
+            sh("nmcli", "radio", "wifi", "off")
+            ensure_wired()             # mandatory: do not leave the box offline
+        else:
+            sh("nmcli", "radio", "wifi", "on")
+    elif cmd in ("wifi-more", "toggle-saved", "toggle-avail"):
+        # CSS-only: a config reload would rebuild the control centre and close
+        # the open menu, which is exactly what this avoids.
+        toggle_state({"wifi-more": "show_all",
+                      "toggle-saved": "saved_collapsed",
+                      "toggle-avail": "avail_collapsed"}[cmd])
+        return apply_css_only()
+    elif cmd == "toggle-bt":
+        sh("bluetoothctl", "power", "off" if bt_on() else "on")
+    elif cmd == "bt-connect" and len(argv) == 3:
+        sh("bluetoothctl", "connect", argv[2], timeout=30)
+    elif cmd == "bt-disconnect" and len(argv) == 3:
+        sh("bluetoothctl", "disconnect", argv[2], timeout=30)
+    elif cmd == "ensure-wired":
+        ensure_wired()
+    else:
+        print(f"swaync-net: unknown command {argv[1:]!r}", file=sys.stderr)
+        return 2
+
+    _cache.clear()                     # state changed; do not serve stale data
+    regenerate()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

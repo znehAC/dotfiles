@@ -2,14 +2,14 @@
 
 // Core System (Infraestrutura Wayland e D-Bus)
 spawn-at-startup "xwayland-satellite"
-spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "NIRI_SOCKET"
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "NIRI_SOCKET" "DISPLAY"
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 spawn-at-startup "xembedsniproxy"
 spawn-at-startup "swaync"
 
 // Apps Gráficas de Usuário (Persistent Windows)
 spawn-at-startup "zen-browser"
-spawn-at-startup "wezterm" "start" "--class" "btop" "-e" "btop"
+spawn-at-startup "ghostty" "-e" "btop"
 spawn-at-startup "spotify"
 spawn-sh-at-startup "gtk-launch vesktop"
 spawn-at-startup "steam" "-silent"

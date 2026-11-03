@@ -19,3 +19,5 @@
 	new = "#332c2c #a8dadc"
 [url "git@github.com:"]
 	insteadOf = https://github.com/
+[url "https://github.com/"]
+	insteadOf = git@github.com:

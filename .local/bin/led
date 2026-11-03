@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Run the OpenRGB LED tools with their own python env.
+#   led list | design.py --keyboard FF0000 | set_colors.py --ram 3333FF ...
+DIR=/home/cesar/.local/share/openrgb
+case "${1:-}" in
+    ""|-h|--help|list) ls "$DIR"/*.py | xargs -n1 basename; exit 0 ;;
+esac
+tool="$1"; shift
+[ -f "$DIR/$tool" ] || tool="$tool.py"
+exec "$DIR/venv/bin/python" "$DIR/$tool" "$@"

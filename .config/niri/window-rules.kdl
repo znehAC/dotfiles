@@ -18,6 +18,13 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^xdg-desktop-portal-gtk$"#
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 650; }
+}
+
+window-rule {
     match app-id=r#"^(org\.pulseaudio\.pavucontrol|qpwgraph|helvum|blueman-manager|nm-connection-editor)$"#
     open-floating true
     default-column-width { fixed 800; }
@@ -70,6 +77,21 @@ window-rule {
 
 window-rule {
     match app-id="wezterm" title="btop"
+    open-on-workspace "2"
+    open-maximized true
+    open-focused true
+}
+
+window-rule {
+    match app-id=r#"^com\.mitchellh\.ghostty$"#
+    exclude title="btop"
+    open-floating true
+    default-column-width { fixed 1150; }
+    default-window-height { fixed 800; }
+}
+
+window-rule {
+    match app-id=r#"^com\.mitchellh\.ghostty$"# title="btop"
     open-on-workspace "2"
     open-maximized true
     open-focused true

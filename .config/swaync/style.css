@@ -3,23 +3,12 @@
  * -----------------------------------------------------------------------------
  */
 
-/* --- Variables & Palette --- */
-@define-color cc-bg rgba(255, 240, 245, 0.98);      /* Milky Pink Control Center */
-@define-color noti-bg rgba(255, 248, 250, 0.95);    /* Almost white pink Notification */
-@define-color noti-bg-hover rgb(255, 255, 255);     /* Pure white on hover */
-
-/* Text Colors */
-@define-color text-color #4c4f69;                   /* Dark Gray/Blue for readability */
-@define-color text-color-disabled #9ca0b0;
-
-/* Candy Palette */
-@define-color accent-blue #2596be;        
-@define-color accent-cyan #4aa0e3;                  
-@define-color accent-pink #ea76cb;                  
-@define-color accent-purple #8839ef;      
-@define-color accent-light-blue #89b4fa;  
-
-@define-color bubble-radius 20px;
+/* --- Variables & Palette ---------------------------------------------------
+ * Moved to the Bubble Candy design system: the @define-color block and the
+ * :root geometry variables are generated from ~/.config/bubble-candy/tokens.json
+ * and live at the bottom of this file between the bubble-candy:palette markers.
+ * Change a colour THERE (or in tokens.json + `candy.py build`), never here.
+ * ------------------------------------------------------------------------ */
 
 /* --- Base & Resets --- */
 * {
@@ -41,14 +30,14 @@
 .notification-row {
   outline: none;
   margin: 6px 12px;
-  background: transparent !important;
+  background: transparent;
   transition: all 200ms ease;
 }
 
 /* The Notification Bubble */
 .notification {
   padding: 10px;
-  border-radius: @bubble-radius;
+  border-radius: var(--bubble-radius);
   background-color: @noti-bg;
   border: 2px solid @accent-blue; 
   box-shadow: 0 4px 15px rgba(37, 150, 190, 0.15); 
@@ -117,8 +106,8 @@
 }
 
 .close-button:hover {
-  background: @accent-pink;
-  color: white;
+  background: @accent-pink-fill;
+  color: @text-color;
 }
 
 /* * -----------------------------------------------------------------------------
@@ -164,7 +153,7 @@
 .control-center {
   background: @cc-bg;
   border: 2px solid @accent-blue; 
-  border-radius: @bubble-radius;
+  border-radius: var(--bubble-radius);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   margin: 12px;
   padding-bottom: 12px;
@@ -194,8 +183,8 @@
 }
 
 .widget-title > button:hover {
-  background: @accent-pink;
-  color: white;
+  background: @accent-pink-fill;
+  color: @text-color;
 }
 
 /* DND Widget */
@@ -228,50 +217,133 @@
 
 /* * -----------------------------------------------------------------------------
  * MPRIS (Media Player)
+ *
+ * SwayNC 0.12 structure, which is NOT what the old rules here targeted:
+ *
+ *   .widget-mpris
+ *     └ .widget-mpris-player
+ *         ├ .mpris-background   (blurred album art)
+ *         └ .mpris-overlay      (padding + overlay colour)
+ *             ├ .widget-mpris-album-art
+ *             ├ .widget-mpris-title / .widget-mpris-subtitle
+ *             └ buttons
+ *
+ * The stock theme paints .mpris-overlay with rgba(0,0,0,0.55), which fights
+ * this light pink theme and made the title/subtitle hard to read. Overridden
+ * via the documented CSS variables plus explicit rules.
  * -----------------------------------------------------------------------------
  */
 
+:root {
+  --mpris-album-art-overlay: rgba(255, 240, 245, 0.80);
+  --mpris-album-art-icon-size: 88px;
+  --mpris-album-art-shadow: 0 6px 18px rgba(37, 150, 190, 0.22);
+  --mpris-button-hover: rgba(234, 118, 203, 0.16);
+}
+
 .widget-mpris {
-    background-color: rgba(255, 255, 255, 0.4);
-    padding: 12px;
-    margin: 8px 12px;
-    border-radius: @bubble-radius;
-    border: 1px solid @accent-blue;
-    color: @text-color;
-}
-
-.widget-mpris > box,
-.widget-mpris > box > box {
-    background: transparent !important;
-}
-
-.widget-mpris-player {
-    background: transparent !important;
+    background: transparent;
     padding: 0;
     margin: 0;
 }
 
-.widget-mpris-title {
+.widget-mpris .widget-mpris-player {
+    margin: 12px;
+    border-radius: var(--bubble-radius);
+    border: 1px solid @accent-blue;
+    box-shadow: 0 6px 18px rgba(37, 150, 190, 0.18);
+}
+
+.widget-mpris .widget-mpris-player .mpris-background {
+    filter: blur(14px) saturate(1.4);
+    opacity: 0.55;
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay {
+    padding: 16px;
+    background-color: var(--mpris-album-art-overlay);
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-album-art {
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(37, 150, 190, 0.25);
+    -gtk-icon-size: var(--mpris-album-art-icon-size);
+}
+
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-title {
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: @accent-blue;
 }
 
-.widget-mpris-subtitle {
-    font-size: 0.9rem;
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-subtitle {
+    font-size: 0.95rem;
     color: @text-color;
 }
 
-.widget-mpris button {
+.widget-mpris .widget-mpris-player .mpris-overlay button {
     background: transparent;
     color: @accent-purple;
     border-radius: 100%;
     transition: all 200ms ease;
 }
 
-.widget-mpris button:hover {
-    background: rgba(136, 57, 239, 0.1);
-    color: @accent-purple;
+.widget-mpris .widget-mpris-player .mpris-overlay button:hover {
+    background: var(--mpris-button-hover);
+}
+
+/* * -----------------------------------------------------------------------------
+ * BUTTONS GRID — toggle state
+ *
+ * A button with `"type": "toggle"` in config.json gains `.toggle:checked`
+ * while active, so on/off state is styled natively here. This is why no
+ * helper like swaync-widgets is needed for state colouring.
+ * -----------------------------------------------------------------------------
+ */
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked {
+    background: linear-gradient(135deg, @accent-cyan, @accent-blue-fill);
+    color: @text-color;
+    border-color: @accent-blue;
+    box-shadow: 0 4px 12px alpha(@accent-blue, 0.30);
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked:hover {
+    background: linear-gradient(135deg, @accent-blue-fill, @accent-pink-fill);
+}
+
+/* * -----------------------------------------------------------------------------
+ * CALENDAR
+ *
+ * Only rendered by SwayNC builds that include the `calendar` widget. Older
+ * builds log `Could not find widget: "calendar"!` and silently skip it.
+ * The inner node names below are the documented ones; verify with
+ * `GTK_DEBUG=interactive swaync` once the widget actually appears.
+ * -----------------------------------------------------------------------------
+ */
+
+.widget-calendar {
+    background: rgba(255, 255, 255, 0.6);
+    margin: 8px 12px;
+    padding: 12px;
+    border-radius: var(--bubble-radius);
+    border: 1px solid rgba(137, 180, 250, 0.3);
+}
+
+.widget-calendar .calendar-day-label,
+.widget-calendar .calendar-date-label {
+    color: @accent-blue;
+}
+
+.widget-calendar calendar {
+    background: transparent;
+    color: @text-color;
+}
+
+.widget-calendar calendar:selected {
+    background: @accent-blue-fill;
+    color: @text-color;
+    border-radius: 8px;
 }
 
 /* Sliders */
@@ -296,7 +368,7 @@ scale trough {
 }
 
 scale trough highlight {
-  background: linear-gradient(90deg, @accent-cyan, @accent-blue);
+  background: linear-gradient(90deg, @accent-cyan, @accent-blue-fill);
   border-radius: 12px;
 }
 
@@ -315,7 +387,7 @@ scale slider {
   font-size: 1.4rem;
   padding: 8px;
   margin: 8px 12px;
-  border-radius: @bubble-radius;
+  border-radius: var(--bubble-radius);
   background: rgba(255,255,255,0.3);
   border: 1px solid rgba(137, 180, 250, 0.3);
 }
@@ -333,6 +405,154 @@ scale slider {
 
 .widget-buttons-grid > flowbox > flowboxchild > button:hover {
   background: @accent-cyan;
-  color: white;
+  color: @text-color;
   border-color: @accent-blue;
 }
+
+/* * -----------------------------------------------------------------------------
+ * MENUBAR — the network / bluetooth dropdowns at the top of the control center
+ *
+ * Class names taken from SwayNC's own default theme:
+ *   .widget-menubar > .menu-button-bar > .widget-menubar-container button   (the row)
+ *   .widget-menubar > revealer * button                                     (dropdown items)
+ * `menu#net` in config.json also adds the CSS class `.net` to its dropdown.
+ * -----------------------------------------------------------------------------
+ */
+
+.widget-menubar > .menu-button-bar {
+    margin: 6px 12px 0 12px;
+}
+
+.widget-menubar > .menu-button-bar > .widget-menubar-container button {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(137, 180, 250, 0.3);
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 0 4px;
+    color: @text-color;
+    transition: all 200ms ease;
+}
+
+.widget-menubar > .menu-button-bar > .widget-menubar-container button:hover {
+    background: @accent-cyan;
+    color: @text-color;
+}
+
+/* the expanded dropdown */
+.widget-menubar > revealer button {
+    background: white;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    margin: 3px 8px;
+    padding: 7px 12px;
+    color: @text-color;
+    transition: all 150ms ease;
+}
+
+.widget-menubar > revealer button:hover {
+    background: @accent-cyan;
+    color: @text-color;
+}
+
+/* an active toggle inside a menu (e.g. Wi-Fi: On) */
+.widget-menubar > revealer button.toggle:checked {
+    background: linear-gradient(135deg, @accent-cyan, @accent-blue-fill);
+    color: @text-color;
+    border-color: @accent-blue;
+}
+
+/* * -----------------------------------------------------------------------------
+ * MENUBAR — the toggle rows
+ *
+ * SwayNC renders every dropdown entry as a button; there is no switch or label
+ * widget for menus. `type: "toggle"` is the only distinction available, and it
+ * yields the `.toggle` / `.toggle:checked` classes — so the Wi-Fi and Bluetooth
+ * rows are styled as switches here, and plain list items stay list-like.
+ * Section headers are text rows ("── Saved ──") because they cannot be
+ * addressed by CSS otherwise.
+ * -----------------------------------------------------------------------------
+ */
+
+.widget-menubar > revealer button.toggle {
+    background: rgba(137, 180, 250, 0.16);
+    border: 1px solid rgba(137, 180, 250, 0.35);
+    border-radius: 12px;
+    margin: 6px 8px 8px 8px;
+    padding: 10px 12px;
+    color: @text-color;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.widget-menubar > revealer button.toggle:checked {
+    background: linear-gradient(135deg, @accent-cyan, @accent-blue-fill);
+    color: @text-color;
+    border-color: @accent-blue;
+    box-shadow: 0 4px 12px alpha(@accent-blue, 0.30);
+}
+
+/* >>> swaync-net: generated group colours - do not edit between markers <<< */
+.net button:nth-child(2) { background: alpha(@grp-active, 0.16);border-color: alpha(@grp-active, 0.38); }
+.net button:nth-child(2) label { color: @grp-active;font-weight:700; }
+.net button:nth-child(3) { background: transparent;border-color: transparent; }
+.net button:nth-child(3) label { color: @grp-muted;font-size:0.8rem;font-weight:700; }
+.net button:nth-child(4) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(4) label { font-size:0; }
+.net button:nth-child(5) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(5) label { font-size:0; }
+.net button:nth-child(6) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(6) label { font-size:0; }
+.net button:nth-child(7) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(7) label { font-size:0; }
+.net button:nth-child(8) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(8) label { font-size:0; }
+.net button:nth-child(9) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(9) label { font-size:0; }
+.net button:nth-child(10) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(10) label { font-size:0; }
+.net button:nth-child(11) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(11) label { font-size:0; }
+.net button:nth-child(12) { opacity:0;min-height:0;min-width:0;padding:0;margin:0;border:none;background:transparent; }
+.net button:nth-child(12) label { font-size:0; }
+.net button:nth-child(13) { background: transparent;border-color: transparent; }
+.net button:nth-child(13) label { color: @grp-muted; }
+.net button:nth-child(14) { background: transparent;border-color: transparent; }
+.net button:nth-child(14) label { color: @grp-muted; }
+.bt button:nth-child(2) { background: transparent;border-color: transparent; }
+.bt button:nth-child(2) label { color: @grp-muted;font-size:0.8rem;font-weight:700; }
+.bt button:nth-child(3) { background: alpha(@grp-saved, 0.10);border-color: alpha(@grp-saved, 0.22); }
+.bt button:nth-child(3) label { color: @grp-saved;font-weight:600; }
+.bt button:nth-child(4) { background: alpha(@grp-saved, 0.10);border-color: alpha(@grp-saved, 0.22); }
+.bt button:nth-child(4) label { color: @grp-saved;font-weight:600; }
+.bt button:nth-child(5) { background: transparent;border-color: transparent; }
+.bt button:nth-child(5) label { color: @grp-muted; }
+/* <<< swaync-net: generated group colours <<< */
+
+/* >>> bubble-candy:palette >>> */
+/* Palette comes from ~/.config/bubble-candy/tokens.json. */
+@define-color cc-bg rgba(255, 240, 245, 0.98);
+@define-color noti-bg rgba(255, 248, 250, 0.95);
+@define-color noti-bg-hover #ffffff;
+@define-color text-color #332c2c;
+@define-color text-color-disabled #a8979b;
+@define-color accent-blue #445f83;
+@define-color accent-blue-fill #a6c8f5;
+@define-color accent-cyan #a6c8f5;
+@define-color accent-pink #82436c;
+@define-color accent-pink-fill #f2a3d5;
+@define-color accent-purple #5f4c88;
+@define-color accent-light-blue #c4dbfa;
+@define-color grp-active #445f83;
+@define-color grp-active-2 #a6c8f5;
+@define-color grp-wired #8ccfc9;
+@define-color grp-saved #5f4c88;
+@define-color grp-available #f2a3d5;
+@define-color grp-muted #a8979b;
+
+/* Geometry, so SwayNC agrees with Quickshell and GTK. */
+:root {
+  --bubble-radius: 22px;
+  --card-radius: 14px;
+  --motion: 200ms;
+}
+/* <<< bubble-candy:palette <<< */

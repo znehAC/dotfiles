@@ -127,3 +127,4 @@ fi
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
 
 fastfetch
+export PATH="$HOME/.local/bin:$PATH"
